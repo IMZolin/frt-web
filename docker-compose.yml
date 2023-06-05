@@ -1,0 +1,28 @@
+version: "3.8"
+
+services:
+  backend:
+    restart: always
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: backend
+    volumes:
+      - ./backend/:/usr/src/blog/
+    ports:
+      - 8000:8000
+    env_file:
+      - backend/.env
+    
+  frontend:
+    restart: always
+    build:
+      context: ./frontend/
+      dockerfile: Dockerfile
+    container_name: frontend
+    ports:
+      - 3000:3000
+    env_file:
+      - ./frontend/.env
+    volumes:
+      - ./frontend/:/usr/src/frontend/

@@ -1,0 +1,54 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 30px;
+}
+
+.header__wrapper {
+  display: flex;
+  justify-content: space-between;
+  box-sizing: border-box;
+  min-height: 30px;
+  min-width: fit-content;
+  gap: 15px;
+  align-items: center;
+  padding: 10px 0;
+}
+
+.header__logo {
+  display: flex;
+  min-height: 30px;
+}
+
+.material-icons {
+  font-size: 24px;
+}
+
+.message {
+  fill: #019c9f;
+}
+
+.post {
+  fill: #f47261;
+}
+
+.entry {
+  fill: #e8a87c;
+}
+
+.love {
+  fill: #f48fb1;
+}
+
+.avatar {
+  cursor: pointer;
+}
+
+.signout {
+  height: 35px;
+}
+
+.logo-image{
+  width: 50%;
+  cursor: pointer;
+}

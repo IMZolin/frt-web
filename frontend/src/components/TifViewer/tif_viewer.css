@@ -1,0 +1,20 @@
+.tif-viewer-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex: 1;
+}
+
+.viewer-label {
+  font-size: 20px;
+  font-weight: bold;
+  color: #333;
+}
+
+.tif-viewer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+}
