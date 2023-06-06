@@ -4,7 +4,7 @@
   - [Description](#description)
   - [Get started](#get-started)
   - [Project structure](#project-structure)
-  - [Postman workspace](#postman-workspace)
+  - [Useful materials](#useful-materials)
 
 ## Description
 
@@ -40,7 +40,7 @@ npm start
     └───README.md # doc
 ```
 
-## Postman workspace
+## Useful materials
 
 1. Notion report(ru): <https://www.notion.so/1d4cb5d37f1743babc89a2bea9fbc829?pvs=4>
 2. Board in Miro(ru): <https://miro.com/app/board/uXjVMFFZCSg=/?share_link_id=999021127197>
