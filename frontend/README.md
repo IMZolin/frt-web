@@ -1,12 +1,14 @@
 # Frontend for frt-23-3d services and applications
-* [Description](#description)
-* [Get started](#get-started)
-* [Project structure](#project-structure)
+
+- [Frontend for frt-23-3d services and applications](#frontend-for-frt-23-3d-services-and-applications)
+  - [Description](#description)
+  - [Get started](#get-started)
+  - [Project structure](#project-structure)
 
 ## Description
 
-
 ## Get started
+
 ```bash
 git clone https://github.com/IMZolin/frt23-3d-front.git <your project name>
 cd <your project name>
@@ -16,6 +18,7 @@ npm start
 ```
 
 ## Project structure
+
 ```bash
 ├───node_modules # libs
 ├───public # assets and configs
@@ -33,4 +36,3 @@ npm start
 ├───package-lock.json # configs
 └───README.md # doc
 ```
-
