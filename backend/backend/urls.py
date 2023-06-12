@@ -20,6 +20,8 @@ from api import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/psf/load_image', views.load_image, name='load_image'),
-    path('api/psf/hello_world/', views.hello_world, name='hello_world'),
+    path('api/psf/load_image/', views.load_image, name='load_image'),
+    path('api/deconv/load_image/', views.load_image, name='load_image'),
+    path('api/network/load_image/', views.load_image, name='load_image'),
+    path('api/hello_world/', views.hello_world, name='hello_world'),
 ]

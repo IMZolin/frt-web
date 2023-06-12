@@ -2,3 +2,5 @@ djangorestframework
 django
 Pillow
 numpy
+tifffile
+requests==2.26.0

@@ -3,7 +3,7 @@ version: "3.8"
 services:
   backend:
     restart: always
-    build: 
+    build:
       context: ./backend
       dockerfile: Dockerfile
     container_name: backend
@@ -12,7 +12,7 @@ services:
     ports:
       - 8000:8000
     env_file:
-      - backend/.env
+      - ./backend/.env
     
   frontend:
     restart: always
@@ -26,3 +26,13 @@ services:
       - ./frontend/.env
     volumes:
       - ./frontend/:/usr/src/frontend/
+    
+  nginx:
+    restart: always
+    build: ./nginx
+    container_name: nginx
+    links:
+      - backend
+      - frontend        
+    ports:
+      - '80:80'
