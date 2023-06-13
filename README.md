@@ -72,22 +72,23 @@ docker-compose.prod stop
 
 ```bash
 ├───backend
-└───frontend 
-    ├───node_modules # libs
-    ├───public # assets and configs
-    ├───src # code
-    │   ├───app # App.js with Routs and store(axios)
-    │   ├───components  # separate independent parts of pages
-    │   ├───dev # to view and work on the components
-    │   ├───hooks  # support functions 
-    │   ├───pages # parts of app(e.x.: main page)
-    │   └───index.js # get results
-    ├───.gitignore
-    ├───.prettierignore
-    ├───.prettierrc
-    ├───package.json # configs 
-    ├───package-lock.json # configs
-    └───README.md # doc
+│   ├───api # app: db migrations, models, views(requests)
+│   ├───backend # settings, prod execut. file(wsgi), urls
+│   ├───engine # image processing functions
+│   ├───gunicorn.conf.py # interface (WSGI) HTTP server
+│   └───manage.py # executable(dev) file
+├───frontend 
+│   ├───node_modules # libs
+│   ├───public # assets and configs
+│   └───src # code
+│       ├───app # App.js with Routs and store(axios)
+│       ├───components  # separate indep. parts of pages
+│       ├───dev # to view and work on the components
+│       ├───hooks  # support functions 
+│       ├───pages # parts of app(e.x.: main page)
+│       └───index.js # get results
+├───nginx # nginx config
+└───systemd # gunicorn config
 ```
 
 ## Useful materials
