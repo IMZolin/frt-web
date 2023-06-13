@@ -1,13 +1,14 @@
 .menu-container {
   max-width: 600px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 15px;
   background-color: #f5f5f5;
   border-radius: 5px;
   display: flex;
   flex-direction: column;
   margin-bottom: 5px;
   text-align: center;
+  /* padding: 20px; */
 }
 
 .menu-header {
@@ -18,16 +19,11 @@
 }
 
 .menu-options {
-  display: block;
+  display: flex;
   justify-content: center;
-  margin-bottom: 10px; /* Add a 10px bottom margin */
-  text-decoration: none;
+  margin-bottom: 20px;
 }
 
-.menu-options button {
+.menu-options + .menu-options {
   margin-top: 10px;
-}
-
-.menu-options:last-child {
-  margin-bottom: 0;
 }
