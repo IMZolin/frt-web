@@ -1,0 +1,46 @@
+version: "3.8"
+
+services:
+  backend:
+    restart: always
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.prod
+    container_name: backend
+    volumes:
+      - ./backend/:/usr/src/blog/
+    ports:
+      - 8000:8000
+    env_file:
+      - ./backend/.env
+    depends_on:
+      - redis
+
+  frontend:
+    restart: always
+    build:
+      context: ./frontend/
+      dockerfile: Dockerfile
+    container_name: frontend
+    ports:
+      - 3000:3000
+    env_file:
+      - ./frontend/.env
+    volumes:
+      - ./frontend/:/usr/src/frontend/
+
+  nginx:
+    restart: always
+    build: ./nginx
+    container_name: nginx
+    depends_on:
+      - backend
+      - frontend
+    ports:
+      - '1337:80'
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - '6379:6379'

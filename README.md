@@ -3,19 +3,69 @@
 - [PSF interface service](#psf-interface-service)
   - [Description](#description)
   - [Get started](#get-started)
+    - [Development](#development)
+      - [Local settings](#local-settings)
+      - [Docker](#docker)
+    - [Production](#production)
+      - [Local settings](#local-settings-1)
+      - [Docker](#docker-1)
   - [Project structure](#project-structure)
   - [Useful materials](#useful-materials)
 
 ## Description
+
+`About`: User-friendly interface for interacting with the backend of PSF applications (for processing medical images).
+
+`Idea`: To make a website containing steppers as a way to interact with the client side with the server side. Also make it possible to authorize users.
+
+`Technologies`: ReactJS, Django, Docker, Redis, Nginx
 
 ## Get started
 
 ```bash
 git clone https://github.com/IMZolin/frt23-3d-interface.git <your project name>
 cd <your project name>
+
+# Frontend set up
+cd frontend
 npm install 
 npm install --force # (if prev step doesn't work) 
 npm start
+cd ..
+```
+
+### Development
+
+#### Local settings
+
+```bash
+cd backend
+./install.sh
+```
+
+#### Docker
+
+```bash
+docker-compose build
+docker-compose up -d
+docker-compose stop
+```
+
+### Production
+
+#### Local settings
+
+```bash
+cd backend
+./install_prod.sh
+```
+
+#### Docker
+
+```bash
+docker-compose.prod build
+docker-compose.prod up -d
+docker-compose.prod stop
 ```
 
 ## Project structure
