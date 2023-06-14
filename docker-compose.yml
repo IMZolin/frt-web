@@ -5,10 +5,11 @@ services:
     restart: always
     build:
       context: ./backend
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.prod
     container_name: backend
     volumes:
       - ./backend/:/usr/src/blog/
+      - ./logs:/app/logs  
     ports:
       - 8000:8000
     env_file:
@@ -37,7 +38,7 @@ services:
       - backend
       - frontend        
     ports:
-      - '80:80'
+      - '1337:80'
 
   redis:
     image: redis:latest
