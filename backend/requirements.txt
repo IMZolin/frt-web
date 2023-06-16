@@ -7,3 +7,7 @@ django-redis~=5.2.0
 pybase64~=1.2.3
 requests==2.26.0
 gunicorn
+tensorflow~=2.12.0
+matplotlib~=3.7.1
+keras~=2.12.0
+PyYAML~=6.0
