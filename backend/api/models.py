@@ -49,13 +49,18 @@ class DeconvolutionParameters:
 
 
 class CNNParameters:
-    def __init__(self, maximize_intensity = False, gaussian_blur = 0, deconv_param = None):
+    def __init__(self, start_image=None, maximize_intensity=False, gaussian_blur=0):
+        self.start_image = start_image
         self.maximize_intensity = maximize_intensity
         self.gaussian_blur = gaussian_blur
         self.result = None
-    
+
+    def set_results(self, result):
+        self.result = result
+
     def to_json(self):
         return {
+            "start_image": self.start_image,
             "maximize_intensity": self.maximize_intensity,
             "gaussian_blur": self.gaussian_blur,
             "result": self.result

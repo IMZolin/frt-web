@@ -7,6 +7,8 @@ from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from api.models import Image, PSFParameters, DeconvolutionParameters, CNNParameters
 from django.core.cache import cache
+
+from engine.cnn_engine import process_cnn
 # Create your views here.
 
 @csrf_exempt
@@ -100,9 +102,12 @@ def cnn_processing(request):
     if request.method == 'POST':
         maximize_intensity = request.POST.get('maximize_intensity')
         gaussian_blur = request.POST.get('gaussian_blur')
-        cnn_param = CNNParameters(maximize_intensity=maximize_intensity, gaussian_blur=gaussian_blur)
 
         if maximize_intensity or gaussian_blur:
+            cached_object = cache.get('start_image')
+            cnn_param = CNNParameters(start_image=cached_object, maximize_intensity=maximize_intensity, gaussian_blur=gaussian_blur)
+            processed_image = process_cnn(cnn_param)
+            cnn_param.set_results(processed_image)
             response_data = {
                 'message': 'CNN parameters received successfully',
                 'cnn_parameters': cnn_param.to_json(),
