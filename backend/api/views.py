@@ -1,31 +1,25 @@
 from django.shortcuts import render
-import numpy as np
-import base64
 from PIL import Image
 from django.http import JsonResponse
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
-from api.models import Image, PSFParameters, DeconvolutionParameters, CNNParameters
+from api.models import ImageParameters, PSFParameters, DeconvolutionParameters, CNNParameters
 from django.core.cache import cache
 
-from engine.cnn_engine import process_cnn
+from engine.cnn_engine import process_cnn, process_deconv, process_psf
 # Create your views here.
 
 @csrf_exempt
 def load_image(request):
     if request.method == 'POST' and request.FILES.get('file'):
         file = request.FILES['file']
-        image = Image(file_name=file.name, data=file.read())
+        image = Image.open(file)
+        image_parameters = ImageParameters(file_name=file.name, data=image)
         cache_key = 'start_image'
-        cache_object = {
-            'file_name': image.file_name,
-            'data': base64.b64encode(image.data).decode('utf-8')
-        }
-        cache.set(cache_key, cache_object)
+        cache.set(cache_key, image_parameters)
         response_data = {
             'message': 'Image loaded successfully',
-            'image': image.to_json(),
-            'file_size': str(len(image.data)) + ' bytes',
+            'image': image_parameters.to_json(),
             # Include any other relevant data or results
         }
         return JsonResponse(response_data)
@@ -50,6 +44,8 @@ def psf_processing(request):
             cache_key = 'psf_param'
             cache_object = psf_param
             cache.set(cache_key, cache_object)
+            processed_image = process_psf(psf_param)
+            psf_param.set_result(processed_image)
             response_data = {
                 'message': 'PSF parameters received successfully',
                 'psf_parameters': psf_param.to_json(),
@@ -79,6 +75,8 @@ def deconv_processing(request):
             cache_key = 'deconv_param'
             cache_object = deconv_param
             cache.set(cache_key, cache_object)
+            processed_image = process_deconv(deconv_param)
+            deconv_param.set_result(processed_image)
             response_data = {
                 'message': 'Deconvolution parameters received successfully',
                 'deconv_param': deconv_param.to_json(),
@@ -107,7 +105,7 @@ def cnn_processing(request):
             cached_object = cache.get('start_image')
             cnn_param = CNNParameters(start_image=cached_object, maximize_intensity=maximize_intensity, gaussian_blur=gaussian_blur)
             processed_image = process_cnn(cnn_param)
-            cnn_param.set_results(processed_image)
+            cnn_param.set_result(processed_image)
             response_data = {
                 'message': 'CNN parameters received successfully',
                 'cnn_parameters': cnn_param.to_json(),
