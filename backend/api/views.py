@@ -6,7 +6,7 @@ from django.views.decorators.csrf import csrf_exempt
 from api.models import ImageParameters, PSFParameters, DeconvolutionParameters, CNNParameters
 from django.core.cache import cache
 
-from engine.cnn_engine import process_cnn, process_deconv, process_psf
+from engine.main import process_cnn, process_deconv, process_psf
 # Create your views here.
 
 @csrf_exempt
@@ -68,21 +68,26 @@ def psf_processing(request):
 def deconv_processing(request):
     if request.method == 'POST':
         iter_num = request.POST.get('iter_num')
-        
         if iter_num:
             psf_param = cache.get('psf_param')
-            deconv_param = DeconvolutionParameters(iter_num=iter_num, psf_param=psf_param)
-            cache_key = 'deconv_param'
-            cache_object = deconv_param
-            cache.set(cache_key, cache_object)
-            processed_image = process_deconv(deconv_param)
-            deconv_param.set_result(processed_image)
-            response_data = {
-                'message': 'Deconvolution parameters received successfully',
-                'deconv_param': deconv_param.to_json(),
-                # Include any other relevant data or results
+            if psf_param:   
+                deconv_param = DeconvolutionParameters(iter_num=iter_num, psf_param=psf_param)
+                cache_key = 'deconv_param'
+                cache_object = deconv_param
+                cache.set(cache_key, cache_object)
+                processed_image = process_deconv(deconv_param)
+                deconv_param.set_result(processed_image)
+                response_data = {
+                    'message': 'Deconvolution parameters received successfully',
+                    'deconv_param': deconv_param.to_json(),
+                    # Include any other relevant data or results
+                }
+                return JsonResponse(response_data)
+            else:
+                error_response = {
+                'error': 'Invalid request. First you need to run PSF'
             }
-            return JsonResponse(response_data)
+            return JsonResponse(error_response, status=400)
         else:
             error_response = {
                 'error': 'Invalid request. Please provide any Deconvolution parameters'
@@ -90,7 +95,7 @@ def deconv_processing(request):
             return JsonResponse(error_response, status=400)
     
     error_response = {
-        'error': 'Invalid request. Please make a POST request with all PSF parameters'
+        'error': 'Invalid request. Please make a POST request with all Deconvolution parameters'
     }
     return JsonResponse(error_response, status=400)
 
