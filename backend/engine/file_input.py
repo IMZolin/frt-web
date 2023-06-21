@@ -5,20 +5,19 @@ import tifffile as tff          #  https://pypi.org/project/tifffile/
 
 def ReadTiffStackFile(fileName):
     """Function ReadTiffStackFile() reads tiff stack from file and return np.array"""
-    print("Loading Image from tiff stack file..... ")
     try:
         image_tiff = Image.open(fileName)
         ncols, nrows = image_tiff.size
-        nlayers =  image_tiff.n_frames
-        imgArray = np.ndarray([nlayers,nrows,ncols])
+        nlayers = image_tiff.n_frames
+        imgArray = np.ndarray([nlayers, nrows, ncols])
         for i in range(nlayers):
             image_tiff.seek(i)
-            imgArray[i,:,:] = np.array(image_tiff)
-        print("Done!")
-        return imgArray
+            imgArray[i, :, :] = np.array(image_tiff)
+        return ncols, nrows, nlayers, imgArray
     except FileNotFoundError:
         print("ReadTiffStackFile: Error. File not found!")
-        return 0
+        return 0, 0, 0, np.array([])  # Return default values in case of an error
+
 
 def ReadTiffMultFiles(fileNameList):
     """Function ReadTiffStackFile() reads tiff stack from file and return np.array"""

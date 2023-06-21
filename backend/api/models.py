@@ -2,16 +2,33 @@ from django.db import models
 import base64
 from io import BytesIO
 
-class ImageParameters:
-    def __init__(self, file_name = None, data = None):
+
+class ImageParams:
+    def __init__(self, ncols, nrows, nlayers, img_array = None):
+        self.ncols = ncols
+        self.nrows = nrows
+        self.nlayers = nlayers
+        self.img_array = img_array
+
+    def to_json(self):
+        return {
+            'ncols': self.ncols,
+            'nrows': self.nrows,
+            'nlayers': self.nlayers,
+            'img_array': self.img_array.tolist(),
+        }
+
+class ImageWrapper:
+    def __init__(self, file_name = None, data = None, data_view = None):
         self.file_name = file_name
         self.data = data
-        self.data_view = self._image_to_base64(self.data)
+        self.data_view = data_view
     
     def to_json(self):
         return {
             'file_name': self.file_name,
-            'data': self.data_view,
+            'data': self.data.to_json() if self.data else None,
+            'data_view': self.data_view,
         }
     
     @staticmethod
@@ -22,7 +39,7 @@ class ImageParameters:
         return image_base64
     
     
-class PSFParameters:
+class PSFParams:
     def __init__(self, start_image=None, bead_size = 0, resolution_xy = 0, resolution_z = 0, iter_num = 0, result = None):
         self.start_image=start_image
         self.bead_size = bead_size
@@ -45,7 +62,7 @@ class PSFParameters:
         }
 
 
-class DeconvolutionParameters:
+class DeconvParams:
     def __init__(self, psf_param = None, iter_num = 0, result = None):
         self.psf_param = psf_param
         self.iter_num = iter_num
@@ -62,7 +79,7 @@ class DeconvolutionParameters:
         }
 
 
-class CNNParameters:
+class CNNParams:
     def __init__(self, start_image=None, maximize_intensity=False, gaussian_blur=0):
         self.start_image = start_image
         self.maximize_intensity = maximize_intensity

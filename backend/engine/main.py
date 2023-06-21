@@ -1,7 +1,7 @@
-from api.models import CNNParameters, DeconvolutionParameters, PSFParameters
+from api.models import CNNParams, DeconvParams, PSFParams
 
 
-def process_psf(psf_param: PSFParameters):
+def process_psf(psf_param: PSFParams):
     image = psf_param.start_image
     processed_image = image
     # Process the image as needed
@@ -10,7 +10,7 @@ def process_psf(psf_param: PSFParameters):
     return processed_image
 
 
-def process_deconv(deconv_param: DeconvolutionParameters):
+def process_deconv(deconv_param: DeconvParams):
     image = deconv_param.psf_param.start_image
     processed_image = image
     # Process the image as needed
@@ -19,7 +19,7 @@ def process_deconv(deconv_param: DeconvolutionParameters):
     return processed_image
 
 
-def process_cnn(cnn_param: CNNParameters):
+def process_cnn(cnn_param: CNNParams):
     image = cnn_param.start_image
     processed_image = image
     # Process the image as needed
