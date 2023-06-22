@@ -15,8 +15,8 @@ const App = () => {
         <>
             <Header />
             <Routes>
-                <Route path="/main" element={<MainPage />} />
-                <Route path="/" element={<LoginPage />} />
+                <Route path="/" element={<MainPage />} />
+                <Route path="/login" element={<LoginPage />} />
                 <Route path="/signup" element={<SignupPage />} />
                 <Route path="/profile" element={<PersonalPage />} />
                 <Route path="/favourite" element={<FavouritePage />} />

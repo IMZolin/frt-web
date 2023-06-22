@@ -47,7 +47,7 @@ const Header = () => {
   return (
     <>
       <div className="header">
-        <div className="header__logo" onClick={() => navigate('/main')}>
+        <div className="header__logo" onClick={() => navigate('/')}>
           <img src={LogoImage} alt="Logo" className='logo-image'/>
         </div>
         <div className="header__wrapper">
