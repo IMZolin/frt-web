@@ -5,10 +5,13 @@ from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from api.models import ImageParams, ImageWrapper, PSFParams, DeconvParams, CNNParams
 from django.core.cache import cache
+import logging
 
 from engine.file_input import ReadTiffStackFile, SaveTiffStack
 from engine.main import process_cnn, process_deconv, process_psf
 # Create your views here.
+
+logger = logging.getLogger(__name__)
 
 @csrf_exempt
 def load_image(request):
@@ -25,13 +28,20 @@ def load_image(request):
             'image': image_wrapper.to_json(),
             # Include any other relevant data or results
         }
-        return JsonResponse(response_data)
-    
+        response = JsonResponse(response_data)
+        response["Access-Control-Allow-Origin"] = "*"  # Allow requests from any origin
+        response["Access-Control-Allow-Methods"] = "POST"  # Allow only POST requests
+        logger.info('Response data: %s', response_data['message'])  # Log response_data
+        return response
+
     error_response = {
         'error': 'Invalid request. Please make a POST request with a file.'
     }
-    return JsonResponse(error_response, status=400)
-
+    response = JsonResponse(error_response, status=400)
+    response["Access-Control-Allow-Origin"] = "*"  # Allow requests from any origin
+    response["Access-Control-Allow-Methods"] = "POST"  # Allow only POST requests
+    logger.info('Error response: %s', error_response['error'])  # Log error_response
+    return response
 
 @csrf_exempt
 def psf_processing(request):

@@ -39,19 +39,22 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'corsheaders',
     'api'
 ]
 
 MIDDLEWARE = [
-    'backend.middleware.RequestLoggingMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware'
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware'
 ]
+
+CORS_ORIGIN_ALLOW_ALL = True
 
 ROOT_URLCONF = 'backend.urls'
 
@@ -73,7 +76,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'backend.wsgi.application'
 
-# Create the 'logs' directory if it doesn't exist
 LOGS_DIR = os.path.join(BASE_DIR, 'logs')
 os.makedirs(LOGS_DIR, exist_ok=True)
 
@@ -85,6 +87,7 @@ LOGGING = {
         'console': {
             'class': 'logging.StreamHandler',
             'level': 'INFO',
+            'formatter': 'verbose',
         },
         'file': {
             'class': 'logging.FileHandler',
@@ -100,16 +103,14 @@ LOGGING = {
         },
     },
     'root': {
-        'handlers': ['file'],
+        'handlers': ['file', 'console'],
         'level': 'DEBUG',
     },
     'loggers': {
-        'django': {
-            'handlers': ['console'],
-            'level': 'DEBUG',
-            'propagate': True,
+        'matplotlib': {
+            'level': 'WARNING',
         },
-    },
+    }
 }
 
 # Database
@@ -177,6 +178,14 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
+
+REACT_APP_DIR = os.path.join(BASE_DIR, 'frontend/build')
+
+STATICFILES_DIRS = [
+    REACT_APP_DIR,
+]
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 STATIC_URL = 'static/'
 
