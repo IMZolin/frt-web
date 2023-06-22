@@ -9,7 +9,7 @@ const StepperFRT = ({ name, stepContent, steps, handleNextStep, handlePrevStep, 
 
   const handleNext = async () => {
     if (activeStep === 0) {
-      const formData = new FormData();
+      let formData = new FormData();
       formData.append('file', files[0]);
 
       try {

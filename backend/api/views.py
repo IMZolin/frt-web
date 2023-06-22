@@ -33,7 +33,7 @@ def load_image(request):
         response["Access-Control-Allow-Methods"] = "POST"  # Allow only POST requests
         logger.info('Response data: %s', response_data['message'])  # Log response_data
         return response
-
+    
     error_response = {
         'error': 'Invalid request. Please make a POST request with a file.'
     }
