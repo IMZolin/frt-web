@@ -4,9 +4,9 @@ import tkinter.ttk as ttk
 
 import numpy as np
 
-from BigImageManager import BigImageManager
-from DeblurCNNModel2D import DeblurCNNModel2D
-from DeblurCNNModelMini3D import DeblurCNNModelMini3D
+from engine.BigImageManager import BigImageManager
+from engine.DeblurCNNModel2D import DeblurCNNModel2D
+from engine.DeblurCNNModelMini3D import DeblurCNNModelMini3D
 
 
 # Class, which provides predicting of output data

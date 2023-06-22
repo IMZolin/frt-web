@@ -14,11 +14,11 @@ from mpl_toolkits.axes_grid1 import AxesGrid
 from PIL import Image, ImageFilter
 from PySimpleGUI.PySimpleGUI import Exit
 
-import file_input as fio
-import img_transform as imtrans
-from DeblurPredictor import DeblurPredictor
+import engine.file_input as fio
+import engine.img_transform as imtrans
+from engine.DeblurPredictor import DeblurPredictor
 
-from help_instuctions.LoadHelpWindow import LoadHelpWindow
+from engine.help_instuctions.LoadHelpWindow import LoadHelpWindow
 
 
 # Method which provides image bluring
@@ -32,8 +32,9 @@ def BlurGaussian(array, gaussianBlurRad: int):
     return array
 
 
-# Method whic provides image intensities maximization
-def MaximizeIntesities(array):
+def MaximizeIntensities(array):
+    if array.dtype.kind == "U":
+        array = array.astype(float)  # Convert string array to float array
     array = (array / np.amax(array) * 255).astype("uint8")
     return array
 
@@ -328,7 +329,7 @@ class CNNDeconvGUI():
 
         self.imgPreproc = self.imgRaw.copy()
         if isNeedMaximize:
-            self.imgPreproc = MaximizeIntesities(self.imgPreproc)
+            self.imgPreproc = MaximizeIntensities(self.imgPreproc)
         if isNeedGausBlur:
             rad = self.gausRadiusSB.get()
             self.imgPreproc = BlurGaussian(self.imgPreproc, int(rad))

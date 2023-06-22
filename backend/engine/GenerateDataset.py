@@ -1,9 +1,9 @@
-from RealDataGenerator.MultiSpheresDataSetGenerator import MultiSpheresDataSetGenerator
-from RealDataGenerator.LongSpheresDataSetGenerator import LongSpheresDataSetGenerator
-from RealDataGenerator.LinesDataSetGenerator import LinesDataSetGenerator
-from RealDataGenerator.LongLinesDataSetGenerator import LongLinesDataSetGenerator
-from RealDataGenerator.SpheresDataSetGenerator import SpheresDataSetGenerator
-from RealDataGenerator.DataSet2DModifier import DataSet2DModifier
+from engine.RealDataGenerator.MultiSpheresDataSetGenerator import MultiSpheresDataSetGenerator
+from engine.RealDataGenerator.LongSpheresDataSetGenerator import LongSpheresDataSetGenerator
+from engine.RealDataGenerator.LinesDataSetGenerator import LinesDataSetGenerator
+from engine.RealDataGenerator.LongLinesDataSetGenerator import LongLinesDataSetGenerator
+from engine.RealDataGenerator.SpheresDataSetGenerator import SpheresDataSetGenerator
+from engine.RealDataGenerator.DataSet2DModifier import DataSet2DModifier
 
 def generate_set_2d(blured, bead_size, voxel_x, voxel_y, voxel_z):
     # init data generators

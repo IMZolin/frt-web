@@ -6,7 +6,7 @@ from django.views.decorators.csrf import csrf_exempt
 from api.models import ImageParams, ImageWrapper, PSFParams, DeconvParams, CNNParams
 from django.core.cache import cache
 
-from engine.file_input import ReadTiffStackFile
+from engine.file_input import ReadTiffStackFile, SaveTiffStack
 from engine.main import process_cnn, process_deconv, process_psf
 # Create your views here.
 

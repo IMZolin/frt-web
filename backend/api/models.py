@@ -10,6 +10,9 @@ class ImageParams:
         self.nlayers = nlayers
         self.img_array = img_array
 
+    def set_img_array(self, img_array):
+        self.img_array = img_array
+
     def to_json(self):
         return {
             'ncols': self.ncols,
@@ -24,6 +27,9 @@ class ImageWrapper:
         self.data = data
         self.data_view = data_view
     
+    def set_data(self, data):
+        self.data = data
+
     def to_json(self):
         return {
             'file_name': self.file_name,
