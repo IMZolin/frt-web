@@ -1,4 +1,5 @@
 from django.shortcuts import render
+import numpy as np
 from PIL import Image
 from django.http import JsonResponse
 from django.http import HttpResponse
@@ -7,7 +8,7 @@ from api.models import ImageParams, ImageWrapper, PSFParams, DeconvParams, CNNPa
 from django.core.cache import cache
 import logging
 
-from engine.file_input import ReadTiffStackFile, SaveTiffStack
+from engine.engine_lib.src.file_inout import ReadTiffStackFile, SaveTiffStack
 from engine.main import process_cnn, process_deconv, process_psf
 # Create your views here.
 
@@ -19,7 +20,13 @@ def load_image(request):
         file = request.FILES['file']
         image = Image.open(file)
         image_data = ReadTiffStackFile(file)
-        image_params = ImageParams(ncols=image_data[0], nrows=image_data[1], nlayers=image_data[2], img_array=image_data[3])
+        image_data_list = image_data.tolist()  # Convert ndarray to list
+        image_params = ImageParams(
+            ncols=len(image_data_list),  # Update the indexing
+            nrows=len(image_data_list[0]),  # Update the indexing
+            nlayers=len(image_data_list[0][0]),  # Update the indexing
+            img_array=np.array(image_data_list)  # Convert the list to ndarray
+        )
         image_wrapper = ImageWrapper(file_name=file.name, data=image_params, data_view=ImageWrapper._image_to_base64(image))
         cache_key = 'start_image'
         cache.set(cache_key, image_wrapper)

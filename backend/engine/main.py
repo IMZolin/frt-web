@@ -1,5 +1,5 @@
 from api.models import CNNParams, DeconvParams, PSFParams
-from engine.cnn_deconvolution_gui import BlurGaussian, MaximizeIntensities
+from engine.support_cnn import BlurGaussian, MaximizeIntesities
 
 def process_psf(psf_param: PSFParams):
     image = psf_param.start_image
@@ -26,7 +26,7 @@ def process_cnn(cnn_param: CNNParams):
     maximize_intensity = cnn_param.maximize_intensity
     gaussian_blur = int(cnn_param.gaussian_blur)  # Convert to int
     if maximize_intensity:
-        processed_data.set_img_array(MaximizeIntensities(processed_data.img_array))
+        processed_data.set_img_array(MaximizeIntesities(processed_data.img_array))
     if gaussian_blur > 0:
         processed_data.set_img_array(BlurGaussian(processed_data.img_array, gaussian_blur))
     processed_image.set_data(processed_data)
