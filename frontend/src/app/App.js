@@ -1,14 +1,16 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import MainPage from '../pages/main';
-import FavouritePage from '../pages/Favourite';
 import PersonalPage from '../pages/Profile';
 import LoginPage from '../pages/Auth/Login';
 import SignupPage from '../pages/Auth/Signup';
 import Header from '../widgets/Header/HeaderContent';
-import StepperPSF from '../pages/StepperFRT/StepperPSF';
-import StepperDeconvolution from '../pages/StepperFRT/StepperDeconvolution';
-import StepperNetwork from '../pages/StepperFRT/StepperNetwork'
+import BeadExtractor from '../pages/StepperWrapper/BeadExtractor';
+import PSF from '../pages/StepperWrapper/PSF';
+import Deconvolution from '../pages/StepperWrapper/Deconvolution';
+import NeuralNetwork from '../pages/StepperWrapper/NeuralNetwork';
+import Authors from '../pages/Authors';
+
 
 const App = () => {
     return (
@@ -19,10 +21,11 @@ const App = () => {
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/signup" element={<SignupPage />} />
                 <Route path="/profile" element={<PersonalPage />} />
-                <Route path="/favourite" element={<FavouritePage />} />
-                <Route path="/psf" element={<StepperPSF />} />
-                <Route path="/deconvolution" element={<StepperDeconvolution />} />
-                <Route path="/network" element={<StepperNetwork />} />
+                <Route path="/bead_extractor" element={<BeadExtractor />} />
+                <Route path="/psf" element={<PSF />} />
+                <Route path="/deconvolution" element={<Deconvolution />} />
+                <Route path="/network" element={<NeuralNetwork />} />
+                <Route path="/authors" element={<Authors />} />
             </Routes>
         </>
     );

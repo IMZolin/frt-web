@@ -49,7 +49,9 @@ def psf_processing(request):
         bead_size = request.POST.get('bead_size')
         resolution_xy = request.POST.get('resolution_xy')
         resolution_z = request.POST.get('resolution_z')
+        deconv_method = request.POST.get('deconv_method')
         iter_num = request.POST.get('iter_num')
+        regularization = request.POST.get('regularization')
         
         if bead_size and resolution_xy and resolution_z or iter_num:
             cached_object = cache.get('start_image')

@@ -16,7 +16,7 @@ from PySimpleGUI.PySimpleGUI import Exit
 
 import engine.file_input as fio
 import engine.img_transform as imtrans
-from engine.DeblurPredictor import DeblurPredictor
+from engine.CNN_Deconvolution.DeblurPredictor import DeblurPredictor
 
 from engine.help_instuctions.LoadHelpWindow import LoadHelpWindow
 

@@ -10,14 +10,20 @@ const MainPage = () => {
         Menu
       </h2>
       <div style={{ display: 'flex', justifyContent: 'center' }} className="menu-container">
+        <Button variant="outlined" color="warning" className="menu-options" component={Link} to="/bead_extractor" focusVisibleClassName="">
+          Bead extractor
+        </Button>
         <Button variant="outlined" color="secondary" className="menu-options" component={Link} to="/psf" focusVisibleClassName="">
-          PSF computation
+          PSF calculation
         </Button>
         <Button variant="outlined" className="menu-options" component={Link} to="/deconvolution">
           Deconvolution
         </Button>
         <Button variant="outlined" color="success" className="menu-options" component={Link} to="/network">
           Neural Networks
+        </Button>
+        <Button variant="outlined" color="info" className="menu-options" component={Link} to="/authors">
+          Authors
         </Button>
       </div>
       <Outlet />

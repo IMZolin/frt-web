@@ -3,13 +3,8 @@ import './header.css';
 import Entry from '../Entry/index';
 import './header.css';
 import { Button } from '@material-ui/core';
-import IconButton from '@mui/material/IconButton';
 import UserAvatar from '../../../shared/ui/Avatar/index.js';
 import LogoImage from '../../../shared/assets/png/header/logo.png';
-import { ReactComponent as Message } from '../../../shared/assets/svg/header/message.svg';
-import { ReactComponent as Post } from '../../../shared/assets/svg/header/postadd.svg';
-import { ReactComponent as Login } from '../../../shared/assets/svg/header/login.svg';
-import { ReactComponent as Love } from '../../../shared/assets/svg/header/favorite.svg';
 
 import { useNavigate } from 'react-router-dom';
 import useAxiosStore from '../../../app/store/axiosStore';

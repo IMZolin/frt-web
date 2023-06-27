@@ -1,0 +1,57 @@
+.stepper{
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 20px;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 5px;
+  }
+  .single-tif{
+    margin-top: 50px;
+    padding-bottom: 10px;
+  }
+
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .column-1, .column-2 {
+    flex: 1;
+    padding: 10px;
+  }
+  .column-1 {
+    flex: 0 0 13%;
+    padding: 10px;
+  }
+
+  @media only screen and (max-width: 768px) {
+    .column-1, .column-2 {
+      flex: 0 0 100%;
+      margin-left: 0;
+    }
+  }
+
+  .stepper-container {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    /* margin-bottom: 24px; */
+    max-width: 100%;
+    text-align: center;
+  }
+  .stepper-steps {
+    width: 100%;
+    margin-top: auto;
+    margin-bottom: 20px;
+  }
+.btn-back{
+    max-width: 150px;
+}
+
+.btn-run{
+    margin-top: 10px;
+    width: 100%;
+    z-index: 1;
+}

@@ -45,6 +45,29 @@ class ImageWrapper:
         return image_base64
     
     
+class BeadExtractorParams:
+    def __init__(self, start_image=None, bead_size = 0, resolution_xy = 0, resolution_z = 0, iter_num = 0, result = None):
+        self.start_image=start_image
+        self.bead_size = bead_size
+        self.resolution_xy = resolution_xy
+        self.resolution_z = resolution_z
+        self.iter_num = iter_num
+        self.result = result
+    
+    def set_result(self, result):
+        self.result = result
+    
+    def to_json(self):
+        return {
+            "start_image": self.start_image.to_json() if self.start_image else None,
+            "bead_size": self.bead_size,
+            "resolution_xy": self.resolution_xy,
+            "resolution_z": self.resolution_z,
+            "iter_num": self.iter_num,
+            "result": self.result.to_json() if self.result else None
+        }    
+
+
 class PSFParams:
     def __init__(self, start_image=None, bead_size = 0, resolution_xy = 0, resolution_z = 0, iter_num = 0, result = None):
         self.start_image=start_image
