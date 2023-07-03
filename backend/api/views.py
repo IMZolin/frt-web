@@ -7,8 +7,10 @@ from django.views.decorators.csrf import csrf_exempt
 from api.models import ImageParams, ImageWrapper, PSFParams, DeconvParams, CNNParams
 from django.core.cache import cache
 import logging
+import io
 
-from engine.engine_lib.src.file_inout import ReadTiffStackFile, SaveTiffStack
+from engine.engine_lib.src.file_inout import ReadTiffStackFile
+from engine.engine_lib.src.ImageRaw_class import ImageRaw
 from engine.main import process_cnn, process_deconv, process_psf
 # Create your views here.
 
@@ -18,21 +20,15 @@ logger = logging.getLogger(__name__)
 def load_image(request):
     if request.method == 'POST' and request.FILES.get('file'):
         file = request.FILES['file']
-        image = Image.open(file)
-        image_data = ReadTiffStackFile(file)
-        image_data_list = image_data.tolist()  # Convert ndarray to list
-        image_params = ImageParams(
-            ncols=len(image_data_list),  # Update the indexing
-            nrows=len(image_data_list[0]),  # Update the indexing
-            nlayers=len(image_data_list[0][0]),  # Update the indexing
-            img_array=np.array(image_data_list)  # Convert the list to ndarray
-        )
-        image_wrapper = ImageWrapper(file_name=file.name, data=image_params, data_view=ImageWrapper._image_to_base64(image))
+        file_bytes = file.read()
+        image = Image.open(io.BytesIO(file_bytes))
+        image_data = ImageRaw(fpath=file_bytes)
+        image_params = ImageParams(image_data)
         cache_key = 'start_image'
-        cache.set(cache_key, image_wrapper)
+        cache.set(cache_key, image_params)
         response_data = {
             'message': 'Image loaded successfully',
-            'image': image_wrapper.to_json(),
+            'image': image_params.to_json(),
             # Include any other relevant data or results
         }
         response = JsonResponse(response_data)

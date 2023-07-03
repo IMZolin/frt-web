@@ -11,7 +11,7 @@ const MainPage = () => {
       </h2>
       <div style={{ display: 'flex', justifyContent: 'center' }} className="menu-container">
         <Button variant="outlined" color="warning" className="menu-options" component={Link} to="/bead_extractor" focusVisibleClassName="">
-          Bead extractor
+          Bead extraction
         </Button>
         <Button variant="outlined" color="secondary" className="menu-options" component={Link} to="/psf" focusVisibleClassName="">
           PSF calculation

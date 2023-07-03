@@ -1,77 +1,25 @@
-import React, { useState } from 'react';
-import { DropzoneAreaBase } from 'material-ui-dropzone';
+import React from 'react';
 import { Button, Checkbox, FormControlLabel, TextField } from '@mui/material';
 import StepperWrapper from '..';
 import TifCompare from '../../../components/TifCompare';
-import TifViewer from '../../../components/TifViewer';
+import TiffStackViewer from '../../../components/TiffStackViewer';
+import Dropzone from '../../../components/Dropzone';
+import { useStateValues } from "../state";
 import '../stepper.css';
 
 const NeuralNetwork = () => {
-  const [filename, setFilename] = useState('');
-  const [beadSize, setBeadSize] = useState(200);
-  const [resolution1, setResolution1] = useState(22);
-  const [resolution2, setResolution2] = useState(100);
-  const [iter, setIter] = useState(50);
-  const [scale, setScale] = useState(5);
-  const [maximizeIntensity, setMaximizeIntensity] = useState(false);
-  const [makeGaussianBlur, setMakeGaussianBlur] = useState(false);
-  const [gaussianBlurCount, setGaussianBlurCount] = useState(3);
-  const [files, setFiles] = useState([]);
-  const [activeStep, setActiveStep] = useState(0);
+  const state = useStateValues();
   const steps = ['Load image', 'Preprocessing', 'Deconvolution', 'Save results'];
-
-  const handleNextStep = () => {
-    setActiveStep((prevActiveStep) => prevActiveStep + 1);
-  };
-
-  const handlePrevStep = () => {
-    setActiveStep((prevActiveStep) => prevActiveStep - 1);
-  };
-
-  const handleButtonClick = (e) => {
-    e.preventDefault();
-  };
-
-  const handleSliderChange = (e) => {
-    const value = e.target.value;
-    const maxScale = 10;
-    const newScale = value > maxScale ? maxScale : value;
-    setScale(newScale);
-  };
-
-  const handleGaussianBlurToggle = (event) => {
-    const checked = event.target.checked;
-    setMakeGaussianBlur(checked);
-  };
-
-  const completedFun = () => {
-    console.log('Completed');
-    handleNextStep();
-  };
 
   function getStepContent(step) {
     switch (step) {
       case 0:
         return (
           <>
-            <DropzoneAreaBase
-              fileObjects={files}
-              showPreviewsInDropzone={true}
-              useChipsForPreview
-              onAdd={(newFile) => {
-                newFile[0].id = Math.floor(Math.random() * 10000);
-                console.log(newFile);
-                setFiles((prevFiles) => [...prevFiles, newFile[0]]);
-              }}
-              onDelete={(delFile) => {
-                setFiles((prevFiles) => prevFiles.filter((file) => file.id !== delFile.id));
-              }}
-              acceptedFiles={['.tif', '.tiff']}
-            />
+            <Dropzone files={state.files} addFiles={state.addFiles} />
           </>
         );
       case 1:
-        console.log(files);
         return (
           <>
             <div className="row">
@@ -84,15 +32,15 @@ const NeuralNetwork = () => {
                     min="0.5"
                     max="10"
                     step="0.1"
-                    value={scale}
-                    onChange={handleSliderChange}
+                    value={state.scale}
+                    onChange={state.handleSliderChange}
                   />
                 </div>
                 <FormControlLabel
                   control={
                     <Checkbox
-                      checked={maximizeIntensity}
-                      onChange={(event) => setMaximizeIntensity(event.target.checked)}
+                      checked={state.maximizeIntensity}
+                      onChange={(e) => state.setMaximizeIntensity(e.target.checked)}
                       name="maximize-intensity"
                       color="primary"
                     />
@@ -102,8 +50,8 @@ const NeuralNetwork = () => {
                 <FormControlLabel
                   control={
                     <Checkbox
-                      checked={makeGaussianBlur}
-                      onChange={handleGaussianBlurToggle}
+                      checked={state.makeGaussianBlur}
+                      onChange={state.handleGaussianBlurToggle}
                       name="make-gaussian-blur"
                       color="primary"
                     />
@@ -113,7 +61,7 @@ const NeuralNetwork = () => {
                 <Button className="btn-run" color="success" variant="outlined">
                   Apply
                 </Button>
-                {makeGaussianBlur === true ? (
+                {state.makeGaussianBlur === true ? (
                   <TextField
                     className="gaussian-blur-count"
                     id="gaussian-blur-count"
@@ -122,16 +70,14 @@ const NeuralNetwork = () => {
                     placeholder=""
                     fullWidth
                     margin="normal"
-                    onChange={(e) => setGaussianBlurCount(e.target.value)}
-                    value={gaussianBlurCount}
+                    onChange={(e) => state.setGaussianBlurCount(e.target.value)}
+                    value={state.gaussianBlurCount}
                   />
                 ) : null}
               </div>
               <div className="column-2">
                 <div className="images__preview">
-                  {files.map((file) => (
-                    <TifCompare img_1={file} img_2={file} scale={scale} />
-                  ))}
+                  <TifCompare files_1={state.files} files_2={state.files} scale={state.scale}/>
                 </div>
               </div>
             </div>
@@ -150,8 +96,8 @@ const NeuralNetwork = () => {
                     min="0.5"
                     max="10"
                     step="0.1"
-                    value={scale}
-                    onChange={handleSliderChange}
+                    value={state.scale}
+                    onChange={state.handleSliderChange}
                   />
                 </div>
                 <div className="stepper-psf">
@@ -163,8 +109,8 @@ const NeuralNetwork = () => {
                     fullWidth
                     margin="normal"
                     name="beadSize"
-                    onChange={(e) => setBeadSize(e.target.value)}
-                    value={beadSize}
+                    onChange={(e) => state.setBeadSize(e.target.value)}
+                    value={state.beadSize}
                   />
                   <TextField
                     className="stepper-resolution"
@@ -174,8 +120,8 @@ const NeuralNetwork = () => {
                     placeholder="Enter the resolution in X direction"
                     fullWidth
                     margin="normal"
-                    onChange={(e) => setResolution1(e.target.value)}
-                    value={resolution1}
+                    onChange={(e) => state.setResolution1(e.target.value)}
+                    value={state.resolutionXY}
                   />
                   <TextField
                     className="stepper-resolution"
@@ -185,8 +131,8 @@ const NeuralNetwork = () => {
                     placeholder=""
                     fullWidth
                     margin="normal"
-                    onChange={(e) => setResolution2(e.target.value)}
-                    value={resolution2}
+                    onChange={(e) => state.setResolution2(e.target.value)}
+                    value={state.resolutionZ}
                   />
                   <TextField
                     id="iter"
@@ -196,8 +142,8 @@ const NeuralNetwork = () => {
                     fullWidth
                     margin="normal"
                     name="iter"
-                    onChange={(e) => setIter(e.target.value)}
-                    value={iter}
+                    onChange={(e) => state.setIter(e.target.value)}
+                    value={state.iter}
                   />
                   <Button variant="outlined" className="btn-run">
                     Run Deconvolution
@@ -206,9 +152,7 @@ const NeuralNetwork = () => {
               </div>
               <div className="column-2">
                 <div className="images__preview">
-                  {files.map((file) => (
-                    <TifCompare img_1={file} img_2={file} scale={scale} />
-                  ))}
+                  <TifCompare files_1={state.files} files_2={state.files} scale={state.scale}/>
                 </div>
               </div>
             </div>
@@ -227,8 +171,8 @@ const NeuralNetwork = () => {
                     min="0.5"
                     max="10"
                     step="0.1"
-                    value={scale}
-                    onChange={handleSliderChange}
+                    value={state.scale}
+                    onChange={state.handleSliderChange}
                   />
                 </div>
                 <TextField
@@ -239,21 +183,13 @@ const NeuralNetwork = () => {
                   fullWidth
                   margin="normal"
                   name="filename"
-                  onChange={(e) => setFilename(e.target.value)}
-                  value={filename}
+                  onChange={(e) => state.setFilename(e.target.value)}
+                  value={state.filename}
                 />
               </div>
               <div className="column-2" style={{ zIndex: 1 }}>
                 <div className="images__preview">
-                  {files.map((file) => (
-                    <TifViewer
-                      img={file}
-                      scale={scale}
-                      onClick={handleButtonClick}
-                      className="single-tif"
-                      style={{ transform: `scale(${scale})`, objectFit: 'contain' }}
-                    />
-                  ))}
+                  <TiffStackViewer tiffList={state.files} scale={state.scale} />
                 </div>
               </div>
             </div>
@@ -270,10 +206,10 @@ const NeuralNetwork = () => {
         name="Neural networks"
         stepContent={getStepContent}
         steps={steps}
-        handleNextStep={handleNextStep}
-        handlePrevStep={handlePrevStep}
-        activeStep={activeStep}
-        files={files}
+        handleNextStep={state.handleNextStep}
+        handlePrevStep={state.handlePrevStep}
+        activeStep={state.activeStep}
+        files={state.files}
       />
     </div>
   );

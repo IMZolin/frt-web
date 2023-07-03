@@ -4,7 +4,7 @@ import { Button, Step, StepLabel, Stepper } from '@mui/material';
 import useAxiosStore from '../../app/store/axiosStore';
 import './stepper.css';
 
-const StepperWrapper = ({ name, stepContent, steps, handleNextStep, handlePrevStep, activeStep, files, handleBackClick }) => {
+const StepperWrapper = ({ name, stepContent, steps, handleNextStep, handlePrevStep, activeStep, files}) => {
   const axiosStore = useAxiosStore();
   //!TODO: Connect file downloads (front + back)
   // const handleNext = async () => {
@@ -22,11 +22,6 @@ const StepperWrapper = ({ name, stepContent, steps, handleNextStep, handlePrevSt
   //     handleNextStep();
   //   }
   // };
-
-  const handleNext = async () => {
-    handleNextStep();
-  };
-
 
   return (
     <div>
@@ -57,7 +52,7 @@ const StepperWrapper = ({ name, stepContent, steps, handleNextStep, handlePrevSt
               <Button disabled={activeStep === 0} onClick={handlePrevStep} className="btn-back">
                 Back
               </Button>
-              <Button variant="contained" color="primary" onClick={handleNext} disabled={files.length === 0}>
+              <Button variant="contained" color="primary" onClick={handleNextStep} disabled={files.length === 0}>
                 {activeStep === steps.length - 1 ? 'Finish' : 'Next'}
               </Button>
             </div>

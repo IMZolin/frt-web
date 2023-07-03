@@ -4,28 +4,28 @@ from io import BytesIO
 
 
 class ImageParams:
-    def __init__(self, ncols, nrows, nlayers, img_array = None):
-        self.ncols = ncols
-        self.nrows = nrows
-        self.nlayers = nlayers
-        self.img_array = img_array
-
-    def set_img_array(self, img_array):
-        self.img_array = img_array
+    def __init__(self, data):
+        self.data = data
 
     def to_json(self):
         return {
-            'ncols': self.ncols,
-            'nrows': self.nrows,
-            'nlayers': self.nlayers,
-            'img_array': self.img_array.tolist(),
+            'imArray': self.data.imArray.tolist() if self.imArray is not None else None,
+            'voxel': self.data.voxel,
+            'voxelSize': self.data.voxelSize,
+            'voxelFields': self.data.voxelFields,
+            'path': self.data.path,
         }
+    @staticmethod
+    def _image_to_base64(image):
+        image_io = BytesIO()
+        image.save(image_io, format='TIFF')
+        image_base64 = base64.b64encode(image_io.getvalue()).decode('utf-8')
+        return image_base64
 
 class ImageWrapper:
-    def __init__(self, file_name = None, data = None, data_view = None):
+    def __init__(self, file_name = None, data = None):
         self.file_name = file_name
         self.data = data
-        self.data_view = data_view
     
     def set_data(self, data):
         self.data = data
@@ -33,24 +33,20 @@ class ImageWrapper:
     def to_json(self):
         return {
             'file_name': self.file_name,
-            'data': self.data.to_json() if self.data else None,
-            'data_view': self.data_view,
+            'data': self.data.to_json() if self.data else None
         }
     
-    @staticmethod
-    def _image_to_base64(image):
-        image_io = BytesIO()
-        image.save(image_io, format='TIFF')
-        image_base64 = base64.b64encode(image_io.getvalue()).decode('utf-8')
-        return image_base64
+    
     
     
 class BeadExtractorParams:
-    def __init__(self, start_image=None, bead_size = 0, resolution_xy = 0, resolution_z = 0, iter_num = 0, result = None):
-        self.start_image=start_image
+    def __init__(self, start_image=None, bead_size = 0, select_size = 0, voxel_x = 0,voxel_y = 0, voxel_z = 0, iter_num = 0, result = None):
+        self.start_image = start_image
         self.bead_size = bead_size
-        self.resolution_xy = resolution_xy
-        self.resolution_z = resolution_z
+        self.select_size = select_size
+        self.voxel_x = voxel_x
+        self.voxel_y = voxel_y
+        self.voxel_z = voxel_z
         self.iter_num = iter_num
         self.result = result
     
@@ -61,8 +57,10 @@ class BeadExtractorParams:
         return {
             "start_image": self.start_image.to_json() if self.start_image else None,
             "bead_size": self.bead_size,
-            "resolution_xy": self.resolution_xy,
-            "resolution_z": self.resolution_z,
+            "voxel_x": self.voxel_x,
+            "voxel_y": self.voxel_y,
+            "voxel_z": self.voxel_z,
+            "select_size": self.select_size,
             "iter_num": self.iter_num,
             "result": self.result.to_json() if self.result else None
         }    

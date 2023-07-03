@@ -1,198 +1,46 @@
-import { useState } from "react";
+import React from 'react';
 import { Button, TextField } from "@mui/material";
-import { DropzoneAreaBase } from "material-ui-dropzone";
 import StepperWrapper from '..';
+import Dropzone from '../../../components/Dropzone';
 import TifCompare from '../../../components/TifCompare';
-import TifViewer from '../../../components/TifViewer';
+import TiffStackViewer from '../../../components/TiffStackViewer';
+import { useStateValues } from "../state";
+import ChooseList from '../../../components/ChooseList';
+
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-
 const Deconvolution = () => {
-  const [files, addFiles] = useState([]);
-  const [beadSize, setBeadSize] = useState(200);
-  const [iter, setIter] = useState(50);
-  const [iterPSF, setIterPSF] = useState(50);
-  const [resolution1, setResolution1] = useState(22);
-  const [resolution2, setResolution2] = useState(100);
-  const [activeStep, setActiveStep] = useState(0);
-  const [filename, setFilename] = useState('');
-  const [scale, setScale] = useState(5);
+  const state = useStateValues();
   const steps = ['Load image', 'Load PSF', 'Run Deconvolution', 'Save results'];
 
-  const handleSliderChange = (e) => {
-    const value = e.target.value;
-    const maxScale = 10;
-    const newScale = value > maxScale ? maxScale : value;
-    setScale(newScale);
-  }
-  const handleNextStep = () => {
-    setActiveStep((prevActiveStep) => prevActiveStep + 1);
+  const handleNextAfterAdd = () => {
+    // state.psfFiles
   };
-
-  const handlePrevStep = () => {
-    setActiveStep((prevActiveStep) => prevActiveStep - 1);
-  };
-
-  const completedFun = () => {
-    console.log('Completed');
-    handleNextStep();
-  };
-
-  const handleButtonClick = (e) => {
-    e.preventDefault();
-  }
-  const [statePSF, setStatePSF] = useState('dropzone');
-
-  function handlePSFChange(event) {
-    setStatePSF(event.target.checked ? 'stepper-psf' : 'dropzone');
-  }
 
   function getStepContent(step) {
     switch (step) {
       case 0:
         return (
           <>
-            <DropzoneAreaBase
-              fileObjects={files}
-              showPreviewsInDropzone={true}
-              useChipsForPreview
-              onAdd={(newFile) => {
-                newFile[0].id = Math.floor(Math.random() * 10000);
-                console.log(newFile);
-                addFiles((prevFiles) => [...prevFiles, newFile[0]]);
-              }}
-              onDelete={(delFile) => {
-                addFiles((prevFiles) =>
-                  prevFiles.filter((file) => file.id !== delFile.id),
-                );
-              }}
-              acceptedFiles={['.tif', '.tiff']}
-            />
+            <Dropzone files={state.files} addFiles={state.addFiles} />
           </>
         );
       case 1:
         return (
           <>
             <div className="row">
-
-              {statePSF === 'dropzone' ? (
-                <>
-                  <div className="column-1">
-                    <label htmlFor="toggle">Restart PSF:</label>
-                    <input
-                      type="checkbox"
-                      id="toggle"
-                      checked={statePSF === 'stepper-psf'}
-                      onChange={handlePSFChange}
-                    />
-                    <div className="slider-container">
-                      <label htmlFor="scale-slider">Scale:</label>
-                      <input id="scale-slider" type="range" min="0.5" max="10" step="0.1" value={scale} onChange={handleSliderChange} />
-                    </div>
-                    <DropzoneAreaBase
-                      fileObjects={files}
-                      showPreviewsInDropzone={true}
-                      useChipsForPreview
-                      onAdd={(newFile) => {
-                        newFile[0].id = Math.floor(Math.random() * 10000);
-                        console.log(newFile);
-                        addFiles((prevFiles) => [...prevFiles, newFile[0]]);
-                      }}
-                      onDelete={(delFile) => {
-                        addFiles((prevFiles) =>
-                          prevFiles.filter((file) => file.id !== delFile.id),
-                        );
-                      }}
-                      acceptedFiles={['.tif', '.tiff']}
-                    />
-                  </div>
-                  <div className="column-2">
-                    <div className="images__preview">
-                      {files.map((file) => (
-                        <TifViewer img={file} scale={scale} />
-                      ))}
-                    </div>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className="column-1">
-                    <label htmlFor="toggle">Restart PSF:</label>
-                    <input
-                      type="checkbox"
-                      id="toggle"
-                      checked={statePSF === 'stepper-psf'}
-                      onChange={handlePSFChange}
-                    />
-                    <div className="slider-container">
-                      <label htmlFor="scale-slider">Scale:</label>
-                      <input id="scale-slider" type="range" min="0.5" max="10" step="0.1" value={scale} onChange={handleSliderChange} />
-                    </div>
-                    <div className="stepper-psf">
-                      <TextField
-                        id="beadSize"
-                        label="Bead size"
-                        variant="outlined"
-                        placeholder="Enter a bead size"
-                        fullWidth
-                        margin="normal"
-                        name="beadSize"
-                        onChange={(e) => setBeadSize(e.target.value)}
-                        value={beadSize}
-                      />
-                      <div className="stepper-resolutions">
-                        <TextField
-                          className="stepper-resolution"
-                          id="resolution-x"
-                          label="Resolution XY (nm/pxl)"
-                          variant="outlined"
-                          placeholder="Enter the resolution in X direction"
-                          fullWidth
-                          margin="normal"
-                          onChange={(e) => setResolution1(e.target.value)}
-                          value={resolution1}
-                        />
-                        <TextField
-                          className="stepper-resolution"
-                          id="resolution-z"
-                          label="Resolution Z (nm/pxl)"
-                          variant="outlined"
-                          placeholder=""
-                          fullWidth
-                          margin="normal"
-                          onChange={(e) => setResolution2(e.target.value)}
-                          value={resolution2}
-                        />
-                      </div>
-                    </div>
-                    <TextField
-                      id="iter"
-                      label="Iteartion number"
-                      variant="outlined"
-                      placeholder="Enter a iteartion number"
-                      fullWidth
-                      margin="normal"
-                      name="iter"
-                      onChange={(e) => setIterPSF(e.target.value)}
-                      value={iterPSF}
-                    />
-                    <Button
-                      variant="outlined"
-                      color="secondary"
-                      className="btn-run"
-                    >
-                      Run PSF
-                    </Button>
-                  </div>
-                  <div className="column-2">
-                    <div className="images__preview">
-                      {files.map((file) => (
-                        <TifCompare img_1={file} img_2={file} scale={scale} />
-                      ))}
-                    </div>
-                  </div>
-                </>
-              )}
+              <div className="column-1">
+                <div className="slider-container">
+                  <label htmlFor="scale-slider">Scale:</label>
+                  <input id="scale-slider" type="range" min="0.5" max="10" step="0.1" value={state.scale} onChange={state.handleSliderChange} />
+                </div>
+                <Dropzone files={state.psfFiles} addFiles={state.addPsfFiles} />
+              </div>
+              <div className="column-2">
+                <div className="images__preview">
+                  <TifCompare files_1={state.files} files_2={state.psfFiles} scale={state.scale} />
+                </div>
+              </div>
             </div>
           </>
         );
@@ -203,41 +51,50 @@ const Deconvolution = () => {
               <div className="column-1">
                 <div className="slider-container">
                   <label htmlFor="scale-slider">Scale:</label>
-                  <input id="scale-slider" type="range" min="0.5" max="10" step="0.1" value={scale} onChange={handleSliderChange} />
+                  <input id="scale-slider" type="range" min="0.5" max="10" step="0.1" value={state.scale} onChange={state.handleSliderChange} />
                 </div>
                 <TextField
                   id="iter"
-                  label="Iteartion number"
+                  label="Iteration number"
                   variant="outlined"
-                  placeholder="Enter a iteartion number"
+                  placeholder="Enter an iteration number"
                   fullWidth
                   margin="normal"
                   name="iter"
-                  onChange={(e) => setIter(e.target.value)}
-                  value={iter}
+                  onChange={(e) => state.setIter(e.target.value)}
+                  value={state.iter}
+                />
+                <TextField
+                  id="regularization"
+                  label="Regularization"
+                  variant="outlined"
+                  placeholder="Enter a regularization"
+                  fullWidth
+                  margin="normal"
+                  name="regularization"
+                  onChange={(e) => state.setRegularization(e.target.value)}
+                  value={state.regularization}
+                />
+                <ChooseList
+                  className="choose-list"
+                  name="Deconvolution method"
+                  list={Object.values(state.deconvMethods)}
+                  selected={state.deconvMethod}
+                  onChange={state.handleDeconvMethodChange}
                 />
                 <Button
                   variant="outlined"
                   className="btn-run"
                 >
-                  Run Deconvolution
+                  Deconvolve
                 </Button>
               </div>
               <div className="column-2" style={{ zIndex: 1 }}>
                 <div className="images__preview">
-                  {files.map((file) => (
-                    <TifViewer
-                      img={file}
-                      scale={scale}
-                      onClick={handleButtonClick}
-                      className="single-tif"
-                      style={{ transform: `scale(${scale})`, objectFit: "contain" }}
-                    />
-                  ))}
+                  <TifCompare files_1={state.files} files_2={state.psfFiles} scale={state.scale}  brightness={state.levelBrightness}/>
                 </div>
               </div>
             </div>
-
           </>
         );
       case 3:
@@ -247,7 +104,7 @@ const Deconvolution = () => {
               <div className="column-1">
                 <div className="slider-container">
                   <label htmlFor="scale-slider">Scale:</label>
-                  <input id="scale-slider" type="range" min="0.5" max="10" step="0.1" value={scale} onChange={handleSliderChange} />
+                  <input id="scale-slider" type="range" min="0.5" max="10" step="0.1" value={state.scale} onChange={state.handleSliderChange} />
                 </div>
                 <TextField
                   id="filename"
@@ -257,43 +114,36 @@ const Deconvolution = () => {
                   fullWidth
                   margin="normal"
                   name="filename"
-                  onChange={(e) => setFilename(e.target.value)}
-                  value={filename}
+                  onChange={(e) => state.setFilename(e.target.value)}
+                  value={state.filename}
                 />
               </div>
               <div className="column-2" style={{ zIndex: 1 }}>
                 <div className="images__preview">
-                  {files.map((file) => (
-                    <TifViewer
-                      img={file}
-                      scale={scale}
-                      onClick={handleButtonClick}
-                      className="single-tif"
-                      style={{ transform: `scale(${scale})`, objectFit: "contain" }}
-                    />
-                  ))}
+                  <TiffStackViewer tiffList={state.files} scale={state.scale} />
                 </div>
               </div>
             </div>
-
           </>
         );
       default:
         return 'unknown step';
     }
   }
+
   return (
     <div>
       <StepperWrapper
         name="Deconvolution"
         stepContent={getStepContent}
         steps={steps}
-        handleNextStep={activeStep === steps.length - 1 ? completedFun : handleNextStep}
-        handlePrevStep={handlePrevStep}
-        activeStep={activeStep}
-        files={files}
+        handleNextStep={state.handleNextStep}
+        handlePrevStep={state.handlePrevStep}
+        activeStep={state.activeStep}
+        files={state.files}
       />
     </div>
   );
 };
+
 export default Deconvolution;
