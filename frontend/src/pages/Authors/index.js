@@ -8,9 +8,9 @@ const Authors = () => {
       <ul>
         <li>Chuckanov V.</li>
         <li>Pchitskaya E.</li>
-        <li>Zolin I.</li>
         <li>Geasimenko A.</li>
         <li>Sachuk A.</li>
+        <li>Zolin I.</li>
       </ul>
     </div>
   );

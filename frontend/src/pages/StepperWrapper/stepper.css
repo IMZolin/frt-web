@@ -8,11 +8,6 @@
   margin-bottom: 5px;
 }
 
-.single-tif {
-  margin-top: 50px;
-  padding-bottom: 10px;
-}
-
 .row {
   display: flex;
   flex-wrap: wrap;
@@ -22,6 +17,7 @@
 .column-2 {
   flex: 1;
   padding: 10px;
+  /* margin-bottom: 300px; */
 }
 
 .column-1 {
@@ -29,11 +25,17 @@
   padding: 10px;
 }
 
+.column-2{
+  margin-top: 100px;
+  
+  /* margin-bottom: -50px; */
+  margin-bottom: 180px;
+}
 @media only screen and (max-width: 768px) {
   .column-1,
   .column-2 {
-      flex: 0 0 100%;
-      margin-left: 0;
+    flex: 0 0 100%;
+    margin-left: 0;
   }
 }
 
@@ -41,9 +43,6 @@
   margin-top: 10px;
   display: flex;
   flex-direction: column;
-  /* margin-bottom: 24px; */
-  max-width: 100%;
-  text-align: center;
 }
 
 .stepper-steps {
@@ -57,7 +56,7 @@
 }
 
 .btn-run {
-  display: absolute;
+  display: block;
   margin-top: 20px;
   width: 100%;
   z-index: 1;

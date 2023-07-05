@@ -9,7 +9,7 @@ class ImageParams:
 
     def to_json(self):
         return {
-            'imArray': self.data.imArray.tolist() if self.imArray is not None else None,
+            'imArray': self.data.imArray.tolist() if self.data.imArray is not None else None,
             'voxel': self.data.voxel,
             'voxelSize': self.data.voxelSize,
             'voxelFields': self.data.voxelFields,

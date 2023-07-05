@@ -8,7 +8,6 @@ const Dropzone = ({ files, addFiles }) => {
       return file;
     });
     addFiles((prevFiles) => [...prevFiles, ...updatedFiles]);
-    
   };
 
   const handleDeleteFile = (deletedFile) => {
@@ -23,8 +22,10 @@ const Dropzone = ({ files, addFiles }) => {
       onAdd={handleAddFiles}
       onDelete={handleDeleteFile}
       acceptedFiles={['.tif', '.tiff']}
+      maxFileSize={Infinity}
     />
   );
 };
 
 export default Dropzone;
+

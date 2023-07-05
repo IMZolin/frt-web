@@ -1,5 +1,6 @@
 import { useState } from "react";
 
+
 export const defaultValues = {
     files: [],
     psfFiles: [],
@@ -14,7 +15,7 @@ export const defaultValues = {
     blurType: 'gauss',
     resolutionXY: 22,
     resolutionZ: 100,
-    scale: 5,
+    scale: 0.2,
     iter: 50,
     activeStep: 0,
     filename: "",
