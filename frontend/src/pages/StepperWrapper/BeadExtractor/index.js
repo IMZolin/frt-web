@@ -49,7 +49,7 @@ const BeadExtractor = () => {
                   onChange={(e) => state.setBeadSize(e.target.value)}
                   value={state.beadSize}
                 />
-                <div className="subtitle">Resolution:</div>
+                <div className="subtitle">Voxel size:</div>
                 <div className="voxel-box">
                   <TextField
                     className="stepper-resolution"

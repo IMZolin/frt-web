@@ -85,13 +85,14 @@ const Deconvolution = () => {
                 <Button
                   variant="outlined"
                   className="btn-run"
+                  disabled={!state.psfFiles.length} 
                 >
                   Deconvolve
                 </Button>
               </div>
               <div className="column-2" style={{ zIndex: 1 }}>
                 <div className="images__preview">
-                  <TifCompare files_1={state.files} files_2={state.psfFiles} scale={state.scale}  brightness={state.levelBrightness}/>
+                  <TifCompare files_1={state.files}files_2={state.psfFiles} scale={state.scale}  brightness={state.levelBrightness}/>
                 </div>
               </div>
             </div>

@@ -5,15 +5,18 @@ from io import BytesIO
 
 class ImageParams:
     def __init__(self, data):
-        self.data = data
+        self.imArray = data.imArray
+        self.voxel = data.voxel
+        self.voxelSize = data.voxelSize
+        self.path = data.path
 
     def to_json(self):
         return {
-            'imArray': self.data.imArray.tolist() if self.data.imArray is not None else None,
-            'voxel': self.data.voxel,
-            'voxelSize': self.data.voxelSize,
-            'voxelFields': self.data.voxelFields,
-            'path': self.data.path,
+            'imArray': self.imArray.tolist() if self.imArray is not None else None,
+            'voxel': self.voxel,
+            'voxelSize': self.voxelSize,
+            'voxelFields': self.voxelFields,
+            'path': self.path,
         }
     @staticmethod
     def _image_to_base64(image):

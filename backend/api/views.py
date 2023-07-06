@@ -1,17 +1,11 @@
 from django.shortcuts import render
-import numpy as np
-from PIL import Image
 from django.http import JsonResponse
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
-from api.models import ImageParams, ImageWrapper, PSFParams, DeconvParams, CNNParams
 from django.core.cache import cache as django_cache
 import logging
-from io import BytesIO
 
-from engine.engine_lib.src.file_inout import ReadTiffStackFile
 from engine.engine_lib.src.ImageRaw_class import ImageRaw
-from engine.main import process_cnn, process_deconv, process_psf
 # Create your views here.
 
 logger = logging.getLogger(__name__)
@@ -22,23 +16,18 @@ def load_image(request):
     if request.method == 'POST' and request.FILES.getlist('file'):
         file_list = request.FILES.getlist('file')
         image_data = ImageRaw(fpath=file_list)
-        image_params = ImageParams(image_data)  # Create an instance of ImageParams
 
-        # Store image_data in cache
-        cache_key_data = 'beads_image_data'
-        django_cache.set(cache_key_data, image_params, timeout=None)
+        image_dict = {
+            'imArray': image_data.imArray,
+            'voxel': image_data.voxel
+        }
 
-        # # Convert image_params to bytes
-        # image_bytes = image_params.to_bytes()
-
-        # # Store the bytes in BytesIO
-        # file_io = BytesIO(image_bytes)
-
-        # Store the BytesIO object in cache
-        # cache_key = 'beads_image'
-        # django_cache.set(cache_key, ), timeout=None)
+        cache_key = 'beads_image'
+        django_cache.set(cache_key, image_dict, timeout=None)
 
         logger.info('Image loaded successfully')
+        cached_object = django_cache.get('beads_image')
+        print(cached_object)
 
         return HttpResponse('Image loaded successfully')
     else:
@@ -50,6 +39,7 @@ def load_image(request):
         response["Access-Control-Allow-Methods"] = "POST"
         logger.info('Error response: %s', error_response['error'])
         return response
+
 
 
 

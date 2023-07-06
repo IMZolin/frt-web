@@ -17,20 +17,16 @@
 .column-2 {
   flex: 1;
   padding: 10px;
-  /* margin-bottom: 300px; */
 }
 
 .column-1 {
-  flex: 0 0 14%;
-  padding: 10px;
+  flex: 0 0 14%; 
 }
 
-.column-2{
-  margin-top: 100px;
-  
-  /* margin-bottom: -50px; */
-  margin-bottom: 180px;
+.column-2 {
+  margin-top: 20px; 
 }
+
 @media only screen and (max-width: 768px) {
   .column-1,
   .column-2 {
@@ -47,7 +43,6 @@
 
 .stepper-steps {
   width: 100%;
-  margin-top: auto;
   margin-bottom: 20px;
 }
 
