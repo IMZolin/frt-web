@@ -4,41 +4,68 @@ from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.core.cache import cache as django_cache
 import logging
+import numpy as np
 
 from engine.engine_lib.src.ImageRaw_class import ImageRaw
 # Create your views here.
 
 logger = logging.getLogger(__name__)
 
+def error_response(error_code, message_error, type_request):
+    if 'voxel' in message_error:
+        error_response = {
+            'error': message_error
+        }
+    else:
+        error_response = {
+            'error': message_error
+        }
+    response = JsonResponse(error_response, status=error_code)
+    response["Access-Control-Allow-Origin"] = "*"
+    response["Access-Control-Allow-Methods"] = type_request
+    logger.info('Error response: %s', error_response['error'])
+    return response
+
 
 @csrf_exempt
 def load_image(request):
     if request.method == 'POST' and request.FILES.getlist('file'):
         file_list = request.FILES.getlist('file')
-        image_data = ImageRaw(fpath=file_list)
+        try:
+            image_data = ImageRaw(fpath=file_list)
 
-        image_dict = {
-            'imArray': image_data.imArray,
-            'voxel': image_data.voxel
-        }
+            image_dict = {
+                'imArray': image_data.imArray,
+                'voxel': image_data.voxel
+            }
+            cache_key = 'beads_image'
+            django_cache.set(cache_key, image_dict, timeout=None)
 
-        cache_key = 'beads_image'
-        django_cache.set(cache_key, image_dict, timeout=None)
+            return HttpResponse('Image loaded successfully')
+        except ValueError as e:
+            if 'voxel' in str(e) and request.POST.get('voxelX') and request.POST.get('voxelY') and request.POST.get('voxelZ'):
+                voxelX = float(request.POST.get('voxelX'))
+                voxelY = float(request.POST.get('voxelY'))
+                voxelZ = float(request.POST.get('voxelZ'))
+                voxel = np.array([voxelX, voxelY, voxelZ])
+                try:
+                    image_data = ImageRaw(fpath=file_list, voxelSizeIn=voxel)
+                    
+                    image_dict = {
+                        'imArray': image_data.imArray,
+                        'voxel': image_data.voxel
+                    }
+                    cache_key = 'beads_image'
+                    django_cache.set(cache_key, image_dict, timeout=None)
 
-        logger.info('Image loaded successfully')
-        cached_object = django_cache.get('beads_image')
-        print(cached_object)
-
-        return HttpResponse('Image loaded successfully')
+                    return HttpResponse('Image loaded successfully')
+                except ValueError as ve:
+                    return error_response(400, str(ve), 'POST')
+            else:
+                return error_response(400, str(e), 'POST')
     else:
-        error_response = {
-            'error': 'Invalid request. Please make a POST request with a file.'
-        }
-        response = JsonResponse(error_response, status=400)
-        response["Access-Control-Allow-Origin"] = "*"
-        response["Access-Control-Allow-Methods"] = "POST"
-        logger.info('Error response: %s', error_response['error'])
-        return response
+        return error_response(400, 'Invalid request. Please make a POST request with a file.', 'POST')
+
 
 
 
