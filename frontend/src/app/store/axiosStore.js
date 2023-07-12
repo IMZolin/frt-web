@@ -10,26 +10,36 @@ const useAxiosStore = create((set, get) => {
     baseURL: BASE_URL,
     headers: {
       'Accept': 'application/json, application/xml, text/plain, text/html, *.*',
-      'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8'
+      'Content-Type': 'multipart/form-data'
     }
   });
 
   return {
     axiosInstance,
 
-    postData: async (data) => {
+    postData: async (params) => {
+      const { file, voxelX, voxelY, voxelZ } = params;
+    
+      let formData = new FormData();
+    
+      file.forEach((fileItem) => {
+        formData.append('file', fileItem);
+      });
+    
+      if (voxelX && voxelY && voxelZ) {
+        formData.append('voxelX', voxelX);
+        formData.append('voxelY', voxelY);
+        formData.append('voxelZ', voxelZ);
+      }
+    
       try {
-        const response = await axiosInstance.post('/api/load_image/', data, {
-          headers: {
-            'content-type': 'multipart/form-data'
-          }
-        });
+        const response = await axiosInstance.post('/api/load_image/', formData);
         return response.data;
       } catch (error) {
         console.error('Error posting data:', error);
         throw error;
       }
-    },
+    },    
 
     setAxiosToken: (newToken) => {
       const instance = get().axiosInstance;

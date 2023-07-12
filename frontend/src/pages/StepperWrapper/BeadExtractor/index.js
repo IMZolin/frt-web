@@ -11,44 +11,15 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 const BeadExtractor = () => {
   const state = useStateValues();
-  const steps = ['Load beads', 'Bead parameters', 'Mark beads', 'Average bead', 'Save results'];
+  const steps = ['Load beads', 'Mark beads', 'Average bead', 'Save results'];
 
   function getStepContent(step) {
     switch (step) {
       case 0:
         return (
           <>
-            <Dropzone files={state.files} addFiles={state.addFiles} />
-          </>
-        );
-      case 1:
-        return (
-          <>
             <div className="row">
               <div className="column-1" style={{ zIndex: 2 }}>
-                <div className="slider-container">
-                  <label htmlFor="scale-slider">Scale:</label>
-                  <input
-                    id="scale-slider"
-                    type="range"
-                    min="0.5"
-                    max="10"
-                    step="0.1"
-                    value={state.scale}
-                    onChange={state.handleSliderChange}
-                  />
-                </div>
-                <div className="subtitle">Actual bead Size:</div>
-                <TextField
-                  id="beadSize"
-                  variant="outlined"
-                  placeholder="Enter a bead size"
-                  fullWidth
-                  margin="normal"
-                  name="beadSize"
-                  onChange={(e) => state.setBeadSize(e.target.value)}
-                  value={state.beadSize}
-                />
                 <div className="subtitle">Voxel size:</div>
                 <div className="voxel-box">
                   <TextField
@@ -87,14 +58,12 @@ const BeadExtractor = () => {
                 </div>
               </div>
               <div className="column-2" style={{ zIndex: 1 }}>
-                <div className="images__preview">
-                  <TiffStackViewer tiffList={state.files} scale={state.scale} />
-                </div>
+                <Dropzone files={state.files} addFiles={state.addFiles} />
               </div>
             </div>
           </>
         );
-      case 2:
+      case 1:
         return (
           <>
             <div className="row">
@@ -133,7 +102,7 @@ const BeadExtractor = () => {
             </div>
           </>
         );
-      case 3:
+      case 2:
         return (
           <>
             <div className="row">
@@ -169,7 +138,7 @@ const BeadExtractor = () => {
             </div>
           </>
         );
-      case 4:
+      case 3:
         return (
           <>
             <div className="row">

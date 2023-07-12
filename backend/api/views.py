@@ -31,6 +31,7 @@ def error_response(error_code, message_error, type_request):
 def load_image(request):
     if request.method == 'POST' and request.FILES.getlist('file'):
         file_list = request.FILES.getlist('file')
+        print('Received files:', file_list)
         try:
             image_data = ImageRaw(fpath=file_list)
 
@@ -47,7 +48,7 @@ def load_image(request):
                 voxelX = float(request.POST.get('voxelX'))
                 voxelY = float(request.POST.get('voxelY'))
                 voxelZ = float(request.POST.get('voxelZ'))
-                voxel = np.array([voxelX, voxelY, voxelZ])
+                voxel = np.array([voxelZ, voxelY, voxelX])
                 try:
                     image_data = ImageRaw(fpath=file_list, voxelSizeIn=voxel)
                     
@@ -67,10 +68,14 @@ def load_image(request):
         return error_response(400, 'Invalid request. Please make a POST request with a file.', 'POST')
 
 
+@csrf_exempt
+def bead_extract(request):
+    pass
 
 
-
-
+@csrf_exempt
+def bead_avearage(request):
+    pass
 
 # @csrf_exempt
 # def psf_processing(request):
