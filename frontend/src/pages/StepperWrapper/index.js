@@ -5,27 +5,26 @@ import { useStateValues } from './state';
 import useAxiosStore from '../../app/store/axiosStore';
 import './stepper.css';
 
-const StepperWrapper = ({ name, stepContent, steps, handleNextStep, handlePrevStep, activeStep, files}) => {
+const StepperWrapper = ({ name, stepContent, steps, handleNextStep, handlePrevStep, activeStep, files }) => {
   const state = useStateValues();
   const axiosStore = useAxiosStore();
-  //!TODO: Connect file downloads (front + back)
   const handleNext = async () => {
     if (activeStep === 0) {
       try {
         let formData = new FormData();
         const fileObjects = files.map((file) => file.file);
-  
+
         fileObjects.forEach((file) => {
           formData.append('file', file);
         });
-  
+
         const response = await axiosStore.postData({
           file: fileObjects,
           voxelX: state.voxelX,
           voxelY: state.voxelY,
           voxelZ: state.voxelZ
         });
-  
+
         console.log('Response:', response);
         handleNextStep();
       } catch (error) {
@@ -35,7 +34,7 @@ const StepperWrapper = ({ name, stepContent, steps, handleNextStep, handlePrevSt
       handleNextStep();
     }
   };
-   
+
 
   return (
     <div>

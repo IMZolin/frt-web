@@ -22,7 +22,7 @@ from django.views.generic import TemplateView
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/load_image/', views.load_image, name='load_image'),
-    # path('api/bead_extractor/', views.load_image, name='load_image'),
+    path('api/bead_extractor/extract/', views.bead_extract, name='bead_extract'),
     # path('api/psf/processing/', views.psf_processing, name='psf_processing'),
     # path('api/deconv/processing/', views.deconv_processing, name='deconv_processing'),
     # path('api/network/processing/', views.cnn_processing, name='cnn_processing'),
