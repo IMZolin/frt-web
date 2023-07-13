@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, TextField } from '@mui/material';
+import { Button, FormLabel, TextField } from '@mui/material';
 import StepperWrapper from '../../StepperWrapper';
 import TifCompare from '../../../components/TifCompare';
 import TiffStackViewer from '../../../components/TiffStackViewer';
@@ -77,18 +77,31 @@ const BeadExtractor = () => {
                   step="0.1"
                   value={state.levelBrightness}
                   onChange={state.handleSliderBrightnessChange}
+                  // style={{ marginBottom: "10px" }}
                 />
-                <div className="subtitle">Selection Size (px):</div>
+                <label className="subtitle" htmlFor="select-size">Selection Size (px):</label>
                 <TextField
-                  id="selectSize"
+                  id="select-size"
                   variant="outlined"
                   placeholder="Enter a select size"
                   fullWidth
-                  margin="normal"
                   name="selectSize"
                   onChange={(e) => state.setSelectSize(e.target.value)}
                   value={state.selectSize}
                 />
+                <Button variant="outlined" color="success" className="btn-run">
+                  Extract beads
+                </Button>
+                <ChooseList
+                  className="choose-list"
+                  name="Tiff type"
+                  list={state.tiffTypes}
+                  selected={state.tiffType}
+                  onChange={state.handleTiffTypeChange}
+                />
+                <Button variant="outlined" color="secondary" className="btn-run">
+                  Save beads
+                </Button>
               </div>
               <div className="column-2" style={{ zIndex: 1 }}>
                 <div className="images__preview">

@@ -63,6 +63,8 @@ export const useStateValues = () => {
     const [makeGaussianBlur, setMakeGaussianBlur] = useState(false);
     const [gaussianBlurCount, setGaussianBlurCount] = useState(3);
 
+    const tiffTypes = ["8 bit", "16 bit", "32 bit"]
+
     const blurTypes = ["gauss", "none", "median"]
 
     const deconvMethods = {
@@ -117,6 +119,11 @@ export const useStateValues = () => {
         console.log(selectedType);
     };
 
+    const handleTiffTypeChange = (selectedType) => {
+        setTiffType(selectedType);
+        console.log(selectedType);
+    };
+
     return {
         files,
         addFiles,
@@ -164,6 +171,8 @@ export const useStateValues = () => {
         handlePSFChange,
         tiffType,
         setTiffType,
+        tiffTypes,
+        handleTiffTypeChange,
         regularization,
         setRegularization,
         deconvMethod,

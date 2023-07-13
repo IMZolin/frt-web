@@ -53,7 +53,6 @@ def load_image(request):
         return error_response(400, 'Invalid request. Please make a POST request with a file.', 'POST')
 
 
-
 @csrf_exempt
 def bead_extract(request):
     if request.method == 'POST':
@@ -69,7 +68,13 @@ def bead_extract(request):
 @csrf_exempt
 def bead_avearage(request):
     if request.method == 'POST':
-        pass
+        try:
+            bead_extractor = ExtractorModel()
+            cahced_image = django_cache.get('beads_image')
+            bead_extractor.SetMainImage(array=cahced_image['imArray'], voxel=list(cahced_image['voxel'].values()))
+            return HttpResponse('Bead averaging successfully')
+        except:
+            return error_response(400, 'Invalid request. Please make a POST request.', 'POST')
 
 # @csrf_exempt
 # def psf_processing(request):
