@@ -209,7 +209,7 @@ const NeuralNetwork = () => {
         handleNextStep={state.handleNextStep}
         handlePrevStep={state.handlePrevStep}
         activeStep={state.activeStep}
-        files={state.files}
+        isLoad={state.isLoad}
       />
     </div>
   );

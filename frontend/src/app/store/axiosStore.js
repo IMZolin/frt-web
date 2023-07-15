@@ -18,13 +18,14 @@ const useAxiosStore = create((set, get) => {
     axiosInstance,
 
     postData: async (params) => {
-      const { file, voxelX, voxelY, voxelZ } = params;
+      const { file, image_type, voxelX, voxelY, voxelZ } = params;
     
       let formData = new FormData();
     
       file.forEach((fileItem) => {
         formData.append('file', fileItem);
       });
+      formData.append('image_type', image_type);
     
       if (voxelX && voxelY && voxelZ) {
         formData.append('voxelX', voxelX);

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, FormLabel, TextField } from '@mui/material';
+import { Button, TextField } from '@mui/material';
 import StepperWrapper from '../../StepperWrapper';
 import TifCompare from '../../../components/TifCompare';
 import TiffStackViewer from '../../../components/TiffStackViewer';
@@ -58,7 +58,7 @@ const BeadExtractor = () => {
                 </div>
               </div>
               <div className="column-2" style={{ zIndex: 1 }}>
-                <Dropzone files={state.files} addFiles={state.addFiles} />
+                <Dropzone files={state.beads} addFiles={state.setBeads} imageType={'beads_image'} state={state}/>
               </div>
             </div>
           </>
@@ -77,7 +77,6 @@ const BeadExtractor = () => {
                   step="0.1"
                   value={state.levelBrightness}
                   onChange={state.handleSliderBrightnessChange}
-                  // style={{ marginBottom: "10px" }}
                 />
                 <label className="subtitle" htmlFor="select-size">Selection Size (px):</label>
                 <TextField
@@ -106,7 +105,7 @@ const BeadExtractor = () => {
               <div className="column-2" style={{ zIndex: 1 }}>
                 <div className="images__preview">
                   <TiffStackViewer
-                    tiffList={state.files}
+                    tiffList={state.beads}
                     scale={state.scale}
                     brightness={state.levelBrightness}
                   />
@@ -202,7 +201,7 @@ const BeadExtractor = () => {
         handleNextStep={state.handleNextStep}
         handlePrevStep={state.handlePrevStep}
         activeStep={state.activeStep}
-        files={state.files}
+        isLoad={state.isLoad}
       />
     </div>
   );

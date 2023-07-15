@@ -18,7 +18,7 @@ const StepperPSF = () => {
             case 0:
                 return (
                     <>
-                        <Dropzone files={state.files} addFiles={state.addFiles} />
+                        <Dropzone files={state.averageBead} addFiles={state.setAverageBead} imageType={'averaged_bead'} state={state}/>
                     </>
                 );
             case 1:
@@ -67,13 +67,12 @@ const StepperPSF = () => {
                             </div>
                             <div className="column-2" style={{ zIndex: 1 }}>
                                 <div className="images__preview">
-                                    <TiffStackViewer tiffList={state.files} scale={state.scale} />
+                                    <TiffStackViewer tiffList={state.averageBead} scale={state.scale} />
                                 </div>
                             </div>
                         </div>
                     </>
                 );
-
 
             case 2:
                 return (
@@ -130,7 +129,7 @@ const StepperPSF = () => {
                             </div>
                             <div className="column-2">
                                 <div className="images__preview">
-                                    <TifCompare files_1={state.files} files_2={state.files} scale={state.scale}/>
+                                    <TifCompare files_1={state.averageBead} files_2={state.averageBead} scale={state.scale}/>
                                 </div>
                             </div>
                         </div>
@@ -160,7 +159,7 @@ const StepperPSF = () => {
                             </div>
                             <div className="column-2" style={{ zIndex: 1 }}>
                                 <div className="images__preview">
-                                    <TiffStackViewer tiffList={state.files} scale={state.scale} />
+                                    <TiffStackViewer tiffList={state.averageBead} scale={state.scale} />
                                 </div>
                             </div>
 
@@ -181,7 +180,7 @@ const StepperPSF = () => {
                 handleNextStep={state.handleNextStep}
                 handlePrevStep={state.handlePrevStep}
                 activeStep={state.activeStep}
-                files={state.files}
+                isLoad={state.isLoad}
             />
         </div>
     );

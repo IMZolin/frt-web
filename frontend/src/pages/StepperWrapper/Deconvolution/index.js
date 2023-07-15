@@ -13,16 +13,12 @@ const Deconvolution = () => {
   const state = useStateValues();
   const steps = ['Load image', 'Load PSF', 'Run Deconvolution', 'Save results'];
 
-  const handleNextAfterAdd = () => {
-    // state.psfFiles
-  };
-
   function getStepContent(step) {
     switch (step) {
       case 0:
         return (
           <>
-            <Dropzone files={state.files} addFiles={state.addFiles} />
+            <Dropzone files={state.extractBeads} addFiles={state.setExtractBeads} imageType={'extract_beads'} state={state}/>
           </>
         );
       case 1:
@@ -34,11 +30,11 @@ const Deconvolution = () => {
                   <label htmlFor="scale-slider">Scale:</label>
                   <input id="scale-slider" type="range" min="0.5" max="10" step="0.1" value={state.scale} onChange={state.handleSliderChange} />
                 </div>
-                <Dropzone files={state.psfFiles} addFiles={state.addPsfFiles} />
+                <Dropzone files={state.psfFiles} addFiles={state.addPsfFiles} imageType={'psf_image'} state={state}/>
               </div>
               <div className="column-2">
                 <div className="images__preview">
-                  <TifCompare files_1={state.files} files_2={state.psfFiles} scale={state.scale} />
+                  <TifCompare files_1={state.extractBeads} files_2={state.psfFiles} scale={state.scale} />
                 </div>
               </div>
             </div>
@@ -92,7 +88,7 @@ const Deconvolution = () => {
               </div>
               <div className="column-2" style={{ zIndex: 1 }}>
                 <div className="images__preview">
-                  <TifCompare files_1={state.files}files_2={state.psfFiles} scale={state.scale}  brightness={state.levelBrightness}/>
+                  <TifCompare files_1={state.extractBeads}files_2={state.psfFiles} scale={state.scale}  brightness={state.levelBrightness}/>
                 </div>
               </div>
             </div>
@@ -121,7 +117,7 @@ const Deconvolution = () => {
               </div>
               <div className="column-2" style={{ zIndex: 1 }}>
                 <div className="images__preview">
-                  <TiffStackViewer tiffList={state.files} scale={state.scale} />
+                  <TiffStackViewer tiffList={state.extractBeads} scale={state.scale} />
                 </div>
               </div>
             </div>
@@ -141,7 +137,7 @@ const Deconvolution = () => {
         handleNextStep={state.handleNextStep}
         handlePrevStep={state.handlePrevStep}
         activeStep={state.activeStep}
-        files={state.files}
+        isLoad={state.isLoad}
       />
     </div>
   );

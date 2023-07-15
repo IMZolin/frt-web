@@ -21,19 +21,19 @@ def error_response(error_code, message_error, type_request):
     logger.info('Error response: %s', error_response['error'])
     return response
 
-
-def pass2cache(cache_key, key_list, data_list):
-    cache_dict = dict(zip(key_list, data_list))
+def pass2cache(cache_key, key, data):
+    cache_dict = dict(zip(key, data))
     django_cache.set(cache_key, cache_dict, timeout=None)
 
 
 @csrf_exempt
 def load_image(request):
-    if request.method == 'POST' and request.FILES.getlist('file'):
+    if request.method == 'POST' and request.FILES.getlist('file') and request.POST.get('image_type'):
         file_list = request.FILES.getlist('file')
+        image_type = str(request.POST.get('image_type'))
         try:
             image_data = ImageRaw(fpath=file_list)
-            pass2cache('beads_image', ['imArray', 'voxel'], [image_data.imArray, image_data.voxel])
+            pass2cache(image_type, ['imArray', 'voxel'], [image_data.imArray, image_data.voxel])
             return HttpResponse('Image loaded successfully')
         except ValueError as e:
             if 'voxel' in str(e) and request.POST.get('voxelX') and request.POST.get('voxelY') and request.POST.get('voxelZ'):
@@ -43,26 +43,58 @@ def load_image(request):
                 voxel = np.array([voxelZ, voxelY, voxelX])
                 try:
                     image_data = ImageRaw(fpath=file_list, voxelSizeIn=voxel)
-                    pass2cache('beads_image', ['imArray', 'voxel'], [image_data.imArray, image_data.voxel])
+                    pass2cache(image_type, ['imArray', 'voxel'], [image_data.imArray, image_data.voxel])
                     return HttpResponse('Image loaded successfully')
                 except ValueError as ve:
                     return error_response(400, str(ve), 'POST')
             else:
                 return error_response(400, str(e), 'POST')
     else:
-        return error_response(400, 'Invalid request. Please make a POST request with a file.', 'POST')
+        if request.method != 'POST':
+            return error_response(400, 'Invalid request method. Please make a POST request.', 'POST')
+        elif not request.FILES.getlist('file'):
+            return error_response(400, 'No files were uploaded.', 'POST')
+        elif not request.POST.get('image_type'):
+            return error_response(400, 'No image type specified.', 'POST')
+        else:
+            return error_response(400, 'Invalid request. Please make a POST request with the required parameters.', 'POST')
 
 
 @csrf_exempt
 def bead_extract(request):
-    if request.method == 'POST':
+    if request.method == 'POST' and request.POST.get('select_size') and request.POST.getlist('coords_list') and request.POST.get('is_deleted'):
         try:
             bead_extractor = ExtractorModel()
-            cahced_image = django_cache.get('beads_image')
-            bead_extractor.SetMainImage(array=cahced_image['imArray'], voxel=list(cahced_image['voxel'].values()))
-            return HttpResponse('Bead extracting successfully')
-        except:
-            return error_response(400, 'Invalid request. Please make a POST request.', 'POST')
+            cached_image = django_cache.get('beads_image')
+            bead_extractor.SetMainImage(array=cached_image['imArray'], voxel=list(cached_image['voxel'].values()))
+
+            select_size = int(request.POST.get('select_size'))
+            coords_list = [eval(coord) for coord in request.POST.getlist('coords_list')]
+            is_deleted = bool(request.POST.get('is_deleted'))
+
+            bead_extractor.selectionFrameHalf = select_size / 2
+
+            if not is_deleted:
+                for coord in coords_list:
+                    x, y = coord
+                    bead_extractor.beadMarkAdd([int(x), int(y)])
+            else:
+                bead_extractor.BeadCoordsClear()
+                for coord in coords_list:
+                    x, y = coord
+                    bead_extractor.beadMarkAdd([int(x), int(y)])
+
+            num_extracted_beads = bead_extractor.MarkedBeadsExtract()
+            if num_extracted_beads == 0:
+                return error_response(400, 'No beads were extracted', 'POST')
+            else:
+                print(bead_extractor._extractedBeads)
+                return HttpResponse('Beads extracting successfully\nExtractBeads: number of extracted beads ='  + str(bead_extractor.MarkedBeadsExtract()))
+        except Exception as e:
+            return error_response(400, str(e), 'POST')
+
+    return error_response(400, 'Invalid request. Please make a POST request with the required parameters.', 'POST')
+
         
 
 @csrf_exempt

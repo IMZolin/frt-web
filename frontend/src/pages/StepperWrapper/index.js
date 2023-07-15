@@ -1,41 +1,9 @@
 import React from 'react';
 import { Link, Outlet } from 'react-router-dom';
 import { Button, Step, StepLabel, Stepper } from '@mui/material';
-import { useStateValues } from './state';
-import useAxiosStore from '../../app/store/axiosStore';
 import './stepper.css';
 
-const StepperWrapper = ({ name, stepContent, steps, handleNextStep, handlePrevStep, activeStep, files }) => {
-  const state = useStateValues();
-  const axiosStore = useAxiosStore();
-  const handleNext = async () => {
-    if (activeStep === 0) {
-      try {
-        let formData = new FormData();
-        const fileObjects = files.map((file) => file.file);
-
-        fileObjects.forEach((file) => {
-          formData.append('file', file);
-        });
-
-        const response = await axiosStore.postData({
-          file: fileObjects,
-          voxelX: state.voxelX,
-          voxelY: state.voxelY,
-          voxelZ: state.voxelZ
-        });
-
-        console.log('Response:', response);
-        handleNextStep();
-      } catch (error) {
-        console.error('Error posting data:', error);
-      }
-    } else {
-      handleNextStep();
-    }
-  };
-
-
+const StepperWrapper = ({ name, stepContent, steps, handleNextStep, handlePrevStep, activeStep, isLoad }) => {
   return (
     <div>
       {activeStep === steps.length ? (
@@ -65,7 +33,7 @@ const StepperWrapper = ({ name, stepContent, steps, handleNextStep, handlePrevSt
               <Button disabled={activeStep === 0} onClick={handlePrevStep} className="btn-back">
                 Back
               </Button>
-              <Button variant="contained" color="primary" onClick={handleNext} disabled={files.length === 0}>
+              <Button variant="contained" color="primary" onClick={handleNextStep} disabled={!isLoad}>
                 {activeStep === steps.length - 1 ? 'Finish' : 'Next'}
               </Button>
             </div>

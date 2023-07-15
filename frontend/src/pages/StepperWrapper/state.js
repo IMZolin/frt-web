@@ -3,8 +3,11 @@ import { useState } from "react";
 
 export const defaultValues = {
     files: [],
+    isLoad: false,
+    beads: [],
+    extractBeads: [],
+    averageBead: [],
     psfFiles: [],
-    beadSize: 200,
     voxelX: 0.089,
     voxelY: 0.089,
     voxelZ: 0.2,
@@ -31,17 +34,20 @@ export const defaultValues = {
 export const useStateValues = () => {
     //General states
     const [files, addFiles] = useState(defaultValues.files);
-    const [beadSize, setBeadSize] = useState(defaultValues.beadSize);
+    const [isLoad, setIsLoad] = useState(defaultValues.isLoad);
     const [layer, setLayer] = useState(defaultValues.layer);
     const [scale, setScale] = useState(defaultValues.scale);
     const [filename, setFilename] = useState(defaultValues.filename);
     const [activeStep, setActiveStep] = useState(defaultValues.activeStep);
     //Bead extraction
+    const [beads, setBeads] = useState(defaultValues.beads);
     const [voxelX, setVoxelX] = useState(defaultValues.voxelX);
     const [voxelY, setVoxelY] = useState(defaultValues.voxelY);
     const [voxelZ, setVoxelZ] = useState(defaultValues.voxelZ);
     const [levelBrightness, setLevelBrightness] = useState(defaultValues.levelBrightness);
     const [selectSize, setSelectSize] = useState(defaultValues.selectSize);
+    const [extractBeads, setExtractBeads] = useState(defaultValues.extractBeads);
+    const [averageBead, setAverageBead] = useState(defaultValues.averageBead);
     const [tiffType, setTiffType] = useState(defaultValues.tiffType);
     const [blurType, setBlurType] = useState(defaultValues.blurType);
 
@@ -127,8 +133,10 @@ export const useStateValues = () => {
     return {
         files,
         addFiles,
-        beadSize,
-        setBeadSize,
+        isLoad,
+        setIsLoad,
+        beads,
+        setBeads,
         voxelX,
         setVoxelX,
         voxelY,
@@ -185,6 +193,10 @@ export const useStateValues = () => {
         handleBlurTypeChange,
         handleSliderBrightnessChange,
         psfFiles,
-        addPsfFiles
+        addPsfFiles,
+        averageBead,
+        setAverageBead,
+        extractBeads,
+        setExtractBeads
     };
 };
