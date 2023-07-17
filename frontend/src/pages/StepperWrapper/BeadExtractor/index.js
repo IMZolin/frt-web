@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button, TextField } from '@mui/material';
 import StepperWrapper from '../../StepperWrapper';
+import TifViewer from '../../../components/TifViewer';
 import TifCompare from '../../../components/TifCompare';
 import TiffStackViewer from '../../../components/TiffStackViewer';
 import Dropzone from '../../../components/Dropzone';
