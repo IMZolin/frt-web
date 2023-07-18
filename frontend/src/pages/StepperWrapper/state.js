@@ -18,7 +18,7 @@ export const defaultValues = {
     blurType: 'gauss',
     resolutionXY: 22,
     resolutionZ: 100,
-    scale: 10,
+    scale: 1,
     iter: 50,
     activeStep: 0,
     filename: "",

@@ -5,6 +5,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.core.cache import cache as django_cache
 import logging
 import numpy as np
+import tifffile
 
 from engine.engine_lib.src.model.ImageRaw_class import ImageRaw
 from engine.engine_lib.src.model.extractor_model import ExtractorModel
@@ -61,52 +62,75 @@ def load_image(request):
 
 
 @csrf_exempt
+def convert_image(request):
+    if request.method == 'POST' and request.FILES.getlist('file') and request.POST.get('output_prefix'):
+        input_files = request.FILES.getlist('file')
+        output_prefix = request.POST.get('output_prefix')
+        
+        try:
+            output_files = []
+            for i, input_file in enumerate(input_files):
+                stack = tifffile.imread(input_file)
+                for j, slice in enumerate(stack):
+                    output_file = f"{output_prefix}_{i+1:03}_{j+1:03}.tif"
+                    tifffile.imwrite(output_file, slice)
+                    output_files.append(output_file)
+
+            return HttpResponse(output_files, content_type='application/json')
+        except Exception as e:
+            return HttpResponse(f"Error during conversion: {e}", status=400, content_type='application/json')
+    
+    return HttpResponse([], content_type='application/json')
+
+
+@csrf_exempt
 def bead_extract(request):
-    if request.method == 'POST' and request.POST.get('select_size') and request.POST.getlist('coords_list') and request.POST.get('is_deleted'):
+    if request.method == 'POST' and request.POST.get('select_size') and request.POST.get('bead_coords') and request.POST.get('is_deleted'):
         try:
             bead_extractor = ExtractorModel()
             cached_image = django_cache.get('beads_image')
             bead_extractor.SetMainImage(array=cached_image['imArray'], voxel=list(cached_image['voxel'].values()))
-
             select_size = int(request.POST.get('select_size'))
-            coords_list = [eval(coord) for coord in request.POST.getlist('coords_list')]
-            is_deleted = bool(request.POST.get('is_deleted'))
-
             bead_extractor.selectionFrameHalf = select_size / 2
+            bead_coords = request.POST.get('bead_coords')
+            bead_coords = eval(bead_coords)
+            bead_extractor.beadCoords = bead_coords
+            is_deleted_beads = bool(request.POST.get('is_deleted_beads'))
 
-            if not is_deleted:
-                for coord in coords_list:
-                    x, y = coord
-                    bead_extractor.beadMarkAdd([int(x), int(y)])
+            if is_deleted_beads:
+                bead_extractor.extractedBeads = []
+                bead_extractor.MarkedBeadsExtract()
+                is_deleted_beads = False
             else:
-                bead_extractor.BeadCoordsClear()
-                for coord in coords_list:
-                    x, y = coord
-                    bead_extractor.beadMarkAdd([int(x), int(y)])
+                bead_extractor.MarkedBeadsExtract()
 
-            num_extracted_beads = bead_extractor.MarkedBeadsExtract()
-            if num_extracted_beads == 0:
-                return error_response(400, 'No beads were extracted', 'POST')
-            else:
-                print(bead_extractor._extractedBeads)
-                return HttpResponse('Beads extracting successfully\nExtractBeads: number of extracted beads ='  + str(bead_extractor.MarkedBeadsExtract()))
+            pass2cache('bead_extractor', ['data', 'beads_image', 'bead_coords', 'extract_beads', 'select_frame_half', 'average_bead','is_deleted_beads', 'blur_type'], [bead_extractor, cached_image, bead_extractor._beadCoords, bead_extractor._extractedBeads, bead_extractor._selectionFrameHalf, bead_extractor._averageBead, False, 'none'])
+
+            print(django_cache.get('bead_extractor'))
+            return HttpResponse('Beads extracting successfully')
         except Exception as e:
             return error_response(400, str(e), 'POST')
 
     return error_response(400, 'Invalid request. Please make a POST request with the required parameters.', 'POST')
 
-        
 
 @csrf_exempt
-def bead_avearage(request):
-    if request.method == 'POST':
+def bead_average(request):
+    if request.method == 'POST' and request.POST.get('blur_type'):
         try:
-            bead_extractor = ExtractorModel()
-            cahced_image = django_cache.get('beads_image')
-            bead_extractor.SetMainImage(array=cahced_image['imArray'], voxel=list(cahced_image['voxel'].values()))
+            bead_extractor = django_cache.get('bead_extractor')['data']
+            bead_extractor.BeadsArithmeticMean()
+            bead_extractor.BlurAveragedBead(request.POST.get('blur_type'))
+            pass2cache('bead_extractor', ['data', 'beads_image', 'bead_coords', 'extract_beads', 'select_frame_half', 'average_bead','is_deleted_beads', 'blur_type'], [bead_extractor, django_cache.get('bead_extractor')['beads_image'], django_cache.get('bead_extractor')['bead_coords'], django_cache.get('bead_extractor')['extract_beads'], django_cache.get('bead_extractor')['select_frame_half'], bead_extractor._averageBead, False, request.POST.get('blur_type')])
+
+            print(django_cache.get('bead_extractor')['average_bead'].imArray)
             return HttpResponse('Bead averaging successfully')
-        except:
-            return error_response(400, 'Invalid request. Please make a POST request.', 'POST')
+        except Exception as e:
+            return error_response(400, str(e), 'POST')
+    else:
+        return error_response(400, 'Invalid request. Please make a POST request with the required parameters.', 'POST')
+
+
 
 # @csrf_exempt
 # def psf_processing(request):
