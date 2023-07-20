@@ -6,11 +6,20 @@ from django.core.cache import cache as django_cache
 import logging
 import numpy as np
 import tifffile
+import io
+import base64
 
 from engine.engine_lib.src.model.ImageRaw_class import ImageRaw
 from engine.engine_lib.src.model.extractor_model import ExtractorModel
 
 logger = logging.getLogger(__name__)
+
+def pil_image_to_byte_stream(pil_image):
+    byte_stream = io.BytesIO()
+    pil_image.save(byte_stream, format='TIFF')
+    byte_stream.seek(0)
+    base64_string = base64.b64encode(byte_stream.getvalue()).decode('utf-8')
+    return base64_string
 
 def error_response(error_code, message_error, type_request):
     error_response = {
@@ -95,8 +104,7 @@ def bead_extract(request):
             bead_coords = request.POST.get('bead_coords')
             bead_coords = eval(bead_coords)
             bead_extractor.beadCoords = bead_coords
-            is_deleted_beads = bool(request.POST.get('is_deleted_beads'))
-
+            is_deleted_beads = bool(request.POST.get('is_deleted'))
             if is_deleted_beads:
                 bead_extractor.extractedBeads = []
                 bead_extractor.MarkedBeadsExtract()
@@ -106,8 +114,19 @@ def bead_extract(request):
 
             pass2cache('bead_extractor', ['data', 'beads_image', 'bead_coords', 'extract_beads', 'select_frame_half', 'average_bead','is_deleted_beads', 'blur_type'], [bead_extractor, cached_image, bead_extractor._beadCoords, bead_extractor._extractedBeads, bead_extractor._selectionFrameHalf, bead_extractor._averageBead, False, 'none'])
 
-            print(django_cache.get('bead_extractor'))
-            return HttpResponse('Beads extracting successfully')
+            extracted_beads_list = []
+            if bead_extractor.extractedBeads: 
+                for index, extracted_bead in enumerate(bead_extractor.extractedBeads):
+                    tiff_image = extracted_bead.SaveAsTiff(filename=f"extracted_bead_{index}.tiff", outtype="uint8")
+                    image_byte_stream = pil_image_to_byte_stream(tiff_image)
+                    extracted_beads_list.append(image_byte_stream)
+
+            response_data = {
+                'message': 'Beads extracting successfully',
+                'extracted_beads': extracted_beads_list,
+            }
+
+            return JsonResponse(response_data)
         except Exception as e:
             return error_response(400, str(e), 'POST')
 
@@ -123,13 +142,20 @@ def bead_average(request):
             bead_extractor.BlurAveragedBead(request.POST.get('blur_type'))
             pass2cache('bead_extractor', ['data', 'beads_image', 'bead_coords', 'extract_beads', 'select_frame_half', 'average_bead','is_deleted_beads', 'blur_type'], [bead_extractor, django_cache.get('bead_extractor')['beads_image'], django_cache.get('bead_extractor')['bead_coords'], django_cache.get('bead_extractor')['extract_beads'], django_cache.get('bead_extractor')['select_frame_half'], bead_extractor._averageBead, False, request.POST.get('blur_type')])
 
-            print(django_cache.get('bead_extractor')['average_bead'].imArray)
-            return HttpResponse('Bead averaging successfully')
+
+            if isinstance(django_cache.get('bead_extractor')['average_bead'], ImageRaw):
+                tiff_image = django_cache.get('bead_extractor')['average_bead'].SaveAsTiff(filename="average_bead.tiff", outtype="uint8")
+                response_data = {
+                        'message': 'Bead averaging successfully',
+                        'average_bead': pil_image_to_byte_stream(tiff_image),
+                    }
+                return JsonResponse(response_data)
+            else:
+                return error_response(400, 'Invalid image data. Unable to save as TIFF.', 'POST')
         except Exception as e:
             return error_response(400, str(e), 'POST')
     else:
         return error_response(400, 'Invalid request. Please make a POST request with the required parameters.', 'POST')
-
 
 
 # @csrf_exempt

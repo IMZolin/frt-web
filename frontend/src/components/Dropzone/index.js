@@ -59,6 +59,7 @@ const Dropzone = ({ files, addFiles, imageType, state }) => {
         onDelete={handleDeleteFile}
         acceptedFiles={['.tif', '.tiff']}
         maxFileSize={Infinity}
+        filesLimit={Infinity}
       />
     </>
   );

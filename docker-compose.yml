@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   backend:
-    restart: always
+    restart: unless-stopped
     build:
       context: ./backend
       dockerfile: Dockerfile.prod
@@ -41,6 +41,7 @@ services:
       - '1337:80'
 
   redis:
+    restart: unless-stopped
     image: redis:latest
     container_name: redis
     ports:

@@ -60,6 +60,24 @@ const useAxiosStore = create((set, get) => {
       }
     },
 
+    postBeadExtract: async (params) => {
+      try {
+        const response = await axiosInstance.post('/api/bead_extractor/extract/', params);
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
+
+    postBeadAverage: async (params) => {
+      try {
+        const response = await axiosInstance.post('/api/bead_extractor/average/', params);
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
+
     setAxiosToken: (newToken) => {
       const instance = get().axiosInstance;
       if (newToken != null) {

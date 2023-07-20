@@ -13,6 +13,7 @@ export const defaultValues = {
     voxelZ: 0.2,
     levelBrightness: 5,
     layer: 0,
+    isDeleted: false,
     selectSize: 36, //px size
     tiffType: '8 bit',
     blurType: 'gauss',
@@ -46,6 +47,7 @@ export const useStateValues = () => {
     const [voxelZ, setVoxelZ] = useState(defaultValues.voxelZ);
     const [levelBrightness, setLevelBrightness] = useState(defaultValues.levelBrightness);
     const [selectSize, setSelectSize] = useState(defaultValues.selectSize);
+    const [isDeleted, setIsDeleted] = useState(defaultValues.isDeleted);
     const [extractBeads, setExtractBeads] = useState(defaultValues.extractBeads);
     const [averageBead, setAverageBead] = useState(defaultValues.averageBead);
     const [tiffType, setTiffType] = useState(defaultValues.tiffType);
@@ -149,6 +151,8 @@ export const useStateValues = () => {
         setLevelBrightness,
         selectSize,
         setSelectSize,
+        isDeleted,
+        setIsDeleted,
         resolutionXY,
         setResolutionXY,
         resolutionZ,
