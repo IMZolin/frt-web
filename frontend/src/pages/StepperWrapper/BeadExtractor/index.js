@@ -4,10 +4,11 @@ import StepperWrapper from '../../StepperWrapper';
 import TifCompare from '../../../components/TifCompare';
 import TiffStackViewer from '../../../components/TiffStackViewer';
 import Dropzone from '../../../components/Dropzone';
+import FileDownloader from '../../../components/FileDownloader';
 import { useStateValues } from '../state';
 import ChooseList from '../../../components/ChooseList';
 import useAxiosStore from '../../../app/store/axiosStore';
-import {downloadFiles} from '../../../shared/hooks/downloadFiles';
+import { downloadFiles } from '../../../shared/hooks/downloadFiles';
 import './stepper.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
@@ -18,38 +19,39 @@ const BeadExtractor = () => {
   function base64ToBlob(base64Data, contentType) {
     const byteCharacters = atob(base64Data);
     const byteArrays = [];
-  
+
     for (let offset = 0; offset < byteCharacters.length; offset += 1024) {
       const slice = byteCharacters.slice(offset, offset + 1024);
-  
+
       const byteNumbers = new Array(slice.length);
       for (let i = 0; i < slice.length; i++) {
         byteNumbers[i] = slice.charCodeAt(i);
       }
-  
+
       const byteArray = new Uint8Array(byteNumbers);
       byteArrays.push(byteArray);
     }
-  
+
     return new Blob(byteArrays, { type: contentType });
   }
-  
+
   const handleBeadExtract = async () => {
     try {
       const requestData = {
-        select_size: state.selectSize, 
-        bead_coords: '[[39, 102], [181, 21], [234, 272], [336, 612], [103, 591], [564, 737], [481, 718], [510, 646], [534, 934], [351, 977], [258, 1023], [119, 1059], [459, 1589], [77, 1605], [172, 1478], [184, 1358]]', 
-        is_deleted: state.isDeleted, 
+        select_size: state.selectSize,
+        bead_coords: '[[39, 102], [181, 21], [234, 272], [336, 612]]',
+        is_deleted: state.isDeleted,
       };
-  
+
       const response = await axiosStore.postBeadExtract(requestData);
       console.log('Bead Extract Response:', response);
-  
+
       if (response.extracted_beads) {
         response.extracted_beads.forEach((base64Data, index) => {
           const blob = base64ToBlob(base64Data, 'image/tiff');
           const file = new File([blob], `extracted_bead_${index}.tiff`, { type: 'image/tiff' });
           console.log(file);
+          state.extractBeads.push(file);
         });
       } else {
         console.log('No extracted beads found in the response.');
@@ -64,14 +66,15 @@ const BeadExtractor = () => {
       const requestData = {
         blur_type: state.blurType,
       };
-  
+
       const response = await axiosStore.postBeadAverage(requestData);
       console.log('Bead Average Response:', response);
-  
+
       if (response.average_bead) {
         const blob = base64ToBlob(response.average_bead, 'image/tiff');
         const file = new File([blob], `average_bead.tiff`, { type: 'image/tiff' });
         console.log('Average Bead Image:', file);
+        state.averageBead.push(file);
       } else {
         console.log('No average bead found in the response.');
       }
@@ -124,7 +127,7 @@ const BeadExtractor = () => {
                 </div>
               </div>
               <div className="column-2" style={{ zIndex: 1 }}>
-                <Dropzone files={state.beads} addFiles={state.setBeads} imageType={'beads_image'} state={state}/>
+                <Dropzone files={state.beads} addFiles={state.setBeads} imageType={'beads_image'} state={state} />
               </div>
             </div>
           </>
@@ -164,7 +167,9 @@ const BeadExtractor = () => {
                   selected={state.tiffType}
                   onChange={state.handleTiffTypeChange}
                 />
-                <Button variant="outlined" color="secondary" className="btn-run">
+                <Button variant="outlined" color="secondary" className="btn-run" onClick={() => {
+                    downloadFiles(state.beads, "extract_beads");
+                  }}>
                   Save beads
                 </Button>
               </div>
@@ -249,7 +254,7 @@ const BeadExtractor = () => {
                   color="success"
                   className="btn-run"
                   onClick={() => {
-                    downloadFiles(state.beads, state.filename, 'single');
+                    downloadFiles(state.beads, state.filename);
                   }}
                 >
                   Save result
@@ -262,7 +267,7 @@ const BeadExtractor = () => {
               </div>
             </div>
           </>
-        );        
+        );
       default:
         return "unknown step";
     }

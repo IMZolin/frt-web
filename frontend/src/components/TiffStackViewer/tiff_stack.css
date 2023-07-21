@@ -6,6 +6,7 @@
 .slick-slide {
   text-align: center;
   position: relative;
+  overflow: auto;
 }
 
 .slick-slide:focus {

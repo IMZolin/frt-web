@@ -88,7 +88,6 @@ const TiffStackViewer = ({ tiffList, scale, brightness }) => {
           </div>
         ))}
       </Slider>
-      <button onClick={handleButtonClick}>Convert Image</button>
     </div>
   );
 };
