@@ -6,9 +6,9 @@ import TiffStackViewer from '../../../components/TiffStackViewer';
 import Dropzone from '../../../components/Dropzone';
 import FileDownloader from '../../../components/FileDownloader';
 import { useStateValues } from '../state';
+import {base64ToTiff} from '../../../shared/hooks/showImages';
 import ChooseList from '../../../components/ChooseList';
 import useAxiosStore from '../../../app/store/axiosStore';
-import { downloadFiles } from '../../../shared/hooks/downloadFiles';
 import './stepper.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
@@ -48,11 +48,10 @@ const BeadExtractor = () => {
 
       if (response.extracted_beads) {
         response.extracted_beads.forEach((base64Data, index) => {
-          const blob = base64ToBlob(base64Data, 'image/tiff');
-          const file = new File([blob], `extracted_bead_${index}.tiff`, { type: 'image/tiff' });
-          console.log(file);
+          const file = base64ToTiff(base64Data, 'image/tiff', `extracted_bead_${index}.tiff`);
           state.extractBeads.push(file);
         });
+        console.log(state.extractBeads);
       } else {
         console.log('No extracted beads found in the response.');
       }
@@ -71,10 +70,9 @@ const BeadExtractor = () => {
       console.log('Bead Average Response:', response);
 
       if (response.average_bead) {
-        const blob = base64ToBlob(response.average_bead, 'image/tiff');
-        const file = new File([blob], `average_bead.tiff`, { type: 'image/tiff' });
-        console.log('Average Bead Image:', file);
-        state.averageBead.push(file);
+        const file = base64ToTiff(response.average_bead, 'image/tiff', `average_bead.tiff`);
+        state.setAverageBead([file]); 
+        console.log(state.averageBead)
       } else {
         console.log('No average bead found in the response.');
       }
@@ -167,11 +165,7 @@ const BeadExtractor = () => {
                   selected={state.tiffType}
                   onChange={state.handleTiffTypeChange}
                 />
-                <Button variant="outlined" color="secondary" className="btn-run" onClick={() => {
-                    downloadFiles(state.beads, "extract_beads");
-                  }}>
-                  Save beads
-                </Button>
+                <FileDownloader fileList={state.extractBeads} folderName={"extract_beads"} btnName={"Save beads"}/>
               </div>
               <div className="column-2" style={{ zIndex: 1 }}>
                 <div className="images__preview">
@@ -215,7 +209,7 @@ const BeadExtractor = () => {
               </div>
               <div className="column-2">
                 <div className="images__preview">
-                  <TifCompare files_1={state.beads} files_2={state.beads} scale={state.scale} />
+                  <TifCompare files_1={state.extractBeads} files_2={state.averageBead} scale={state.scale} />
                 </div>
               </div>
             </div>
@@ -249,20 +243,11 @@ const BeadExtractor = () => {
                   onChange={(e) => state.setFilename(e.target.value)}
                   value={state.filename}
                 />
-                <Button
-                  variant="outlined"
-                  color="success"
-                  className="btn-run"
-                  onClick={() => {
-                    downloadFiles(state.beads, state.filename);
-                  }}
-                >
-                  Save result
-                </Button>
+                <FileDownloader fileList={state.averageBead} folderName={"avg_bead"} btnName={"Save result"}/>
               </div>
               <div className="column-2" style={{ zIndex: 1 }}>
                 <div className="images__preview">
-                  <TiffStackViewer tiffList={state.beads} scale={state.scale} />
+                  <TiffStackViewer tiffList={state.averageBead} scale={state.scale} />
                 </div>
               </div>
             </div>

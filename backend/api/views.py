@@ -142,7 +142,7 @@ def bead_average(request):
             bead_extractor.BlurAveragedBead(request.POST.get('blur_type'))
             pass2cache('bead_extractor', ['data', 'beads_image', 'bead_coords', 'extract_beads', 'select_frame_half', 'average_bead','is_deleted_beads', 'blur_type'], [bead_extractor, django_cache.get('bead_extractor')['beads_image'], django_cache.get('bead_extractor')['bead_coords'], django_cache.get('bead_extractor')['extract_beads'], django_cache.get('bead_extractor')['select_frame_half'], bead_extractor._averageBead, False, request.POST.get('blur_type')])
 
-
+            # print(django_cache.get('bead_extractor')['average_bead'].imArray.shape)
             if isinstance(django_cache.get('bead_extractor')['average_bead'], ImageRaw):
                 tiff_image = django_cache.get('bead_extractor')['average_bead'].SaveAsTiff(filename="average_bead.tiff", outtype="uint8")
                 response_data = {
