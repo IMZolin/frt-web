@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 
 export const defaultValues = {
@@ -6,6 +6,7 @@ export const defaultValues = {
     isLoad: false,
     beads: [],
     extractBeads: [],
+    centerExtractBeads: [],
     averageBead: [],
     psfFiles: [],
     voxelX: 0.089,
@@ -14,6 +15,7 @@ export const defaultValues = {
     levelBrightness: 5,
     layer: 0,
     isDeleted: false,
+    isRightClick: false,
     selectSize: 36, //px size
     tiffType: '8 bit',
     blurType: 'gauss',
@@ -48,7 +50,9 @@ export const useStateValues = () => {
     const [levelBrightness, setLevelBrightness] = useState(defaultValues.levelBrightness);
     const [selectSize, setSelectSize] = useState(defaultValues.selectSize);
     const [isDeleted, setIsDeleted] = useState(defaultValues.isDeleted);
+    const [isRightClick, setIsRightClick] = useState(defaultValues.isRightClick);
     const [extractBeads, setExtractBeads] = useState(defaultValues.extractBeads);
+    const [centerExtractBeads, setCenterExtractBeads] = useState(defaultValues.centerExtractBeads);
     const [averageBead, setAverageBead] = useState(defaultValues.averageBead);
     const [tiffType, setTiffType] = useState(defaultValues.tiffType);
     const [blurType, setBlurType] = useState(defaultValues.blurType);
@@ -132,6 +136,69 @@ export const useStateValues = () => {
         console.log(selectedType);
     };
 
+    const handleLayerChange = (layer) => {
+        setLayer(layer);
+      };
+    
+    const drawSquare = (x, y, size, canvasRef) => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        ctx.strokeStyle = 'green';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(x - size / 2, y - size / 2, size, size);
+    };
+
+    const handleDrawClick = (e, canvasRef) => {
+        e.preventDefault();
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const rect = canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+
+        setCenterExtractBeads((prevCenterExtractBeads) => [
+            ...prevCenterExtractBeads,
+            { x: x, y: y },
+          ]);
+    
+        drawSquare(x, y, selectSize, canvasRef);
+    };
+    useEffect(() => {
+        console.log(centerExtractBeads);
+    }, [centerExtractBeads]);
+
+    const handleUndoMark = (e, canvasRef) => {
+        e.preventDefault();
+        if (centerExtractBeads.length > 0) {
+          setCenterExtractBeads((prevCenterExtractBeads) =>
+            prevCenterExtractBeads.slice(0, prevCenterExtractBeads.length - 1)
+          );
+          setIsDeleted(true);  
+          const canvas = canvasRef.current;
+          if (canvas) {
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            centerExtractBeads.slice(0, -1).forEach((bead) => {
+              drawSquare(bead.x, bead.y, selectSize, canvasRef);
+            });
+          }
+        }
+      };
+    
+    const handleClearMarks = (e, canvasRef) => {
+        e.preventDefault();
+        setCenterExtractBeads([]);
+        const canvas = canvasRef.current;
+        if (canvas) {
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+        setIsDeleted(true); 
+    };
+    
+
     return {
         files,
         addFiles,
@@ -201,6 +268,15 @@ export const useStateValues = () => {
         averageBead,
         setAverageBead,
         extractBeads,
-        setExtractBeads
+        setExtractBeads,
+        isRightClick,
+        setIsRightClick,
+        handleLayerChange,
+        centerExtractBeads,
+        setCenterExtractBeads,
+        handleDrawClick,
+        drawSquare,
+        handleUndoMark,
+        handleClearMarks
     };
 };

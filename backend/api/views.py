@@ -3,9 +3,11 @@ from django.http import JsonResponse
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.core.cache import cache as django_cache
+from PIL import Image
 import logging
 import numpy as np
 import tifffile
+import json
 import io
 import base64
 
@@ -14,9 +16,32 @@ from engine.engine_lib.src.model.extractor_model import ExtractorModel
 
 logger = logging.getLogger(__name__)
 
-def pil_image_to_byte_stream(pil_image):
+
+def save_as_tiff(image_raw, is_one_page, filename="img", outtype="uint8"):
+    try:
+        tagID = 270
+        strVoxel = json.dumps(image_raw.voxel)
+        imlist = []
+        for tmp in image_raw.imArray:
+            imlist.append(Image.fromarray(tmp.astype(outtype)))
+        imlist[0].save(
+            filename, tiffinfo={tagID:strVoxel}, save_all=True, append_images=imlist[1:]
+        )
+        print(imlist[0])
+        if is_one_page:
+            return imlist[0]
+        else:
+            return imlist
+    except:
+        raise IOError("Cannot save file "+filename,"file_not_saved")
+
+def pil_image_to_byte_stream(pil_image, is_one_page):
     byte_stream = io.BytesIO()
-    pil_image.save(byte_stream, format='TIFF')
+    if is_one_page:
+        pil_image.save(byte_stream, format='TIFF')
+    else:
+        for page in pil_image:
+            page.save(byte_stream, format='TIFF')
     byte_stream.seek(0)
     base64_string = base64.b64encode(byte_stream.getvalue()).decode('utf-8')
     return base64_string
@@ -117,8 +142,8 @@ def bead_extract(request):
             extracted_beads_list = []
             if bead_extractor.extractedBeads: 
                 for index, extracted_bead in enumerate(bead_extractor.extractedBeads):
-                    tiff_image = extracted_bead.SaveAsTiff(filename=f"extracted_bead_{index}.tiff", outtype="uint8")
-                    image_byte_stream = pil_image_to_byte_stream(tiff_image)
+                    tiff_image = save_as_tiff(image_raw=extracted_bead, is_one_page=True, filename=f"extracted_bead_{index}.tiff", outtype="uint8")
+                    image_byte_stream = pil_image_to_byte_stream(pil_image=tiff_image, is_one_page=True)
                     extracted_beads_list.append(image_byte_stream)
 
             response_data = {
@@ -142,12 +167,12 @@ def bead_average(request):
             bead_extractor.BlurAveragedBead(request.POST.get('blur_type'))
             pass2cache('bead_extractor', ['data', 'beads_image', 'bead_coords', 'extract_beads', 'select_frame_half', 'average_bead','is_deleted_beads', 'blur_type'], [bead_extractor, django_cache.get('bead_extractor')['beads_image'], django_cache.get('bead_extractor')['bead_coords'], django_cache.get('bead_extractor')['extract_beads'], django_cache.get('bead_extractor')['select_frame_half'], bead_extractor._averageBead, False, request.POST.get('blur_type')])
 
-            # print(django_cache.get('bead_extractor')['average_bead'].imArray.shape)
-            if isinstance(django_cache.get('bead_extractor')['average_bead'], ImageRaw):
-                tiff_image = django_cache.get('bead_extractor')['average_bead'].SaveAsTiff(filename="average_bead.tiff", outtype="uint8")
+            avg_bead = django_cache.get('bead_extractor')['average_bead']
+            if isinstance(avg_bead, ImageRaw):
+                tiff_image = save_as_tiff(image_raw=avg_bead, is_one_page=False, filename=f"average_bead.tiff", outtype="uint8")
                 response_data = {
                         'message': 'Bead averaging successfully',
-                        'average_bead': pil_image_to_byte_stream(tiff_image),
+                        'average_bead': pil_image_to_byte_stream(pil_image=tiff_image, is_one_page=False),
                     }
                 return JsonResponse(response_data)
             else:

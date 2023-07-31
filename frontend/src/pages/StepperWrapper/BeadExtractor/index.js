@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useRef} from 'react';
 import { Button, TextField } from '@mui/material';
 import StepperWrapper from '../../StepperWrapper';
 import TifCompare from '../../../components/TifCompare';
@@ -16,25 +16,8 @@ const BeadExtractor = () => {
   const state = useStateValues();
   const steps = ['Load beads', 'Mark beads', 'Average bead', 'Save results'];
   const axiosStore = useAxiosStore();
-  function base64ToBlob(base64Data, contentType) {
-    const byteCharacters = atob(base64Data);
-    const byteArrays = [];
-
-    for (let offset = 0; offset < byteCharacters.length; offset += 1024) {
-      const slice = byteCharacters.slice(offset, offset + 1024);
-
-      const byteNumbers = new Array(slice.length);
-      for (let i = 0; i < slice.length; i++) {
-        byteNumbers[i] = slice.charCodeAt(i);
-      }
-
-      const byteArray = new Uint8Array(byteNumbers);
-      byteArrays.push(byteArray);
-    }
-
-    return new Blob(byteArrays, { type: contentType });
-  }
-
+  const canvasRef = useRef();
+  
   const handleBeadExtract = async () => {
     try {
       const requestData = {
@@ -155,6 +138,12 @@ const BeadExtractor = () => {
                   onChange={(e) => state.setSelectSize(e.target.value)}
                   value={state.selectSize}
                 />
+                <Button variant="outlined" color="warning" className="btn-run" onClick={(e) => state.handleUndoMark(e, canvasRef)}>
+                  Undo mark
+                </Button>
+                <Button variant="outlined" color="info" className="btn-run" onClick={(e) => state.handleClearMarks(e, canvasRef)}>
+                  Clear all marks
+                </Button>
                 <Button variant="outlined" color="success" className="btn-run" onClick={handleBeadExtract}>
                   Extract beads
                 </Button>
@@ -168,11 +157,19 @@ const BeadExtractor = () => {
                 <FileDownloader fileList={state.extractBeads} folderName={"extract_beads"} btnName={"Save beads"}/>
               </div>
               <div className="column-2" style={{ zIndex: 1 }}>
+              <canvas
+                  ref={canvasRef}
+                  width={state.beads[0].width} 
+                  height={state.beads[0].height} 
+                  style={{ border: '1px solid black', cursor: 'crosshair' }}
+                  onClick={(e) => state.handleDrawClick(e, canvasRef)} 
+                />
                 <div className="images__preview">
                   <TiffStackViewer
                     tiffList={state.beads}
                     scale={state.scale}
-                    brightness={state.levelBrightness}
+                    state={state}
+                    isExtract={true}
                   />
                 </div>
               </div>
@@ -209,7 +206,7 @@ const BeadExtractor = () => {
               </div>
               <div className="column-2">
                 <div className="images__preview">
-                  <TifCompare files_1={state.extractBeads} files_2={state.averageBead} scale={state.scale} />
+                  <TifCompare files_1={state.extractBeads} files_2={state.averageBead} scale={state.scale} state={state} isExtract={true}/>
                 </div>
               </div>
             </div>
@@ -247,7 +244,7 @@ const BeadExtractor = () => {
               </div>
               <div className="column-2" style={{ zIndex: 1 }}>
                 <div className="images__preview">
-                  <TiffStackViewer tiffList={state.averageBead} scale={state.scale} />
+                  <TiffStackViewer tiffList={state.averageBead} scale={state.scale} state={state} isExtract={true}/>
                 </div>
               </div>
             </div>
