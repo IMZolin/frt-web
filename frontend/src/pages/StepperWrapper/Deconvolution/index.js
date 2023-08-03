@@ -34,7 +34,7 @@ const Deconvolution = () => {
               </div>
               <div className="column-2">
                 <div className="images__preview">
-                  <TifCompare files_1={state.extractBeads} files_2={state.psfFiles} scale={state.scale} />
+                  <TifCompare files_1={state.extractBeads} files_2={state.psfFiles} scale={state.scale} state={state} canvasRef={null} isExtract={false}/>
                 </div>
               </div>
             </div>
@@ -88,7 +88,7 @@ const Deconvolution = () => {
               </div>
               <div className="column-2" style={{ zIndex: 1 }}>
                 <div className="images__preview">
-                  <TifCompare files_1={state.extractBeads}files_2={state.psfFiles} scale={state.scale}  brightness={state.levelBrightness}/>
+                <TifCompare files_1={state.extractBeads} files_2={state.psfFiles} scale={state.scale} state={state} canvasRef={null} isExtract={false}/>
                 </div>
               </div>
             </div>
@@ -117,7 +117,7 @@ const Deconvolution = () => {
               </div>
               <div className="column-2" style={{ zIndex: 1 }}>
                 <div className="images__preview">
-                  <TiffStackViewer tiffList={state.extractBeads} scale={state.scale} />
+                  <TiffStackViewer tiffList={state.averageBead} scale={state.scale} state={state} canvasRef={null} isExtract={false}/>
                 </div>
               </div>
             </div>

@@ -1,4 +1,4 @@
-import React, {useRef} from 'react';
+import React, { useRef } from 'react';
 import { Button, TextField } from '@mui/material';
 import StepperWrapper from '../../StepperWrapper';
 import TifCompare from '../../../components/TifCompare';
@@ -6,7 +6,7 @@ import TiffStackViewer from '../../../components/TiffStackViewer';
 import Dropzone from '../../../components/Dropzone';
 import FileDownloader from '../../../components/FileDownloader';
 import { useStateValues } from '../state';
-import {base64ToTiff} from '../../../shared/hooks/showImages';
+import { base64ToTiff } from '../../../shared/hooks/showImages';
 import ChooseList from '../../../components/ChooseList';
 import useAxiosStore from '../../../app/store/axiosStore';
 import './stepper.css';
@@ -17,12 +17,12 @@ const BeadExtractor = () => {
   const steps = ['Load beads', 'Mark beads', 'Average bead', 'Save results'];
   const axiosStore = useAxiosStore();
   const canvasRef = useRef();
-  
+
   const handleBeadExtract = async () => {
     try {
       const requestData = {
         select_size: state.selectSize,
-        bead_coords: '[[39, 102], [181, 21], [234, 272], [336, 612]]',
+        bead_coords: '[[39, 102], [181, 21], [234, 272], [336, 612], [103, 591], [564, 737], [481, 718], [510, 646], [534, 934], [351, 977], [258, 1023], [119, 1059], [459, 1589], [77, 1605], [172, 1478], [184, 1358]]',
         is_deleted: state.isDeleted,
       };
 
@@ -54,7 +54,7 @@ const BeadExtractor = () => {
 
       if (response.average_bead) {
         const file = base64ToTiff(response.average_bead, 'image/tiff', `average_bead.tiff`);
-        state.setAverageBead([file]); 
+        state.setAverageBead([file]);
         console.log(state.averageBead)
       } else {
         console.log('No average bead found in the response.');
@@ -138,13 +138,13 @@ const BeadExtractor = () => {
                   onChange={(e) => state.setSelectSize(e.target.value)}
                   value={state.selectSize}
                 />
-                <Button variant="outlined" color="warning" className="btn-run" onClick={(e) => state.handleUndoMark(e, canvasRef)}>
+                <Button variant="outlined" color="info" className="btn-run" onClick={(e) => state.handleUndoMark(e, canvasRef)}>
                   Undo mark
                 </Button>
                 <Button variant="outlined" color="info" className="btn-run" onClick={(e) => state.handleClearMarks(e, canvasRef)}>
                   Clear all marks
                 </Button>
-                <Button variant="outlined" color="success" className="btn-run" onClick={handleBeadExtract}>
+                <Button variant="outlined" color="secondary" className="btn-run" onClick={handleBeadExtract}>
                   Extract beads
                 </Button>
                 <ChooseList
@@ -154,22 +154,17 @@ const BeadExtractor = () => {
                   selected={state.tiffType}
                   onChange={state.handleTiffTypeChange}
                 />
-                <FileDownloader fileList={state.extractBeads} folderName={"extract_beads"} btnName={"Save beads"}/>
+                <FileDownloader fileList={state.extractBeads} folderName={"extract_beads"} btnName={"Save beads"} />
               </div>
               <div className="column-2" style={{ zIndex: 1 }}>
-              <canvas
-                  ref={canvasRef}
-                  width={state.beads[0].width} 
-                  height={state.beads[0].height} 
-                  style={{ border: '1px solid black', cursor: 'crosshair' }}
-                  onClick={(e) => state.handleDrawClick(e, canvasRef)} 
-                />
                 <div className="images__preview">
                   <TiffStackViewer
                     tiffList={state.beads}
                     scale={state.scale}
                     state={state}
+                    canvasRef={canvasRef}
                     isExtract={true}
+                    numImagePage={1}
                   />
                 </div>
               </div>
@@ -187,12 +182,22 @@ const BeadExtractor = () => {
                     id="scale-slider"
                     type="range"
                     min="0.5"
-                    max="10"
+                    max="2"
                     step="0.1"
                     value={state.scale}
-                    onChange={state.handleSliderChange}
+                    onChange={(e) => state.handleScaleChange(e, 2)}
                   />
                 </div>
+                <label htmlFor="brightness-slider">Brightness:</label>
+                <input
+                  id="brightness-slider"
+                  type="range"
+                  min="0"
+                  max="10"
+                  step="0.1"
+                  value={state.levelBrightness}
+                  onChange={state.handleSliderBrightnessChange}
+                />
                 <ChooseList
                   className="choose-list"
                   name="Blur type"
@@ -206,7 +211,7 @@ const BeadExtractor = () => {
               </div>
               <div className="column-2">
                 <div className="images__preview">
-                  <TifCompare files_1={state.extractBeads} files_2={state.averageBead} scale={state.scale} state={state} isExtract={true}/>
+                  <TifCompare files_1={state.extractBeads} files_2={state.averageBead} scale={state.scale} state={state} canvasRef={canvasRef} isExtract={false} numImagePage={4}/>
                 </div>
               </div>
             </div>
@@ -226,9 +231,19 @@ const BeadExtractor = () => {
                     max="10"
                     step="0.1"
                     value={state.scale}
-                    onChange={state.handleSliderChange}
+                    onChange={state.handleScaleChange}
                   />
                 </div>
+                <label htmlFor="brightness-slider">Brightness:</label>
+                <input
+                  id="brightness-slider"
+                  type="range"
+                  min="0"
+                  max="10"
+                  step="0.1"
+                  value={state.levelBrightness}
+                  onChange={state.handleSliderBrightnessChange}
+                />
                 <TextField
                   id="filename"
                   label="Filename"
@@ -240,11 +255,11 @@ const BeadExtractor = () => {
                   onChange={(e) => state.setFilename(e.target.value)}
                   value={state.filename}
                 />
-                <FileDownloader fileList={state.averageBead} folderName={"avg_bead"} btnName={"Save result"}/>
+                <FileDownloader fileList={state.averageBead} folderName={"avg_bead"} btnName={"Save result"} />
               </div>
               <div className="column-2" style={{ zIndex: 1 }}>
                 <div className="images__preview">
-                  <TiffStackViewer tiffList={state.averageBead} scale={state.scale} state={state} isExtract={true}/>
+                  <TiffStackViewer tiffList={state.averageBead} scale={state.scale} state={state} canvasRef={canvasRef} isExtract={false} numImagePage={4}/>
                 </div>
               </div>
             </div>

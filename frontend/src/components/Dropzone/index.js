@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
 import { DropzoneAreaBase } from 'material-ui-dropzone';
 import useAxiosStore from '../../app/store/axiosStore';
 
@@ -38,10 +38,15 @@ const Dropzone = ({ files, addFiles, imageType, state }) => {
 
       const response = await axiosStore.postData(requestData);
       console.log('Response:', response);
-    } catch (error) {
-      console.error('Error posting data:', error);
+    if (response && response.resolution && Array.isArray(response.resolution)) {
+      state.setResolution(response.resolution); 
+    } else {
+      console.log('Invalid resolution data in the response:', response);
     }
-  };
+  } catch (error) {
+    console.error('Error posting data:', error);
+  }
+};
 
   const handleDeleteFile = (deletedFile) => {
     const updatedFiles = files.filter((file) => file.id !== deletedFile.id);

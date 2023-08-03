@@ -20,7 +20,7 @@
 }
 
 .column-1 {
-  flex: 0 0 14%; 
+  flex: 0 0 17%; 
 }
 
 .column-2 {
@@ -53,6 +53,7 @@
 .btn-run {
   display: block;
   margin-top: 20px;
+  margin-bottom: auto;
   width: 100%;
   z-index: 1;
 }

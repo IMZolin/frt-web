@@ -69,7 +69,8 @@ def load_image(request):
         try:
             image_data = ImageRaw(fpath=file_list)
             pass2cache(image_type, ['imArray', 'voxel'], [image_data.imArray, image_data.voxel])
-            return HttpResponse('Image loaded successfully')
+            resolution = image_data.imArray.shape  # Get the resolution of the image
+            return HttpResponse(f'Image loaded successfully. Resolution: {resolution}')
         except ValueError as e:
             if 'voxel' in str(e) and request.POST.get('voxelX') and request.POST.get('voxelY') and request.POST.get('voxelZ'):
                 voxelX = float(request.POST.get('voxelX'))
@@ -79,7 +80,12 @@ def load_image(request):
                 try:
                     image_data = ImageRaw(fpath=file_list, voxelSizeIn=voxel)
                     pass2cache(image_type, ['imArray', 'voxel'], [image_data.imArray, image_data.voxel])
-                    return HttpResponse('Image loaded successfully')
+                    response_data = {
+                        'message': 'Beads extracting successfully',
+                        'resolution': image_data.imArray.shape,
+                    }
+
+                    return JsonResponse(response_data)
                 except ValueError as ve:
                     return error_response(400, str(ve), 'POST')
             else:

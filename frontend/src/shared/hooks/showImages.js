@@ -48,3 +48,22 @@ export function show_images(img_1,img_2){
     const id = Math.floor(Math.random() * 10000);
     return {data: `data:image/tiff;base64,${base64Data}`, file: file, id: id};
   }
+
+  export const getImageResolutionFromSize = (fileSizeInBytes, colorDepth, numChannels) => {
+    const bitsPerPixel = colorDepth * numChannels;
+    const totalPixels = fileSizeInBytes * 8 / bitsPerPixel;
+    const resolution = Math.sqrt(totalPixels);
+    const width = Math.round(resolution);
+    const height = Math.round(resolution);
+  
+    return { width, height };
+  };
+  
+  // // Example usage
+  // const fileSizeInBytes = 1024 * 1024; // 1 MB
+  // const colorDepth = 8; // 8-bit (grayscale)
+  // const numChannels = 1; // Grayscale image has 1 channel
+  
+  // const resolution = getImageResolutionFromSize(fileSizeInBytes, colorDepth, numChannels);
+  // console.log(resolution); // Output: { width: 1024, height: 1024 }
+  

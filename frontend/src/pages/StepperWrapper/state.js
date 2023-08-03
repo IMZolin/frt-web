@@ -12,6 +12,7 @@ export const defaultValues = {
     voxelX: 0.089,
     voxelY: 0.089,
     voxelZ: 0.2,
+    resolution: [],
     levelBrightness: 5,
     layer: 0,
     isDeleted: false,
@@ -31,7 +32,8 @@ export const defaultValues = {
     makeGaussianBlur: false,
     gaussianBlurCount: 3,
     regularization: 0.0001,
-    deconvMethod: 'RL'
+    deconvMethod: 'RL',
+    marginTop: 0
 };
 
 export const useStateValues = () => {
@@ -42,6 +44,8 @@ export const useStateValues = () => {
     const [scale, setScale] = useState(defaultValues.scale);
     const [filename, setFilename] = useState(defaultValues.filename);
     const [activeStep, setActiveStep] = useState(defaultValues.activeStep);
+    const [resolution, setResolution] = useState(defaultValues.resolution);
+    const [marginTop, setMarginTop] = useState(defaultValues.marginTop);
     //Bead extraction
     const [beads, setBeads] = useState(defaultValues.beads);
     const [voxelX, setVoxelX] = useState(defaultValues.voxelX);
@@ -97,13 +101,6 @@ export const useStateValues = () => {
         e.preventDefault();
     };
 
-    const handleSliderChange = (e) => {
-        const value = e.target.value;
-        const maxScale = 10;
-        const newScale = value > maxScale ? maxScale : value;
-        setScale(newScale);
-    };
-
     const handleSliderBrightnessChange = (e) => {
         const value = e.target.value;
         const maxBrightness = 10;
@@ -115,7 +112,6 @@ export const useStateValues = () => {
         const checked = e.target.checked;
         setMakeGaussianBlur(checked);
     };
-
 
     const handlePSFChange = (e) => {
         setStatePSF(e.target.checked ? 'stepper-psf' : 'dropzone');
@@ -146,8 +142,10 @@ export const useStateValues = () => {
         const ctx = canvas.getContext('2d');
         ctx.strokeStyle = 'green';
         ctx.lineWidth = 2;
+        ctx.zIndex = 4;
         ctx.strokeRect(x - size / 2, y - size / 2, size, size);
     };
+
 
     const handleDrawClick = (e, canvasRef) => {
         e.preventDefault();
@@ -156,17 +154,16 @@ export const useStateValues = () => {
         const rect = canvas.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
-
+        console.log(rect, e.clientX)
         setCenterExtractBeads((prevCenterExtractBeads) => [
             ...prevCenterExtractBeads,
             { x: x, y: y },
-          ]);
-    
+          ]); 
         drawSquare(x, y, selectSize, canvasRef);
     };
     useEffect(() => {
-        console.log(centerExtractBeads);
-    }, [centerExtractBeads]);
+        console.log(centerExtractBeads, resolution);
+    }, [centerExtractBeads, resolution]);
 
     const handleUndoMark = (e, canvasRef) => {
         e.preventDefault();
@@ -197,6 +194,16 @@ export const useStateValues = () => {
         }
         setIsDeleted(true); 
     };
+
+    const handleScaleChange = (e, maxScale) => {
+        const value = e.target.value;
+        const newScale = value > maxScale ? maxScale : value;
+        setScale(newScale);
+    
+        const marginTopIncrement = 3; 
+        const newMarginTop = Math.floor((value - 0.5) / 0.1) * marginTopIncrement;
+        setMarginTop(newMarginTop);
+      };
     
 
     return {
@@ -245,7 +252,6 @@ export const useStateValues = () => {
         handleNextStep,
         handlePrevStep,
         handleButtonClick,
-        handleSliderChange,
         handleGaussianBlurToggle,
         handlePSFChange,
         tiffType,
@@ -277,6 +283,11 @@ export const useStateValues = () => {
         handleDrawClick,
         drawSquare,
         handleUndoMark,
-        handleClearMarks
+        handleClearMarks,
+        resolution,
+        setResolution,
+        marginTop,
+        setMarginTop,
+        handleScaleChange
     };
 };
