@@ -3,15 +3,16 @@ from django.http import JsonResponse
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.core.cache import cache as django_cache
+import os
 import numpy as np
 import logging
 import tifffile
-# from celery.result import AsyncResult
+from celery.result import AsyncResult
 
 from engine.engine_lib.src.model.ImageRaw_class import ImageRaw
 from engine.engine_lib.src.model.extractor_model import ExtractorModel
 from .utils import save_as_tiff, pil_image_to_byte_stream, pass2cache
-# from .tasks import load_and_cache_image
+from .tasks import load_and_cache_image
 
 logger = logging.getLogger(__name__)
 
@@ -31,30 +32,35 @@ def load_image(request):
     if request.method == 'POST' and request.FILES.getlist('file') and request.POST.get('image_type'):
         file_list = request.FILES.getlist('file')
         image_type = str(request.POST.get('image_type'))
+        voxelX = request.POST.get('voxelX')
+        voxelY = request.POST.get('voxelY')
+        voxelZ = request.POST.get('voxelZ')
         try:
-            image_data = ImageRaw(fpath=file_list)
-            pass2cache(image_type, ['imArray', 'voxel'], [image_data.imArray, image_data.voxel])
-            resolution = image_data.imArray.shape  # Get the resolution of the image
-            return HttpResponse(f'Image loaded successfully. Resolution: {resolution}')
-        except ValueError as e:
-            if 'voxel' in str(e) and request.POST.get('voxelX') and request.POST.get('voxelY') and request.POST.get('voxelZ'):
-                voxelX = float(request.POST.get('voxelX'))
-                voxelY = float(request.POST.get('voxelY'))
-                voxelZ = float(request.POST.get('voxelZ'))
-                voxel = np.array([voxelZ, voxelY, voxelX])
-                try:
-                    image_data = ImageRaw(fpath=file_list, voxelSizeIn=voxel)
-                    pass2cache(image_type, ['imArray', 'voxel'], [image_data.imArray, image_data.voxel])
-                    response_data = {
-                        'message': 'Image loaded successfully',
-                        'resolution': image_data.imArray.shape,
-                    }
+            # Create the tmp folder in the main backend directory if it doesn't exist
+            tmp_folder = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'tmp')
+            os.makedirs(tmp_folder, exist_ok=True)
 
-                    return JsonResponse(response_data)
-                except ValueError as ve:
-                    return error_response(400, str(ve), 'POST')
-            else:
-                return error_response(400, str(e), 'POST')
+            # Save the uploaded files to the tmp folder
+            file_paths = []
+            for file_obj in file_list:
+                file_path = os.path.join(tmp_folder, file_obj.name)
+                with open(file_path, 'wb') as destination:
+                    for chunk in file_obj.chunks():
+                        destination.write(chunk)
+                file_paths.append(file_path)
+
+            # Enqueue the Celery task
+            task = load_and_cache_image.delay(file_paths, image_type, voxelX, voxelY, voxelZ)
+
+            response_data = {
+                'message': 'Image loading task has been enqueued',
+                'resolution': task.get(),
+                'task_id': task.id
+            }
+
+            return JsonResponse(response_data)
+        except Exception as e:
+            return error_response(400, str(e), 'POST')
     else:
         if request.method != 'POST':
             return error_response(400, 'Invalid request method. Please make a POST request.', 'POST')
@@ -65,38 +71,39 @@ def load_image(request):
         else:
             return error_response(400, 'Invalid request. Please make a POST request with the required parameters.', 'POST')
 
-# def check_task_status(request, task_id):
-#     try:
-#         task = AsyncResult(task_id)
-#     except Exception as e:
-#         response_data = {
-#             'message': 'Task not found',
-#             'status': 'error',
-#             'error_message': str(e),
-#         }
-#         return JsonResponse(response_data)
 
-#     if task.ready():
-#         try:
-#             resolution = task.get()  # Retrieve the result of the completed task
-#             response_data = {
-#                 'message': 'Task completed',
-#                 'status': 'completed',
-#                 'resolution': resolution,
-#             }
-#         except Exception as e:
-#             response_data = {
-#                 'message': 'Error occurred while processing the task',
-#                 'status': 'error',
-#                 'error_message': str(e),
-#             }
-#     else:
-#         response_data = {
-#             'message': 'Task still in progress',
-#             'status': 'in_progress',
-#         }
+def check_task_status(request, task_id):
+    try:
+        task = AsyncResult(task_id)
+    except Exception as e:
+        response_data = {
+            'message': 'Task not found',
+            'status': 'error',
+            'error_message': str(e),
+        }
+        return JsonResponse(response_data)
 
-#     return JsonResponse(response_data)
+    if task.ready():
+        try:
+            resolution = task.get()  # Retrieve the result of the completed task
+            response_data = {
+                'message': 'Task completed',
+                'status': 'completed',
+                'resolution': resolution,
+            }
+        except Exception as e:
+            response_data = {
+                'message': 'Error occurred while processing the task',
+                'status': 'error',
+                'error_message': str(e),
+            }
+    else:
+        response_data = {
+            'message': 'Task still in progress',
+            'status': 'in_progress',
+        }
+
+    return JsonResponse(response_data)
 
 
 @csrf_exempt
