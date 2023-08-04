@@ -3,48 +3,17 @@ from django.http import JsonResponse
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.core.cache import cache as django_cache
-from PIL import Image
-import logging
 import numpy as np
+import logging
 import tifffile
-import json
-import io
-import base64
+# from celery.result import AsyncResult
 
 from engine.engine_lib.src.model.ImageRaw_class import ImageRaw
 from engine.engine_lib.src.model.extractor_model import ExtractorModel
+from .utils import save_as_tiff, pil_image_to_byte_stream, pass2cache
+# from .tasks import load_and_cache_image
 
 logger = logging.getLogger(__name__)
-
-
-def save_as_tiff(image_raw, is_one_page, filename="img", outtype="uint8"):
-    try:
-        tagID = 270
-        strVoxel = json.dumps(image_raw.voxel)
-        imlist = []
-        for tmp in image_raw.imArray:
-            imlist.append(Image.fromarray(tmp.astype(outtype)))
-        imlist[0].save(
-            filename, tiffinfo={tagID:strVoxel}, save_all=True, append_images=imlist[1:]
-        )
-        print(imlist[0])
-        if is_one_page:
-            return imlist[0]
-        else:
-            return imlist
-    except:
-        raise IOError("Cannot save file "+filename,"file_not_saved")
-
-def pil_image_to_byte_stream(pil_image, is_one_page):
-    byte_stream = io.BytesIO()
-    if is_one_page:
-        pil_image.save(byte_stream, format='TIFF')
-    else:
-        for page in pil_image:
-            page.save(byte_stream, format='TIFF')
-    byte_stream.seek(0)
-    base64_string = base64.b64encode(byte_stream.getvalue()).decode('utf-8')
-    return base64_string
 
 def error_response(error_code, message_error, type_request):
     error_response = {
@@ -55,10 +24,6 @@ def error_response(error_code, message_error, type_request):
     response["Access-Control-Allow-Methods"] = type_request
     logger.info('Error response: %s', error_response['error'])
     return response
-
-def pass2cache(cache_key, key, data):
-    cache_dict = dict(zip(key, data))
-    django_cache.set(cache_key, cache_dict, timeout=None)
 
 
 @csrf_exempt
@@ -81,7 +46,7 @@ def load_image(request):
                     image_data = ImageRaw(fpath=file_list, voxelSizeIn=voxel)
                     pass2cache(image_type, ['imArray', 'voxel'], [image_data.imArray, image_data.voxel])
                     response_data = {
-                        'message': 'Beads extracting successfully',
+                        'message': 'Image loaded successfully',
                         'resolution': image_data.imArray.shape,
                     }
 
@@ -99,6 +64,39 @@ def load_image(request):
             return error_response(400, 'No image type specified.', 'POST')
         else:
             return error_response(400, 'Invalid request. Please make a POST request with the required parameters.', 'POST')
+
+# def check_task_status(request, task_id):
+#     try:
+#         task = AsyncResult(task_id)
+#     except Exception as e:
+#         response_data = {
+#             'message': 'Task not found',
+#             'status': 'error',
+#             'error_message': str(e),
+#         }
+#         return JsonResponse(response_data)
+
+#     if task.ready():
+#         try:
+#             resolution = task.get()  # Retrieve the result of the completed task
+#             response_data = {
+#                 'message': 'Task completed',
+#                 'status': 'completed',
+#                 'resolution': resolution,
+#             }
+#         except Exception as e:
+#             response_data = {
+#                 'message': 'Error occurred while processing the task',
+#                 'status': 'error',
+#                 'error_message': str(e),
+#             }
+#     else:
+#         response_data = {
+#             'message': 'Task still in progress',
+#             'status': 'in_progress',
+#         }
+
+#     return JsonResponse(response_data)
 
 
 @csrf_exempt
@@ -188,107 +186,6 @@ def bead_average(request):
     else:
         return error_response(400, 'Invalid request. Please make a POST request with the required parameters.', 'POST')
 
-
-# @csrf_exempt
-# def psf_processing(request):
-#     if request.method == 'POST':
-#         bead_size = request.POST.get('bead_size')
-#         resolution_xy = request.POST.get('resolution_xy')
-#         resolution_z = request.POST.get('resolution_z')
-#         deconv_method = request.POST.get('deconv_method')
-#         iter_num = request.POST.get('iter_num')
-#         regularization = request.POST.get('regularization')
-        
-#         if bead_size and resolution_xy and resolution_z or iter_num:
-#             cached_object = cache.get('start_image')
-#             psf_param = PSFParams(start_image=cached_object, bead_size=bead_size, resolution_xy=resolution_xy, resolution_z=resolution_z, iter_num=iter_num)
-#             cache_key = 'psf_param'
-#             cache_object = psf_param
-#             cache.set(cache_key, cache_object)
-#             processed_image = process_psf(psf_param)
-#             psf_param.set_result(processed_image)
-#             response_data = {
-#                 'message': 'PSF parameters received successfully',
-#                 'psf_parameters': psf_param.to_json(),
-#                 # Include any other relevant data or results
-#             }
-#             return JsonResponse(response_data)
-#         else:
-#             error_response = {
-#                 'error': 'Invalid request. Please provide all PSF parameters'
-#             }
-#             return JsonResponse(error_response, status=400)
-    
-#     error_response = {
-#         'error': 'Invalid request. Please make a POST request with all PSF parameters'
-#     }
-#     return JsonResponse(error_response, status=400)
-
-
-# @csrf_exempt
-# def deconv_processing(request):
-#     if request.method == 'POST':
-#         iter_num = request.POST.get('iter_num')
-#         if iter_num:
-#             psf_param = cache.get('psf_param')
-#             if psf_param:   
-#                 deconv_param = DeconvParams(iter_num=iter_num, psf_param=psf_param)
-#                 cache_key = 'deconv_param'
-#                 cache_object = deconv_param
-#                 cache.set(cache_key, cache_object)
-#                 processed_image = process_deconv(deconv_param)
-#                 deconv_param.set_result(processed_image)
-#                 response_data = {
-#                     'message': 'Deconvolution parameters received successfully',
-#                     'deconv_param': deconv_param.to_json(),
-#                     # Include any other relevant data or results
-#                 }
-#                 return JsonResponse(response_data)
-#             else:
-#                 error_response = {
-#                 'error': 'Invalid request. First you need to run PSF'
-#             }
-#             return JsonResponse(error_response, status=400)
-#         else:
-#             error_response = {
-#                 'error': 'Invalid request. Please provide any Deconvolution parameters'
-#             }
-#             return JsonResponse(error_response, status=400)
-    
-#     error_response = {
-#         'error': 'Invalid request. Please make a POST request with all Deconvolution parameters'
-#     }
-#     return JsonResponse(error_response, status=400)
-
-
-# @csrf_exempt
-# def cnn_processing(request):
-#     if request.method == 'POST':
-#         maximize_intensity = request.POST.get('maximize_intensity')
-#         gaussian_blur = request.POST.get('gaussian_blur')
-
-#         if maximize_intensity or gaussian_blur:
-#             cached_object = cache.get('start_image')
-#             cnn_param = CNNParams(start_image=cached_object, maximize_intensity=maximize_intensity, gaussian_blur=gaussian_blur)
-#             processed_image = process_cnn(cnn_param)
-#             cnn_param.set_result(processed_image)
-#             response_data = {
-#                 'message': 'CNN parameters received successfully',
-#                 'cnn_parameters': cnn_param.to_json(),
-#                 # Include any other relevant data or results
-#             }
-#             return JsonResponse(response_data)
-#         else:
-#             error_response = {
-#                 'error': 'Invalid request. Please provide any CNN parameters'
-#             }
-#             return JsonResponse(error_response, status=400)
-    
-#     error_response = {
-#         'error': 'Invalid request. Please make a POST request with any CNN parameters'
-#     }
-#     return JsonResponse(error_response, status=400)
-    
 
 def hello_world(request):
     return HttpResponse("Hello, world!")

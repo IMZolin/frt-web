@@ -13,4 +13,5 @@ keras~=2.12.0
 PyYAML~=6.0
 PySimpleGUI~=4.60.5
 django-cors-headers~=4.1.0
-pathlib
+celery~=5.3.1
+flower~=2.0.0
