@@ -4,11 +4,7 @@
   - [Description](#description)
   - [Get started](#get-started)
     - [Development](#development)
-      - [Local settings](#local-settings)
-      - [Docker](#docker)
     - [Production](#production)
-      - [Local settings](#local-settings-1)
-      - [Docker](#docker-1)
   - [Project structure](#project-structure)
   - [Useful materials](#useful-materials)
 
@@ -18,7 +14,7 @@
 
 `Idea`: To make a website containing steppers as a way to interact with the client side with the server side. Also make it possible to authorize users.
 
-`Technologies`: ReactJS, Django, Docker, Redis, Nginx
+`Technologies`: ReactJS, Django, Docker, Redis, Nginx, Celery, Flower
 
 ## Get started
 
@@ -30,39 +26,29 @@ cd <your project name>
 cd frontend
 npm install 
 npm install --force # (if prev step doesn't work) 
-npm start
 cd ..
 ```
 
 ### Development
 
-#### Local settings
-
 ```bash
-cd backend
-./install.sh
-```
-
-#### Docker
-
-```bash
+docker-compose up -d --build
+#or
 docker-compose build
 docker-compose up -d
+
 docker-compose stop
 ```
 
-### Production
 
-#### Local settings
+### Production
 
 ```bash
 cd backend
-./install_prod.sh
-```
-
-#### Docker
-
-```bash
+./install_prod.sh 
+#or 
+./install.sh 
+cd ..
 docker-compose.prod build
 docker-compose.prod up -d
 docker-compose.prod stop
@@ -72,21 +58,37 @@ docker-compose.prod stop
 
 ```bash
 ├───backend
-│   ├───api # app: db migrations, models, views(requests)
-│   ├───backend # settings, prod execut. file(wsgi), urls
-│   ├───engine # image processing functions
-│   ├───gunicorn.conf.py # interface (WSGI) HTTP server
-│   └───manage.py # executable(dev) file
+│   ├───api
+│   │   ├───migrations # db migrations
+│   │   ├───admin.py # admin settins
+│   │   ├───apps.py # apps config
+│   │   ├───models.py # db models
+│   │   ├───tasks.py # celery async tasks
+│   │   ├───tests.py # tests for requests
+│   │   ├───utils.py # support functions
+│   │   └───views.py # request bodies
+│   ├───backend
+│   │   ├───asgi.py # prod executable file
+│   │   ├───celery.py # main celery config
+│   │   ├───middleware.py # apps config
+│   │   ├───settings.py # server settings
+│   │   ├───urls.py # endpoints
+│   │   └───wsgi.py # local executable file
+│   ├───engine
+│   │   ├───engine_lib # PSF's API (other git repository)
+│   │   └───README.md # doc
 ├───frontend 
 │   ├───node_modules # libs
 │   ├───public # assets and configs
 │   └───src # code
-│       ├───app # App.js with Routs and store(axios)
+│       ├───app # App.js with Routs and store(axios) - connect with the server
 │       ├───components  # separate indep. parts of pages
 │       ├───dev # to view and work on the components
 │       ├───hooks  # support functions 
 │       ├───pages # parts of app(e.x.: main page)
 │       └───index.js # get results
+├───gunicorn # gunicorn config
+├───logs # logging
 ├───nginx # nginx config
 └───systemd # gunicorn config
 ```
