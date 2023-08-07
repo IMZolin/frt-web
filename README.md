@@ -40,7 +40,6 @@ docker-compose up -d
 docker-compose stop
 ```
 
-
 ### Production
 
 ```bash
