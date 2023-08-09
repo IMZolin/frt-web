@@ -27,7 +27,7 @@ const BeadExtractor = () => {
       };
 
       const response = await axiosStore.postBeadExtract(requestData);
-      console.log('Bead Extract Response:', response);
+      console.log('Response:', response);
 
       if (response.extracted_beads) {
         response.extracted_beads.forEach((base64Data, index) => {
@@ -50,7 +50,7 @@ const BeadExtractor = () => {
       };
 
       const response = await axiosStore.postBeadAverage(requestData);
-      console.log('Bead Average Response:', response);
+      console.log('Response:', response);
 
       if (response.average_bead) {
         const file = base64ToTiff(response.average_bead, 'image/tiff', `average_bead.tiff`);
@@ -182,10 +182,10 @@ const BeadExtractor = () => {
                     id="scale-slider"
                     type="range"
                     min="0.5"
-                    max="3"
+                    max="2"
                     step="0.1"
                     value={state.scale}
-                    onChange={(e) => state.handleScaleChange(e, 3)}
+                    onChange={(e) => state.handleScaleChange(e, 2)}
                   />
                 </div>
                 <label htmlFor="brightness-slider">Brightness:</label>

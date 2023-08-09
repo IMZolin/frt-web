@@ -13,7 +13,7 @@ export const defaultValues = {
     voxelY: 0.089,
     voxelZ: 0.2,
     resolution: [],
-    levelBrightness: 5,
+    levelBrightness: 1,
     layer: 0,
     isDeleted: false,
     isRightClick: false,
