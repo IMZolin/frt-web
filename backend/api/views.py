@@ -142,19 +142,22 @@ def bead_extract(request):
             bead_extractor.beadCoords = bead_coords
             is_deleted_beads = bool(request.POST.get('is_deleted'))
             if is_deleted_beads:
-                bead_extractor.extractedBeads = []
-                bead_extractor.MarkedBeadsExtract()
+                bead_extractor._extractedBeads = []
+                print(bead_extractor.MarkedBeadsExtract())
                 is_deleted_beads = False
             else:
-                bead_extractor.MarkedBeadsExtract()
+                print(bead_extractor.MarkedBeadsExtract())
 
             pass2cache('bead_extractor', ['data', 'beads_image', 'bead_coords', 'extract_beads', 'select_frame_half', 'average_bead','is_deleted_beads', 'blur_type'], [bead_extractor, cached_image, bead_extractor._beadCoords, bead_extractor._extractedBeads, bead_extractor._selectionFrameHalf, bead_extractor._averageBead, False, 'none'])
-
+            print(bead_extractor._extractedBeads)
             extracted_beads_list = []
-            if bead_extractor.extractedBeads: 
-                for index, extracted_bead in enumerate(bead_extractor.extractedBeads):
+            if bead_extractor._extractedBeads: 
+                print('Exists')
+                for index, extracted_bead in enumerate(bead_extractor._extractedBeads):
                     tiff_image = save_as_tiff(image_raw=extracted_bead, is_one_page=True, filename=f"extracted_bead_{index}.tiff", outtype="uint8")
+                    print(tiff_image)
                     image_byte_stream = pil_image_to_byte_stream(pil_image=tiff_image, is_one_page=True)
+                    print(image_byte_stream)
                     extracted_beads_list.append(image_byte_stream)
 
             response_data = {
