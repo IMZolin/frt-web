@@ -142,7 +142,7 @@ export const useStateValues = () => {
         const ctx = canvas.getContext('2d');
         ctx.strokeStyle = 'green';
         ctx.lineWidth = 2;
-        ctx.zIndex = 4;
+        console.log(x - size / 2, y - size / 2, size);
         ctx.strokeRect(x - size / 2, y - size / 2, size, size);
     };
 
@@ -152,9 +152,9 @@ export const useStateValues = () => {
         const canvas = canvasRef.current;
         if (!canvas) return;
         const rect = canvas.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        console.log(rect, e.clientX)
+        const x = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft; 
+        const y = e.clientY + document.body.scrollTop + document.documentElement.scrollTop; 
+        console.log(rect);
         setCenterExtractBeads((prevCenterExtractBeads) => [
             ...prevCenterExtractBeads,
             { x: x, y: y },

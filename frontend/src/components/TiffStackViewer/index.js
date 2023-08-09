@@ -34,7 +34,7 @@ const TiffStackViewer = ({ tiffList, scale, state, canvasRef, isExtract, numImag
       /> */}
       <Slider {...sliderSettings}>
         {tiffList.map((tiff, index) => (
-          <div className="slick-slide" key={index}>
+          <div className="slick-slide" key={index} style={{ marginLeft: `${state.marginTop}px`}}>
             {isExtract ?
               <>
                 <div
@@ -69,7 +69,7 @@ const TiffStackViewer = ({ tiffList, scale, state, canvasRef, isExtract, numImag
                   style={{
                     position: 'relative',
                     width: '100%',
-                    height: '200px',
+                    height: '300px',
                     marginTop: `${state.marginTop}px`
                   }}
                 >

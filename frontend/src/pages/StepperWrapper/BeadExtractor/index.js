@@ -160,7 +160,7 @@ const BeadExtractor = () => {
                 <div className="images__preview">
                   <TiffStackViewer
                     tiffList={state.beads}
-                    scale={state.scale}
+                    scale={1}
                     state={state}
                     canvasRef={canvasRef}
                     isExtract={true}
@@ -182,10 +182,10 @@ const BeadExtractor = () => {
                     id="scale-slider"
                     type="range"
                     min="0.5"
-                    max="2"
+                    max="3"
                     step="0.1"
                     value={state.scale}
-                    onChange={(e) => state.handleScaleChange(e, 2)}
+                    onChange={(e) => state.handleScaleChange(e, 3)}
                   />
                 </div>
                 <label htmlFor="brightness-slider">Brightness:</label>
@@ -228,10 +228,10 @@ const BeadExtractor = () => {
                     id="scale-slider"
                     type="range"
                     min="0.5"
-                    max="10"
+                    max="5"
                     step="0.1"
                     value={state.scale}
-                    onChange={state.handleScaleChange}
+                    onChange={(e) => state.handleScaleChange(e, 5)}
                   />
                 </div>
                 <label htmlFor="brightness-slider">Brightness:</label>
