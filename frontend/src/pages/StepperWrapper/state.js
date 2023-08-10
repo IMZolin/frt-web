@@ -119,7 +119,6 @@ export const useStateValues = () => {
 
     const handleDeconvMethodChange = (selectedMethod) => {
         setDeconvMethod(selectedMethod);
-        console.log(selectedMethod);
     };
 
     const handleBlurTypeChange = (selectedType) => {
@@ -129,11 +128,12 @@ export const useStateValues = () => {
 
     const handleTiffTypeChange = (selectedType) => {
         setTiffType(selectedType);
-        console.log(selectedType);
     };
 
-    const handleLayerChange = (layer) => {
-        setLayer(layer);
+    const handleLayerChange = (e, maxLayer) => {
+        const value = e.target.value;
+        const newLayer = value > maxLayer ? maxLayer : value;
+        setLayer(newLayer);
       };
     
     const drawSquare = (x, y, size, canvasRef) => {
@@ -142,7 +142,6 @@ export const useStateValues = () => {
         const ctx = canvas.getContext('2d');
         ctx.strokeStyle = 'green';
         ctx.lineWidth = 2;
-        console.log(x - size / 2, y - size / 2, size);
         ctx.strokeRect(x - size / 2, y - size / 2, size, size);
     };
 
@@ -152,9 +151,8 @@ export const useStateValues = () => {
         const canvas = canvasRef.current;
         if (!canvas) return;
         const rect = canvas.getBoundingClientRect();
-        const x = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft; 
-        const y = e.clientY + document.body.scrollTop + document.documentElement.scrollTop; 
-        console.log(rect);
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
         setCenterExtractBeads((prevCenterExtractBeads) => [
             ...prevCenterExtractBeads,
             { x: x, y: y },
