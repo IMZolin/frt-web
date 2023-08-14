@@ -1,14 +1,38 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import TifViewer from '../TifViewer';
+import useBeadMark from './hook'; 
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import './tiff_extractor.css';
 
-const TiffExtractor = ({ img, scale, state, canvasRef}) => {
+const TiffExtractor = ({ img, scale, state, canvasRef }) => {
+  const markBead = useBeadMark(); 
+
+  useEffect(() => {
+    console.log(img);
+  }, [img]);
+
   if (!img) {
     return null;
   }
-  console.log(img);
+
+  const handleDrawClick = async (e, canvasRef) => {
+    e.preventDefault();
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const centerCoords = await markBead(x, y, state.selectSize);
+    if (centerCoords) {
+      state.setCenterExtractBeads((prevCenterExtractBeads) => [
+        ...prevCenterExtractBeads,
+        { x: centerCoords.x, y: centerCoords.y },
+      ]);
+      console.log(centerCoords);
+      state.drawSquare(centerCoords.x, centerCoords.y, state.selectSize, canvasRef);
+    }
+  };
 
   return (
     <div className="tiff-wrapper">
@@ -26,7 +50,7 @@ const TiffExtractor = ({ img, scale, state, canvasRef}) => {
             cursor: 'crosshair',
             background: 'transparent',
           }}
-          onClick={(e) => state.handleDrawClick(e, canvasRef)}
+          onClick={(e) => handleDrawClick(e, canvasRef)}
         />
         <TifViewer img={img} scale={scale} brightness={state.levelBrightness} />
       </div>
@@ -35,4 +59,3 @@ const TiffExtractor = ({ img, scale, state, canvasRef}) => {
 };
 
 export default TiffExtractor;
-

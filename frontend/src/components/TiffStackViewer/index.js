@@ -27,8 +27,16 @@ const TiffStackViewer = ({ tiffList, scale, state, numImagePage }) => {
     <div className="slider-wrapper">
       <Slider {...sliderSettings}>
         {tiffList.map((tiff, index) => (
-          <div className="slick-slide" key={index} style={{ marginLeft: `${state.marginTop}px`}}>
-            <TifViewer img={tiff} scale={scale} brightness={state.levelBrightness} className="slick-slide-image" />
+          <div className="slick-slide" key={index} style={{ marginLeft: `${state.marginTop}px` }}>
+            <div style={{
+              position: 'relative',
+              width: '100%',
+              height: '300px',
+              marginTop: `${state.marginTop}px`
+            }}
+            >
+              <TifViewer img={tiff} scale={scale} brightness={state.levelBrightness} className="slick-slide-image" />
+            </div>
           </div>
         ))}
       </Slider>

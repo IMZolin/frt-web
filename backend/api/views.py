@@ -36,11 +36,9 @@ def load_image(request):
         voxelY = request.POST.get('voxelY')
         voxelZ = request.POST.get('voxelZ')
         try:
-            # Create the tmp folder in the main backend directory if it doesn't exist
             tmp_folder = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'tmp')
             os.makedirs(tmp_folder, exist_ok=True)
 
-            # Save the uploaded files to the tmp folder
             file_paths = []
             for file_obj in file_list:
                 file_path = os.path.join(tmp_folder, file_obj.name)
@@ -49,7 +47,6 @@ def load_image(request):
                         destination.write(chunk)
                 file_paths.append(file_path)
 
-            # Enqueue the Celery task
             task = load_and_cache_image.delay(file_paths, image_type, voxelX, voxelY, voxelZ)
 
             response_data = {
@@ -126,6 +123,32 @@ def convert_image(request):
             return HttpResponse(f"Error during conversion: {e}", status=400, content_type='application/json')
     
     return HttpResponse([], content_type='application/json')
+
+
+@csrf_exempt
+def bead_mark(request):
+    if request.method == 'POST' and request.POST.get('x') and request.POST.get('y') and request.POST.get('select_size'):
+        try:
+            bead_extractor = ExtractorModel()
+            cached_image = django_cache.get('beads_image')
+            bead_extractor.SetMainImage(array=cached_image['imArray'], voxel=list(cached_image['voxel'].values()))
+            select_size = int(request.POST.get('select_size'))
+            bead_extractor.selectionFrameHalf = select_size / 2
+            x = round(float(request.POST.get('x')))  
+            y = round(float(request.POST.get('y')))  
+            x_center, y_center = bead_extractor.LocateFrameMAxIntensity3D(x, y)
+            # bead_extractor.beadMarkAdd([[x_center, y_center]])
+            # print(bead_extractor._beadCoords)
+            response_data = {
+                'message': 'Beads extracting successfully',
+                'center_coords': [int(x_center), int(y_center)],  
+            }
+            pass2cache('bead_extractor', ['data', 'beads_image', 'bead_coords', 'extract_beads', 'select_frame_half', 'average_bead', 'blur_type'], [bead_extractor, cached_image, bead_extractor._beadCoords, bead_extractor._extractedBeads, bead_extractor._selectionFrameHalf, bead_extractor._averageBead, 'none'])
+            return JsonResponse(response_data)
+        except Exception as e:
+            return error_response(400, str(e), 'POST')
+
+    return error_response(400, 'Invalid request. Please make a POST request with the required parameters.', 'POST')
 
 
 @csrf_exempt
