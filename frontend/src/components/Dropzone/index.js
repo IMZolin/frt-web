@@ -21,7 +21,7 @@ const Dropzone = ({ files, addFiles, imageType, state }) => {
       fileObjects.forEach((file) => {
         formData.append('file', file);
       });
-
+      
       const requestData = {
         file: fileObjects,
         image_type: imageType,
@@ -30,7 +30,7 @@ const Dropzone = ({ files, addFiles, imageType, state }) => {
         voxelZ: null,
       };
 
-      if (imageType.includes('beads_image')) {
+      if (imageType.includes('beads_image') || imageType.includes('averaged_bead')) {
         requestData.voxelX = state.voxelX;
         requestData.voxelY = state.voxelY;
         requestData.voxelZ = state.voxelZ;
@@ -38,15 +38,15 @@ const Dropzone = ({ files, addFiles, imageType, state }) => {
 
       const response = await axiosStore.postData(requestData);
       console.log('Response:', response);
-    if (response && response.resolution && Array.isArray(response.resolution)) {
-      state.setResolution(response.resolution); 
-    } else {
-      console.log('Invalid resolution data in the response:', response);
+      if (response && response.resolution && Array.isArray(response.resolution)) {
+        state.setResolution(response.resolution); 
+      } else {
+        console.log('Invalid resolution data in the response:', response);
+      }
+    } catch (error) {
+      console.error('Error posting data:', error);
     }
-  } catch (error) {
-    console.error('Error posting data:', error);
-  }
-};
+  };
 
   const handleDeleteFile = (deletedFile) => {
     const updatedFiles = files.filter((file) => file.id !== deletedFile.id);

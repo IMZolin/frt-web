@@ -9,7 +9,8 @@ from .utils import pass2cache
 
 @shared_task
 def load_and_cache_image(file_paths, image_type, voxelX=None, voxelY=None, voxelZ=None):
-    # pass
+    pass
+    """
     try:
         # Add this line before attempting to open the files
         print("File paths to be opened:", file_paths)
@@ -44,3 +45,4 @@ def load_and_cache_image(file_paths, image_type, voxelX=None, voxelY=None, voxel
         return resolution
     except ValueError as e:
         raise ValueError(str(e))
+    """
