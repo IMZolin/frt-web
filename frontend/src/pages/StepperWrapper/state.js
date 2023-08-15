@@ -90,8 +90,8 @@ export const useStateValues = () => {
 
     const deconvMethods = {
         "Richardson-Lucy":"RL",
-        "Richardson-Lucy TM":"RLTM",
-        "Richardson-Lucy TV":"RLTV"
+        "Richardson-Lucy TM":"RLTMR",
+        "Richardson-Lucy TV":"RLTVR"
       };
 
     const handleNextStep = () => {

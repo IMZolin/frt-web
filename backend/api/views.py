@@ -276,7 +276,7 @@ def psf_extract(request):
             # pass 2 cache all info 
             pass2cache('psf_extractor', ['extractor', 'average_bead', 'voxel', 'iter', 'regularization'], [psf_extractor, cached_image, voxel_size, request.POST.get('iter'), request.POST.get('regularization')])
 
-            print(request.POST.get('deconvMethod'))
+            print(request.POST.get('deconvMethod'), request.POST.get('regularization'), psf_extractor.regularizationParameter)
 
             # try to make PSF extraction
             psf_extractor.CalculatePSF(request.POST.get('deconvMethod'), None, None)
