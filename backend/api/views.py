@@ -47,12 +47,17 @@ def load_image(request):
                         destination.write(chunk)
                 file_paths.append(file_path)
 
-            task = load_and_cache_image.delay(file_paths, image_type, voxelX, voxelY, voxelZ)
+            if voxelX is not None and voxelY is not None and voxelZ is not None:
+                voxel = np.array([float(voxelZ), float(voxelY), float(voxelX)])
+                image_data = ImageRaw(fpath=file_list, voxelSizeIn=voxel)
+            else:
+                image_data = ImageRaw(fpath=file_list)
+
+            pass2cache(image_type, ['imArray', 'voxel'], [image_data.imArray, image_data.voxel])
 
             response_data = {
                 'message': 'Image loading task has been enqueued',
-                'resolution': task.get(),
-                'task_id': task.id
+                'resolution': image_data.imArray.shape,
             }
 
             return JsonResponse(response_data)

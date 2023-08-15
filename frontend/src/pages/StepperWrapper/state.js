@@ -144,43 +144,6 @@ export const useStateValues = () => {
         ctx.strokeRect(x - size / 2, y - size / 2, size, size);
     };
 
-    const handleBeadMark = async (x, y, selectSize) => {
-        try {
-          const response = await useAxiosStore().postBeadMark({
-            x: x,
-            y: y,
-            select_size: selectSize,
-          });
-      
-          if (response.center_coords) {
-            const [xCenter, yCenter] = response.center_coords;
-            return { x: xCenter, y: yCenter };
-          }
-      
-          return null; 
-        } catch (error) {
-          console.error('Error marking bead:', error);
-          return null;
-        }
-      };
-
-    const handleDrawClick = async (e, canvasRef) => {
-        e.preventDefault();
-        const canvas = canvasRef.current;
-        if (!canvas) return;
-        const rect = canvas.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        const centerCoords = await handleBeadMark(x, y, selectSize);
-        if (centerCoords) {
-            setCenterExtractBeads((prevCenterExtractBeads) => [
-            ...prevCenterExtractBeads,
-            { x: centerCoords.x, y: centerCoords.y },
-            ]);
-            console.log(centerCoords);
-            drawSquare(centerCoords.x, centerCoords.y, selectSize, canvasRef);
-        }
-    };
     useEffect(() => {
         console.log(centerExtractBeads, resolution);
     }, [centerExtractBeads, resolution]);
@@ -300,7 +263,6 @@ export const useStateValues = () => {
         handleLayerChange,
         centerExtractBeads,
         setCenterExtractBeads,
-        handleDrawClick,
         drawSquare,
         handleUndoMark,
         handleClearMarks,
