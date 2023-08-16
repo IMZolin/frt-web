@@ -7,6 +7,8 @@ export const defaultValues = {
     extractBeads: [],
     centerExtractBeads: [],
     averageBead: [],
+    extractedPSF: [],
+    beadSize:0.2,
     psfFiles: [],
     voxelX: 0.089,
     voxelY: 0.089,
@@ -19,8 +21,8 @@ export const defaultValues = {
     selectSize: 36, //px size
     tiffType: '8 bit',
     blurType: 'gauss',
-    resolutionXY: 22,
-    resolutionZ: 100,
+    resolutionXY: 0.022,
+    resolutionZ: 0.100,
     scale: 1,
     iter: 50,
     activeStep: 0,
@@ -31,7 +33,7 @@ export const defaultValues = {
     makeGaussianBlur: false,
     gaussianBlurCount: 3,
     regularization: 0.0001,
-    deconvMethod: 'RL',
+    deconvMethod: "Richardson-Lucy",
     marginTop: 0
 };
 
@@ -57,12 +59,15 @@ export const useStateValues = () => {
     const [extractBeads, setExtractBeads] = useState(defaultValues.extractBeads);
     const [centerExtractBeads, setCenterExtractBeads] = useState(defaultValues.centerExtractBeads);
     const [averageBead, setAverageBead] = useState(defaultValues.averageBead);
+    const [extractedPSF, setExtractedPSF] = useState(defaultValues.extractedPSF);
     const [tiffType, setTiffType] = useState(defaultValues.tiffType);
     const [blurType, setBlurType] = useState(defaultValues.blurType);
 
     const [resolutionXY, setResolutionXY] = useState(defaultValues.resolutionXY);
     const [resolutionZ, setResolutionZ] = useState(defaultValues.resolutionZ);
+
     //PSF
+    const [beadSize, setBeadSize] = useState(defaultValues.beadSize);
     const [psfFiles, addPsfFiles] = useState(defaultValues.psfFiles);
     const [iter, setIter] = useState(defaultValues.iter);
     const [regularization, setRegularization] = useState(defaultValues.regularization);
@@ -83,9 +88,9 @@ export const useStateValues = () => {
     const blurTypes = ["gauss", "none", "median"]
 
     const deconvMethods = {
-        RL: "Richardson-Lucy",
-        RLTM: "Richardson-Lucy TM",
-        RLTV: "Richardson-Lucy TV",
+        "Richardson-Lucy":"RL",
+        "Richardson-Lucy TM":"RLTMR",
+        "Richardson-Lucy TV":"RLTVR"
       };
 
     const handleNextStep = () => {
@@ -117,6 +122,7 @@ export const useStateValues = () => {
     }
 
     const handleDeconvMethodChange = (selectedMethod) => {
+        console.log(selectedMethod);
         setDeconvMethod(selectedMethod);
     };
 
@@ -214,6 +220,8 @@ export const useStateValues = () => {
         setResolutionXY,
         resolutionZ,
         setResolutionZ,
+        beadSize,
+        setBeadSize,
         scale,
         setScale,
         iter,
@@ -256,6 +264,8 @@ export const useStateValues = () => {
         addPsfFiles,
         averageBead,
         setAverageBead,
+        extractedPSF,
+        setExtractedPSF,
         extractBeads,
         setExtractBeads,
         isRightClick,

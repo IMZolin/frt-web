@@ -87,6 +87,15 @@ const useAxiosStore = create((set, get) => {
         throw error;
       }
     },
+    postPSFExtract: async (params) => {
+      try {
+        const response = await axiosInstance.post('/api/psf_extractor/extract/', params);
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
+
 
     setAxiosToken: (newToken) => {
       const instance = get().axiosInstance;
