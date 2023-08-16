@@ -11,6 +11,7 @@ from celery.result import AsyncResult
 
 from engine.engine_lib.src.model.ImageRaw_class import ImageRaw
 from engine.engine_lib.src.model.extractor_model import ExtractorModel
+from engine.engine_lib.src.model.decon_psf_model import DeconPsfModel
 from .utils import save_as_tiff, pil_image_to_byte_stream, pass2cache
 from .tasks import load_and_cache_image
 
@@ -26,7 +27,52 @@ def error_response(error_code, message_error, type_request):
     logger.info('Error response: %s', error_response['error'])
     return response
 
+@csrf_exempt
+def load_image(request):
+    if request.method == 'POST' and request.FILES.getlist('file') and request.POST.get('image_type'):
+        file_list = request.FILES.getlist('file')
+        image_type = str(request.POST.get('image_type'))
+        try:
+            image_data = ImageRaw(fpath=file_list)
+            pass2cache(image_type, ['imArray', 'voxel'], [image_data.imArray, image_data.voxel])
+            resolution = image_data.imArray.shape # Get the resolution of the image
 
+            response_data = {
+                'message': f'Image loaded successfully. Resolution: {resolution}',
+                'resolution': resolution,
+            }
+
+            return JsonResponse(response_data)
+        except ValueError as e:
+            if 'voxel' in str(e) and request.POST.get('voxelX') and request.POST.get('voxelY') and request.POST.get('voxelZ'):
+                voxelX = float(request.POST.get('voxelX'))
+                voxelY = float(request.POST.get('voxelY'))
+                voxelZ = float(request.POST.get('voxelZ'))
+                voxel = np.array([voxelZ, voxelY, voxelX])
+                try:
+                    image_data = ImageRaw(fpath=file_list, voxelSizeIn=voxel)
+                    pass2cache(image_type, ['imArray', 'voxel'], [image_data.imArray, image_data.voxel])
+                    response_data = {
+                        'message': 'Beads extracting successfully',
+                        'resolution': image_data.imArray.shape,
+                    }
+
+                    return JsonResponse(response_data)
+                except ValueError as ve:
+                    return error_response(400, str(ve), 'POST')
+            else:
+                return error_response(400, str(e), 'POST')
+    else:
+        if request.method != 'POST':
+            return error_response(400, 'Invalid request method. Please make a POST request.', 'POST')
+        elif not request.FILES.getlist('file'):
+            return error_response(400, 'No files were uploaded.', 'POST')
+        elif not request.POST.get('image_type'):
+            return error_response(400, 'No image type specified.', 'POST')
+        else:
+            return error_response(400, 'Invalid request. Please make a POST request with the required parameters.', 'POST')
+
+"""
 @csrf_exempt
 def load_image(request):
     if request.method == 'POST' and request.FILES.getlist('file') and request.POST.get('image_type'):
@@ -70,7 +116,7 @@ def load_image(request):
             return error_response(400, 'No image type specified.', 'POST')
         else:
             return error_response(400, 'Invalid request. Please make a POST request with the required parameters.', 'POST')
-
+"""
 
 def check_task_status(request, task_id):
     try:
@@ -195,6 +241,63 @@ def bead_average(request):
             return error_response(400, str(e), 'POST')
     else:
         return error_response(400, 'Invalid request. Please make a POST request with the required parameters.', 'POST')
+
+
+@csrf_exempt
+def psf_extract(request):
+    if request.method == 'POST' and request.POST.get('resolutionXY') and request.POST.get('resolutionZ') and request.POST.get('beadSize') and request.POST.get('iter') and request.POST.get('regularization') and request.POST.get('deconvMethod'):
+        try:
+            psf_extractor = DeconPsfModel()
+            cached_image = django_cache.get('averaged_bead')
+
+            voxel_size = [float(request.POST.get('resolutionZ')), float(request.POST.get('resolutionXY')), float(request.POST.get('resolutionXY'))]
+            print(voxel_size)
+
+            psf_extractor.SetPSFImage(array=cached_image['imArray'], voxel=voxel_size)
+
+            # try to set iterations number
+            try:
+                psf_extractor.iterationNumber = request.POST.get('iter')
+            except Exception as e:
+                return error_response(400, str(e), 'POST')
+
+            # try to set regularization param
+            try:
+                psf_extractor.regularizationParameter = request.POST.get('regularization')
+            except Exception as e:
+                return error_response(400, str(e), 'POST')
+
+            # try to set bead radius param
+            try:
+                psf_extractor.beadDiameter = request.POST.get('beadSize')
+            except Exception as e:
+                return error_response(400, str(e), 'POST')
+
+            # pass 2 cache all info 
+            pass2cache('psf_extractor', ['extractor', 'average_bead', 'voxel', 'iter', 'regularization'], [psf_extractor, cached_image, voxel_size, request.POST.get('iter'), request.POST.get('regularization')])
+
+            print(request.POST.get('deconvMethod'), request.POST.get('regularization'), psf_extractor.regularizationParameter)
+
+            # try to make PSF extraction
+            psf_extractor.CalculatePSF(request.POST.get('deconvMethod'), None, None)
+            print(f"result image shape: {psf_extractor.resultImage.imArray.shape}")
+            
+            # send result to client
+            is_one_page = False
+            tiff_image = save_as_tiff(image_raw=psf_extractor.resultImage, is_one_page=is_one_page, filename=f"extracted_psf.tiff", outtype="uint8")
+            print(len(tiff_image), tiff_image[0])
+            
+            byte_stream = pil_image_to_byte_stream(pil_image=tiff_image, is_one_page=is_one_page)
+            response_data = {
+                'message': 'PSF extracted successfully',
+                'extracted_psf': byte_stream,
+            }
+
+            return JsonResponse(response_data)
+        except Exception as e:
+            return error_response(400, str(e), 'POST')
+
+    return error_response(400, 'Invalid request. Please make a POST request with the required parameters.', 'POST')
 
 
 def hello_world(request):
