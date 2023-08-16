@@ -2,19 +2,17 @@ import React from 'react';
 import TiffStackViewer from '../TiffStackViewer';
 import './tif_compare.css';
 
-const TifCompare = ({ files_1, files_2, scale, state, canvasRef, isExtract, numImagePage }) => {
-  console.log(files_1, files_2);
+const TifCompare = ({ img_1, img_2, scale, state, numImagePage}) => {
   return (
     <div className="tif-container" >
-      <div className="viewer-label">Before:</div>
       <div className="images-container">
-        {files_1 ? (
-          <TiffStackViewer tiffList={files_1} scale={scale} className="tif-single" state={state} canvasRef={canvasRef} isExtract={isExtract} numImagePage={numImagePage}/>
+        {img_1 ? (
+          <TiffStackViewer tiffList={img_1} scale={scale} className="tif-single" state={state} numImagePage={numImagePage}/>
         ) : (
           null
         )}
-        {files_2 ? (
-          <TiffStackViewer tiffList={files_2} scale={scale} className="tif-single" state={state} canvasRef={canvasRef} isExtract={isExtract} numImagePage={numImagePage}/>
+        {img_2 ? (
+          <TiffStackViewer tiffList={img_2} scale={scale} className="tif-single" state={state} numImagePage={numImagePage}/>
         ) : (
           null
         )}

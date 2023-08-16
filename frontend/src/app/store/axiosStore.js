@@ -79,6 +79,14 @@ const useAxiosStore = create((set, get) => {
       }
     },
 
+    postBeadMark: async (params) => {
+      try {
+        const response = await axiosInstance.post('/api/bead_extractor/mark/', params);
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
     postPSFExtract: async (params) => {
       try {
         const response = await axiosInstance.post('/api/psf_extractor/extract/', params);
@@ -87,6 +95,7 @@ const useAxiosStore = create((set, get) => {
         throw error;
       }
     },
+
 
     setAxiosToken: (newToken) => {
       const instance = get().axiosInstance;
