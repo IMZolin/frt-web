@@ -5,6 +5,7 @@
   - [Get started](#get-started)
     - [Development](#development)
     - [Production](#production)
+    - [Engine update manual](#engine-update-manual)
   - [Project structure](#project-structure)
   - [Useful materials](#useful-materials)
 
@@ -51,6 +52,25 @@ cd ..
 docker-compose.prod build
 docker-compose.prod up -d
 docker-compose.prod stop
+```
+
+### Engine update manual
+
+url of engine: https://github.com/IMZolin/simple_psf_extractor
+
+```bash
+cd backend
+cd backend
+cd engine
+cd engine_lib
+# make some changes
+git add .
+git commit -m"Some updates to engine..."
+git push origin develop
+cd ..
+cd ..
+cd ..
+cd ..
 ```
 
 ## Project structure
