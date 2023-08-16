@@ -6,8 +6,8 @@
 .slick-slide {
   text-align: center;
   position: relative;
-  overflow: auto;
   align-items: center;
+  margin-bottom: 20px;
 }
 
 .slick-slide:focus {
@@ -16,11 +16,6 @@
 
 .slick-slide-image {
   object-fit: contain;
-  
-  /* width: 360px;
-  height: 360px; */
-  /* max-width: 100%; /* Add max-width to prevent exceeding container width */
-  /* max-height: 100%; Add max-height to prevent exceeding container height */ 
   border-radius: 8px;
   box-shadow: 0 13px 27px -5px hsla(240, 30.1%, 28%, 0.25),
     0 8px 16px -8px hsla(0, 0%, 0%, 0.3), 0 -6px 16px -6px hsla(0, 0%, 0%, 0.03);

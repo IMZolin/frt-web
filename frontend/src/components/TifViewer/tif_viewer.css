@@ -5,7 +5,7 @@
   align-items: flex-start;
   flex: 1;
   position: relative; /* Added */
-  margin-top: 20px;
+  /* margin-top: 20px; */
 }
 
 .viewer-label {
