@@ -56,7 +56,7 @@ docker-compose.prod stop
 
 ### Engine update manual
 
-url of engine: https://github.com/IMZolin/simple_psf_extractor
+url of engine: <https://github.com/IMZolin/simple_psf_extractor>
 
 ```bash
 cd backend
