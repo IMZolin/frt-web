@@ -1,5 +1,6 @@
 import { Button, TextField } from "@mui/material";
 import StepperWrapper from '../../StepperWrapper';
+import TifViewer from '../../../components/TifViewer';
 import TifCompare from '../../../components/TifCompare';
 import TiffStackViewer from '../../../components/TiffStackViewer';
 import ChooseList from '../../../components/ChooseList';
@@ -19,33 +20,36 @@ const StepperPSF = () => {
 
     const handlePSFExtract = async () => {
         console.log("Im tryin make psf extraction");
-        
-        try {
-          const requestData = {
-            resolutionXY: state.voxelX,
-            resolutionZ: state.voxelZ,
-            beadSize: state.beadSize,
-            iter: state.iter,
-            regularization: state.regularization,
-            deconvMethod: state.deconvMethods[state.deconvMethod]
-          };
 
-          const response = await axiosStore.postPSFExtract(requestData);
-          console.log('Response:', response);
-    
-          if (response.extracted_psf) {
-            const file = base64ToTiff(response.extracted_psf_save, 'image/tiff', `extracted_psf.tiff`);
-            state.setExtractedPSF([response.extracted_psf]);
-            state.setExtractedPSFSave([file])
-            console.log(state.extractedPSF)
-          } else {
-            console.log('No extracted PSF found in the response.');
-          }
+        try {
+            const requestData = {
+                resolutionXY: state.voxelX,
+                resolutionZ: state.voxelZ,
+                beadSize: state.beadSize,
+                iter: state.iter,
+                regularization: state.regularization,
+                deconvMethod: state.deconvMethods[state.deconvMethod]
+            };
+
+            const response = await axiosStore.postPSFExtract(requestData);
+            console.log('Response:', response);
+
+            if (response.extracted_psf) {
+                const file = base64ToTiff(response.extracted_psf_save, 'image/tiff', `extracted_psf.tiff`);
+                const newExtractPSF = response.extracted_psf.map((base64Data, index) => {
+                    return base64ToTiff(base64Data, 'image/tiff', `extracted_psf_${index}.tiff`);
+                });
+                state.setExtractedPSF(newExtractPSF);
+                state.setExtractedPSFSave([file]);
+                console.log(state.extractedPSF);
+            } else {
+                console.log('No extracted PSF found in the response.');
+            }
         } catch (error) {
-          console.error('Error in PSF extraction:', error);
-          window.alert('Error in PSF extraction: ' + error);
+            console.error('Error in PSF extraction:', error);
+            window.alert('Error in PSF extraction: ' + error);
         }
-      };
+    };
 
     function getStepContent(step) {
         switch (step) {
@@ -66,7 +70,8 @@ const StepperPSF = () => {
                                         margin="normal"
                                         onChange={(e) => {
                                             state.setVoxelX(e.target.value);
-                                            state.setVoxelY(e.target.value)}
+                                            state.setVoxelY(e.target.value)
+                                        }
                                         }
                                         value={state.voxelX}
                                     />
@@ -84,7 +89,7 @@ const StepperPSF = () => {
                                 </div>
                             </div>
                             <div className="column-2" style={{ zIndex: 1 }}>
-                                <Dropzone files={state.averageBead} addFiles={state.setAverageBead} imageType={'averaged_bead'} state={state}/>
+                                <Dropzone files={state.averageBead} addFiles={state.setAverageBead} imageType={'averaged_bead'} state={state} />
                             </div>
                         </div>
                     </>);
@@ -118,7 +123,7 @@ const StepperPSF = () => {
                             </div>
                             <div className="column-2" style={{ zIndex: 1 }}>
                                 <div className="images__preview">
-                                    <TiffStackViewer tiffList={state.averageBead} scale={state.scale} state={state} canvasRef={null} isExtract={false}/>
+                                    <TiffStackViewer tiffList={state.averageBead} scale={state.scale} state={state} canvasRef={null} isExtract={false} />
                                 </div>
                             </div>
                         </div>
@@ -143,37 +148,37 @@ const StepperPSF = () => {
                                     />
                                 </div>
                                 <div className="box-parameters">
-                                <TextField
-                                    id="iter"
-                                    label="Iteration number"
-                                    variant="outlined"
-                                    placeholder="Enter an iteration number"
-                                    fullWidth
-                                    margin="normal"
-                                    name="iter"
-                                    onChange={(e) => state.setIter(e.target.value)}
-                                    value={state.iter}
-                                />
-                                <TextField
-                                    id="regularization"
-                                    label="Regularization"
-                                    variant="outlined"
-                                    placeholder="Enter a regularization"
-                                    fullWidth
-                                    margin="normal"
-                                    name="regularization"
-                                    onChange={(e) => state.setRegularization(e.target.value)}
-                                    value={state.regularization}
-                                />
-                                <ChooseList
-                                    className="choose-list"
-                                    name="Deconvolution method"
-                                    list={Object.keys(state.deconvMethods)}
-                                    selected={state.deconvMethod} 
-                                    onChange={state.handleDeconvMethodChange}
-                                />
+                                    <TextField
+                                        id="iter"
+                                        label="Iteration number"
+                                        variant="outlined"
+                                        placeholder="Enter an iteration number"
+                                        fullWidth
+                                        margin="normal"
+                                        name="iter"
+                                        onChange={(e) => state.setIter(e.target.value)}
+                                        value={state.iter}
+                                    />
+                                    <TextField
+                                        id="regularization"
+                                        label="Regularization"
+                                        variant="outlined"
+                                        placeholder="Enter a regularization"
+                                        fullWidth
+                                        margin="normal"
+                                        name="regularization"
+                                        onChange={(e) => state.setRegularization(e.target.value)}
+                                        value={state.regularization}
+                                    />
+                                    <ChooseList
+                                        className="choose-list"
+                                        name="Deconvolution method"
+                                        list={Object.keys(state.deconvMethods)}
+                                        selected={state.deconvMethod}
+                                        onChange={state.handleDeconvMethodChange}
+                                    />
                                 </div>
-                                
+
                                 <Button variant="outlined" color="secondary" className="btn-run" onClick={handlePSFExtract}>
                                     Calculate PSF
                                 </Button>
@@ -194,6 +199,16 @@ const StepperPSF = () => {
                                 <div className="slider-container">
                                     <label htmlFor="scale-slider">Scale:</label>
                                     <input id="scale-slider" type="range" min="0.5" max="10" step="0.1" value={state.scale} onChange={state.handleScaleChange} />
+                                    <label htmlFor="layer-slider">Layer:</label>
+                                    <input
+                                        id="layer-slider"
+                                        type="range"
+                                        min="0"
+                                        max={state.extractedPSF.length - 1}
+                                        step="1"
+                                        value={state.layer2}
+                                        onChange={(e) => state.handleLayer2Change(e, state.extractedPSF.length - 1)}
+                                    />
                                 </div>
                                 <TextField
                                     id="filename"
@@ -206,11 +221,15 @@ const StepperPSF = () => {
                                     onChange={(e) => state.setFilename(e.target.value)}
                                     value={state.filename}
                                 />
-                                <FileDownloader fileList={state.extractedPSFSave} folderName={"psf"} btnName={"Save result"} />
+                                <FileDownloader fileList={state.extractedPSFSave} folderName={state.filename} btnName={"Save result"} />
                             </div>
                             <div className="column-2" style={{ zIndex: 1 }}>
                                 <div className="images__preview">
-                                    <TiffStackViewer tiffList={state.extractedPSF} scale={state.scale} state={state} canvasRef={null} isExtract={false}/>
+                                    <TifViewer
+                                        img={state.extractedPSF[state.layer2]}
+                                        scale={state.scale}
+                                        brightness={state.brightness}
+                                    />
                                 </div>
                             </div>
 

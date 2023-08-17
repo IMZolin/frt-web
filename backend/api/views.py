@@ -310,7 +310,7 @@ def psf_extract(request):
             psf_show, psf_save = pil_image_to_byte_stream(pil_image=tiff_image, is_one_page=False)
             response_data = {
                 'message': 'PSF extracted successfully',
-                'extracted_psf': psf_save,
+                'extracted_psf': psf_show,
                 'extracted_psf_save': psf_save
             }
 
