@@ -225,7 +225,7 @@ const BeadExtractor = () => {
               </div>
               <div className="column-2">
                 <div className="images__preview">
-                  <TifCompare img_1={state.extractBeads} img_2={state.averageBead} scale={state.scale} state={state} numImagePage={4} />
+                  <TifCompare img_1={state.extractBeads} img_2={state.averageBead} scale={state.scale} state={state} />
                 </div>
               </div>
             </div>

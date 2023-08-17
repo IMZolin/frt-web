@@ -179,7 +179,7 @@ const StepperPSF = () => {
                             </div>
                             <div className="column-2">
                                 <div className="images__preview">
-                                    <TifCompare img_1={state.extractedPSF} img_2={state.averageBead} scale={state.scale} state={state} numImagePage={4}/>
+                                    <TifCompare img_1={state.extractedPSF} img_2={state.averageBead} scale={state.scale} state={state} />
                                 </div>
                             </div>
                         </div>
@@ -192,7 +192,7 @@ const StepperPSF = () => {
                             <div className="column-1" style={{ zIndex: 2 }}>
                                 <div className="slider-container">
                                     <label htmlFor="scale-slider">Scale:</label>
-                                    <input id="scale-slider" type="range" min="0.5" max="10" step="0.1" value={state.scale} onChange={state.handleSliderChange} />
+                                    <input id="scale-slider" type="range" min="0.5" max="10" step="0.1" value={state.scale} onChange={state.handleScaleChange} />
                                 </div>
                                 <TextField
                                     id="filename"

@@ -3,7 +3,7 @@ import TifViewer from '../TifViewer';
 import TiffStackViewer from '../TiffStackViewer';
 import './tif_compare.css';
 
-const TifCompare = ({ img_1, img_2, scale, state, numImagePage }) => {
+const TifCompare = ({ img_1, img_2, scale, state }) => {
   return (
     <div className="tif-container">
       <div className="images-container">
