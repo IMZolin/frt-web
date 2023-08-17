@@ -188,7 +188,7 @@ def bead_mark(request):
             x = round(float(request.POST.get('x')))  
             y = round(float(request.POST.get('y')))  
             x_center, y_center = bead_extractor.LocateFrameMAxIntensity3D(x, y)
-            
+
             response_data = {
                 'message': 'Beads extracting successfully',
                 'center_coords': [int(x_center), int(y_center)],  
@@ -213,7 +213,7 @@ def bead_extract(request):
             bead_coords = request.POST.get('bead_coords')
             bead_coords = eval(bead_coords)
             bead_extractor._beadCoords = bead_coords
-            print(f"Len bead coords: {bead_extractor.beadCoords}")
+            print(f"Bead coords: {bead_extractor.beadCoords}")
             bead_extractor._extractedBeads = None
             bead_extractor.MarkedBeadsExtract()
 
@@ -302,11 +302,10 @@ def psf_extract(request):
             print(f"result image shape: {psf_extractor.resultImage.imArray.shape}")
             
             # send result to client
-            is_one_page = False
-            tiff_image = save_as_tiff(image_raw=psf_extractor.resultImage, is_one_page=is_one_page, filename=f"extracted_psf.tiff", outtype="uint8")
+            tiff_image = save_as_tiff(image_raw=psf_extractor.resultImage, is_one_page=False, filename=f"extracted_psf.tiff", outtype="uint8")
             print(len(tiff_image), tiff_image[0])
             
-            byte_stream = pil_image_to_byte_stream(pil_image=tiff_image, is_one_page=is_one_page)
+            byte_stream = pil_image_to_byte_stream(pil_image=tiff_image, is_one_page=False)
             response_data = {
                 'message': 'PSF extracted successfully',
                 'extracted_psf': byte_stream,

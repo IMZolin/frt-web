@@ -8,7 +8,7 @@ export const defaultValues = {
     centerExtractBeads: [],
     averageBead: [],
     extractedPSF: [],
-    beadSize:0.2,
+    beadSize: 0.2,
     psfFiles: [],
     voxelX: 0.089,
     voxelY: 0.089,
@@ -16,6 +16,7 @@ export const defaultValues = {
     resolution: [],
     levelBrightness: 1,
     layer: 0,
+    layer2: 0,
     isDeleted: false,
     isRightClick: false,
     selectSize: 36, //px size
@@ -42,6 +43,7 @@ export const useStateValues = () => {
     const [files, addFiles] = useState(defaultValues.files);
     const [isLoad, setIsLoad] = useState(defaultValues.isLoad);
     const [layer, setLayer] = useState(defaultValues.layer);
+    const [layer2, setLayer2] = useState(defaultValues.layer2);
     const [scale, setScale] = useState(defaultValues.scale);
     const [filename, setFilename] = useState(defaultValues.filename);
     const [activeStep, setActiveStep] = useState(defaultValues.activeStep);
@@ -139,7 +141,13 @@ export const useStateValues = () => {
         const value = e.target.value;
         const newLayer = value > maxLayer ? maxLayer : value;
         setLayer(newLayer);
-      };
+    };
+
+    const handleLayer2Change = (e, maxLayer) => {
+        const value = e.target.value;
+        const newLayer = value > maxLayer ? maxLayer : value;
+        setLayer2(newLayer);
+    };
     
     const drawSquare = (x, y, size, canvasRef) => {
         const canvas = canvasRef.current;
@@ -280,6 +288,9 @@ export const useStateValues = () => {
         setResolution,
         marginTop,
         setMarginTop,
-        handleScaleChange
+        handleScaleChange,
+        layer2,
+        setLayer2,
+        handleLayer2Change
     };
 };

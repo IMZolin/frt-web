@@ -1,6 +1,7 @@
 import React, { useRef } from 'react';
 import { Button, TextField } from '@mui/material';
 import StepperWrapper from '../../StepperWrapper';
+import TifViewer from '../../../components/TifViewer';
 import TiffStackViewer from '../../../components/TiffStackViewer';
 import TifCompare from '../../../components/TifCompare';
 import TiffExtractor from '../../../components/TiffExtractor';
@@ -22,20 +23,20 @@ const BeadExtractor = () => {
   const handleBeadExtract = async () => {
     try {
       const beadCoordsStr = state.centerExtractBeads.map(({ x, y }) => `[${x}, ${y}]`).join(', ');
-  
+
       const requestData = {
         select_size: state.selectSize,
-        bead_coords: `[${beadCoordsStr}]`, 
+        bead_coords: `[${beadCoordsStr}]`,
       };
-  
+
       const response = await axiosStore.postBeadExtract(requestData);
       console.log('Response:', response);
-  
+
       if (response.extracted_beads) {
         const newExtractBeads = response.extracted_beads.map((base64Data, index) => {
           return base64ToTiff(base64Data, 'image/tiff', `extracted_bead_${index}.tiff`);
         });
-  
+
         state.setExtractBeads(newExtractBeads);
         console.log(state.extractBeads);
       } else {
@@ -56,8 +57,10 @@ const BeadExtractor = () => {
       console.log('Response:', response);
 
       if (response.average_bead) {
-        const file = base64ToTiff(response.average_bead, 'image/tiff', `average_bead.tiff`);
-        state.setAverageBead([file]);
+        const newAverageBead = response.average_bead.map((base64Data, index) => {
+          return base64ToTiff(base64Data, 'image/tiff', `average_bead_${index}.tiff`);
+        });
+        state.setAverageBead(newAverageBead);
         console.log(state.averageBead)
       } else {
         console.log('No average bead found in the response.');
@@ -193,10 +196,10 @@ const BeadExtractor = () => {
                     id="scale-slider"
                     type="range"
                     min="0.5"
-                    max="2"
+                    max="5"
                     step="0.1"
                     value={state.scale}
-                    onChange={(e) => state.handleScaleChange(e, 2)}
+                    onChange={(e) => state.handleScaleChange(e, 5)}
                   />
                 </div>
                 <label htmlFor="brightness-slider">Brightness:</label>
@@ -222,7 +225,7 @@ const BeadExtractor = () => {
               </div>
               <div className="column-2">
                 <div className="images__preview">
-                  <TifCompare img_1={state.extractBeads} img_2={state.averageBead} scale={state.scale} state={state} numImagePage={4}/>
+                  <TifCompare img_1={state.extractBeads} img_2={state.averageBead} scale={state.scale} state={state} numImagePage={4} />
                 </div>
               </div>
             </div>
@@ -249,10 +252,10 @@ const BeadExtractor = () => {
                     id="layer-slider"
                     type="range"
                     min="0"
-                    max={state.beads.length - 1}
+                    max={state.averageBead.length - 1}
                     step="1"
-                    value={state.layer}
-                    onChange={(e) => state.handleLayerChange(e, state.beads.length - 1)}
+                    value={state.layer2}
+                    onChange={(e) => state.handleLayer2Change(e, state.averageBead.length - 1)}
                   />
                 </div>
                 <label htmlFor="brightness-slider">Brightness:</label>
@@ -276,15 +279,14 @@ const BeadExtractor = () => {
                   onChange={(e) => state.setFilename(e.target.value)}
                   value={state.filename}
                 />
-                <FileDownloader fileList={state.averageBead} folderName={"avg_bead"} btnName={"Save result"} />
+                <FileDownloader fileList={state.averageBead} folderName={state.filename} btnName={"Save result"} />
               </div>
               <div className="column-2" style={{ zIndex: 1 }}>
                 <div className="images__preview">
-                  <TiffStackViewer 
-                    tiffList={state.averageBead} 
-                    scale={state.scale} 
-                    state={state}
-                    numImagePage={1}
+                  <TifViewer
+                    img={state.averageBead[state.layer2]}
+                    scale={state.scale}
+                    brightness={state.brightness}
                   />
                 </div>
               </div>

@@ -179,7 +179,7 @@ const StepperPSF = () => {
                             </div>
                             <div className="column-2">
                                 <div className="images__preview">
-                                    <TifCompare files_1={state.extractedPSF} files_2={state.averageBead} scale={state.scale} state={state} canvasRef={null} isExtract={false}/>
+                                    <TifCompare img_1={state.extractedPSF} img_2={state.averageBead} scale={state.scale} state={state} numImagePage={4}/>
                                 </div>
                             </div>
                         </div>
