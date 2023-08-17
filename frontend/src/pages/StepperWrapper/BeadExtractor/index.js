@@ -1,7 +1,6 @@
 import React, { useRef } from 'react';
 import { Button, TextField } from '@mui/material';
 import StepperWrapper from '../../StepperWrapper';
-import TifViewer from '../../../components/TifViewer';
 import TiffStackViewer from '../../../components/TiffStackViewer';
 import TifCompare from '../../../components/TifCompare';
 import TiffExtractor from '../../../components/TiffExtractor';
@@ -27,17 +26,17 @@ const BeadExtractor = () => {
       const requestData = {
         select_size: state.selectSize,
         bead_coords: `[${beadCoordsStr}]`, 
-        is_deleted: state.isDeleted,
       };
   
       const response = await axiosStore.postBeadExtract(requestData);
       console.log('Response:', response);
   
       if (response.extracted_beads) {
-        response.extracted_beads.forEach((base64Data, index) => {
-          const file = base64ToTiff(base64Data, 'image/tiff', `extracted_bead_${index}.tiff`);
-          state.extractBeads.push(file);
+        const newExtractBeads = response.extracted_beads.map((base64Data, index) => {
+          return base64ToTiff(base64Data, 'image/tiff', `extracted_bead_${index}.tiff`);
         });
+  
+        state.setExtractBeads(newExtractBeads);
         console.log(state.extractBeads);
       } else {
         console.log('No extracted beads found in the response.');

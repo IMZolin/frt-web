@@ -14,7 +14,6 @@ def save_as_tiff(image_raw, is_one_page, filename="img", outtype="uint8"):
         imlist[0].save(
             filename, tiffinfo={tagID:strVoxel}, save_all=True, append_images=imlist[1:]
         )
-        print(imlist[0])
         if is_one_page:
             return imlist[0]
         else:
