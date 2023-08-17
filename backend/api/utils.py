@@ -27,8 +27,8 @@ def pil_image_to_byte_stream(pil_image, is_one_page):
     if is_one_page:
         pil_image.save(byte_stream, format='TIFF')
     else:
-        for page in pil_image:
-            page.save(byte_stream, format='TIFF')
+        pil_image[0].save(byte_stream, format='TIFF', save_all=True, append_images=pil_image[1:])
+        
     byte_stream.seek(0)
     base64_string = base64.b64encode(byte_stream.getvalue()).decode('utf-8')
     return base64_string
