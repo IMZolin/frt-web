@@ -34,8 +34,9 @@ const StepperPSF = () => {
           console.log('Response:', response);
     
           if (response.extracted_psf) {
-            const file = base64ToTiff(response.extracted_psf, 'image/tiff', `extracted_psf.tiff`);
-            state.setExtractedPSF([file]);
+            const file = base64ToTiff(response.extracted_psf_save, 'image/tiff', `extracted_psf.tiff`);
+            state.setExtractedPSF([response.extracted_psf]);
+            state.setExtractedPSFSave([file])
             console.log(state.extractedPSF)
           } else {
             console.log('No extracted PSF found in the response.');
@@ -205,7 +206,7 @@ const StepperPSF = () => {
                                     onChange={(e) => state.setFilename(e.target.value)}
                                     value={state.filename}
                                 />
-                                <FileDownloader fileList={state.extractedPSF} folderName={"psf"} btnName={"Save result"} />
+                                <FileDownloader fileList={state.extractedPSFSave} folderName={"psf"} btnName={"Save result"} />
                             </div>
                             <div className="column-2" style={{ zIndex: 1 }}>
                                 <div className="images__preview">

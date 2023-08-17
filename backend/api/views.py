@@ -222,7 +222,7 @@ def bead_extract(request):
             if bead_extractor._extractedBeads: 
                 for index, extracted_bead in enumerate(bead_extractor._extractedBeads):
                     tiff_image = save_as_tiff(image_raw=extracted_bead, is_one_page=True, filename=f"extracted_bead_{index}.tiff", outtype="uint8")
-                    image_byte_stream = pil_image_to_byte_stream(pil_image=tiff_image, is_one_page=True)
+                    image_byte_stream, buf = pil_image_to_byte_stream(pil_image=tiff_image, is_one_page=True)
                     extracted_beads_list.append(image_byte_stream)
             print(len(extracted_beads_list))
             response_data = {
@@ -249,9 +249,11 @@ def bead_average(request):
             avg_bead = django_cache.get('bead_extractor')['average_bead']
             if isinstance(avg_bead, ImageRaw):
                 tiff_image = save_as_tiff(image_raw=avg_bead, is_one_page=False, filename=f"average_bead.tiff", outtype="uint8")
+                avg_bead_show, avg_bead_save = pil_image_to_byte_stream(pil_image=tiff_image, is_one_page=False)
                 response_data = {
                         'message': 'Bead averaging successfully',
-                        'average_bead': pil_image_to_byte_stream(pil_image=tiff_image, is_one_page=False),
+                        'average_bead': avg_bead_show,
+                        'average_bead_save': avg_bead_save
                     }
                 return JsonResponse(response_data)
             else:
@@ -305,10 +307,11 @@ def psf_extract(request):
             tiff_image = save_as_tiff(image_raw=psf_extractor.resultImage, is_one_page=False, filename=f"extracted_psf.tiff", outtype="uint8")
             print(len(tiff_image), tiff_image[0])
             
-            byte_stream = pil_image_to_byte_stream(pil_image=tiff_image, is_one_page=False)
+            psf_show, psf_save = pil_image_to_byte_stream(pil_image=tiff_image, is_one_page=False)
             response_data = {
                 'message': 'PSF extracted successfully',
-                'extracted_psf': byte_stream,
+                'extracted_psf': psf_save,
+                'extracted_psf_save': psf_save
             }
 
             return JsonResponse(response_data)

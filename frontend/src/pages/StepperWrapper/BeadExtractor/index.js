@@ -61,6 +61,7 @@ const BeadExtractor = () => {
           return base64ToTiff(base64Data, 'image/tiff', `average_bead_${index}.tiff`);
         });
         state.setAverageBead(newAverageBead);
+        state.setAverageBeadSave(response.average_bead_save)
         console.log(state.averageBead)
       } else {
         console.log('No average bead found in the response.');
@@ -279,7 +280,7 @@ const BeadExtractor = () => {
                   onChange={(e) => state.setFilename(e.target.value)}
                   value={state.filename}
                 />
-                <FileDownloader fileList={state.averageBead} folderName={state.filename} btnName={"Save result"} />
+                <FileDownloader fileList={state.averageBeadSave} folderName={state.filename} btnName={"Save result"} />
               </div>
               <div className="column-2" style={{ zIndex: 1 }}>
                 <div className="images__preview">

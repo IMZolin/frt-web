@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 
 export const defaultValues = {
     files: [],
+    averageBeadSave: [],
+    extractedPSFSave: [],
     isLoad: false,
     beads: [],
     extractBeads: [],
@@ -61,7 +63,9 @@ export const useStateValues = () => {
     const [extractBeads, setExtractBeads] = useState(defaultValues.extractBeads);
     const [centerExtractBeads, setCenterExtractBeads] = useState(defaultValues.centerExtractBeads);
     const [averageBead, setAverageBead] = useState(defaultValues.averageBead);
+    const [averageBeadSave, setAverageBeadSave] = useState(defaultValues.averageBead);
     const [extractedPSF, setExtractedPSF] = useState(defaultValues.extractedPSF);
+    const [extractedPSFSave, setExtractedPSFSave] = useState(defaultValues.extractedPSFSave);
     const [tiffType, setTiffType] = useState(defaultValues.tiffType);
     const [blurType, setBlurType] = useState(defaultValues.blurType);
 
@@ -291,6 +295,10 @@ export const useStateValues = () => {
         handleScaleChange,
         layer2,
         setLayer2,
-        handleLayer2Change
+        handleLayer2Change,
+        averageBeadSave,
+        setAverageBeadSave,
+        extractedPSFSave,
+        setExtractedPSFSave
     };
 };

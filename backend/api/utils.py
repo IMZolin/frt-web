@@ -25,7 +25,7 @@ def pil_image_to_byte_stream(pil_image, is_one_page):
         pil_image.save(byte_stream, format='TIFF')
         byte_stream.seek(0)
         base64_string = base64.b64encode(byte_stream.getvalue()).decode('utf-8')
-        return base64_string
+        return base64_string, None
     else:
         base64_list = []
         for page in pil_image:
@@ -33,7 +33,11 @@ def pil_image_to_byte_stream(pil_image, is_one_page):
             byte_stream.seek(0)
             base64_string = base64.b64encode(byte_stream.getvalue()).decode('utf-8')
             base64_list.append(base64_string)
-        return base64_list
+        byte_stream2 = io.BytesIO()
+        pil_image[0].save(byte_stream2, format='TIFF', save_all=True, append_images=pil_image[1:])
+        byte_stream2.seek(0)
+        base64_string2 = base64.b64encode(byte_stream2.getvalue()).decode('utf-8')
+        return base64_list, base64_string2
 
 
 def pass2cache(cache_key, key, data):
