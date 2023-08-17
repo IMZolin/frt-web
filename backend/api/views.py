@@ -188,8 +188,7 @@ def bead_mark(request):
             x = round(float(request.POST.get('x')))  
             y = round(float(request.POST.get('y')))  
             x_center, y_center = bead_extractor.LocateFrameMAxIntensity3D(x, y)
-            # bead_extractor.beadMarkAdd([[x_center, y_center]])
-            # print(bead_extractor._beadCoords)
+
             response_data = {
                 'message': 'Beads extracting successfully',
                 'center_coords': [int(x_center), int(y_center)],  
@@ -204,7 +203,7 @@ def bead_mark(request):
 
 @csrf_exempt
 def bead_extract(request):
-    if request.method == 'POST' and request.POST.get('select_size') and request.POST.get('bead_coords') and request.POST.get('is_deleted'):
+    if request.method == 'POST' and request.POST.get('select_size') and request.POST.get('bead_coords'):
         try:
             bead_extractor = ExtractorModel()
             cached_image = django_cache.get('beads_image')
@@ -213,27 +212,19 @@ def bead_extract(request):
             bead_extractor.selectionFrameHalf = select_size / 2
             bead_coords = request.POST.get('bead_coords')
             bead_coords = eval(bead_coords)
-            bead_extractor.beadCoords = bead_coords
-            is_deleted_beads = bool(request.POST.get('is_deleted'))
-            if is_deleted_beads:
-                bead_extractor._extractedBeads = []
-                print(bead_extractor.MarkedBeadsExtract())
-                is_deleted_beads = False
-            else:
-                print(bead_extractor.MarkedBeadsExtract())
+            bead_extractor._beadCoords = bead_coords
+            print(f"Bead coords: {bead_extractor.beadCoords}")
+            bead_extractor._extractedBeads = None
+            bead_extractor.MarkedBeadsExtract()
 
             pass2cache('bead_extractor', ['data', 'beads_image', 'bead_coords', 'extract_beads', 'select_frame_half', 'average_bead','is_deleted_beads', 'blur_type'], [bead_extractor, cached_image, bead_extractor._beadCoords, bead_extractor._extractedBeads, bead_extractor._selectionFrameHalf, bead_extractor._averageBead, False, 'none'])
-            print(bead_extractor._extractedBeads)
             extracted_beads_list = []
             if bead_extractor._extractedBeads: 
-                print('Exists')
                 for index, extracted_bead in enumerate(bead_extractor._extractedBeads):
                     tiff_image = save_as_tiff(image_raw=extracted_bead, is_one_page=True, filename=f"extracted_bead_{index}.tiff", outtype="uint8")
-                    print(tiff_image)
-                    image_byte_stream = pil_image_to_byte_stream(pil_image=tiff_image, is_one_page=True)
-                    print(image_byte_stream)
+                    image_byte_stream, buf = pil_image_to_byte_stream(pil_image=tiff_image, is_one_page=True)
                     extracted_beads_list.append(image_byte_stream)
-
+            print(len(extracted_beads_list))
             response_data = {
                 'message': 'Beads extracting successfully',
                 'extracted_beads': extracted_beads_list,
@@ -258,9 +249,11 @@ def bead_average(request):
             avg_bead = django_cache.get('bead_extractor')['average_bead']
             if isinstance(avg_bead, ImageRaw):
                 tiff_image = save_as_tiff(image_raw=avg_bead, is_one_page=False, filename=f"average_bead.tiff", outtype="uint8")
+                avg_bead_show, avg_bead_save = pil_image_to_byte_stream(pil_image=tiff_image, is_one_page=False)
                 response_data = {
                         'message': 'Bead averaging successfully',
-                        'average_bead': pil_image_to_byte_stream(pil_image=tiff_image, is_one_page=False),
+                        'average_bead': avg_bead_show,
+                        'average_bead_save': avg_bead_save
                     }
                 return JsonResponse(response_data)
             else:
@@ -311,14 +304,14 @@ def psf_extract(request):
             print(f"result image shape: {psf_extractor.resultImage.imArray.shape}")
             
             # send result to client
-            is_one_page = False
-            tiff_image = save_as_tiff(image_raw=psf_extractor.resultImage, is_one_page=is_one_page, filename=f"extracted_psf.tiff", outtype="uint8")
+            tiff_image = save_as_tiff(image_raw=psf_extractor.resultImage, is_one_page=False, filename=f"extracted_psf.tiff", outtype="uint8")
             print(len(tiff_image), tiff_image[0])
             
-            byte_stream = pil_image_to_byte_stream(pil_image=tiff_image, is_one_page=is_one_page)
+            psf_show, psf_save = pil_image_to_byte_stream(pil_image=tiff_image, is_one_page=False)
             response_data = {
                 'message': 'PSF extracted successfully',
-                'extracted_psf': byte_stream,
+                'extracted_psf': psf_show,
+                'extracted_psf_save': psf_save
             }
 
             return JsonResponse(response_data)
