@@ -1,8 +1,8 @@
+import React, { useEffect } from 'react';
 import { Button, TextField } from "@mui/material";
 import StepperWrapper from '../../StepperWrapper';
 import TifViewer from '../../../components/TifViewer';
 import TifCompare from '../../../components/TifCompare';
-import TiffStackViewer from '../../../components/TiffStackViewer';
 import ChooseList from '../../../components/ChooseList';
 import FileDownloader from '../../../components/FileDownloader';
 import Dropzone from '../../../components/Dropzone';
@@ -15,8 +15,35 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 const StepperPSF = () => {
     const state = useStateValues();
-    const steps = ['Load average bead', 'Bead parameters', 'Run PSF', 'Save results'];
+    const steps = ['Load average bead', 'Calculate PSF', 'Save results'];
     const axiosStore = useAxiosStore();
+
+    const handleGetAverageBead = async () => {
+        try {
+            const response = await axiosStore.getAverageBead();
+            console.log('Response:', response);
+
+            if (response.average_bead_show && response.average_bead_save) {
+                const file = base64ToTiff(response.average_bead_save, 'image/tiff', `average_bead.tiff`);
+                const newAverageBead = response.average_bead_show.map((base64Data, index) => {
+                    return base64ToTiff(base64Data, 'image/tiff', `average_bead_${index}.tiff`);
+                });
+                state.setAverageBead(newAverageBead);
+                state.setAverageBeadSave([file])
+                state.setIsLoad(true);
+            } else {
+                console.log('No average bead data found in the response.');
+            }
+        } catch (error) {
+            console.error('Error fetching average bead:', error);
+        }
+    };
+
+    useEffect(() => {
+        if (state.activeStep === 0) {
+            handleGetAverageBead();
+        }
+    }, [state.activeStep]);
 
     const handlePSFExtract = async () => {
         console.log("Im tryin make psf extraction");
@@ -34,9 +61,9 @@ const StepperPSF = () => {
             const response = await axiosStore.postPSFExtract(requestData);
             console.log('Response:', response);
 
-            if (response.extracted_psf) {
+            if (response.extracted_psf_show) {
                 const file = base64ToTiff(response.extracted_psf_save, 'image/tiff', `extracted_psf.tiff`);
-                const newExtractPSF = response.extracted_psf.map((base64Data, index) => {
+                const newExtractPSF = response.extracted_psf_show.map((base64Data, index) => {
                     return base64ToTiff(base64Data, 'image/tiff', `extracted_psf_${index}.tiff`);
                 });
                 state.setExtractedPSF(newExtractPSF);
@@ -89,7 +116,7 @@ const StepperPSF = () => {
                                 </div>
                             </div>
                             <div className="column-2" style={{ zIndex: 1 }}>
-                                <Dropzone files={state.averageBead} addFiles={state.setAverageBead} imageType={'averaged_bead'} state={state} />
+                                <Dropzone files={state.averageBeadSave} addFiles={state.setAverageBeadSave} imageType={'averaged_bead'} state={state} />
                             </div>
                         </div>
                     </>);
@@ -108,46 +135,20 @@ const StepperPSF = () => {
                                         step="0.1"
                                         value={state.scale}
                                         onChange={(e) => state.handleScaleChange(e, 10)}
-                                    />                                </div>
-                                <TextField
-                                    id="beadSize"
-                                    label="Bead size (micron)"
-                                    variant="outlined"
-                                    placeholder="Enter a bead size"
-                                    fullWidth
-                                    margin="normal"
-                                    name="beadSize"
-                                    onChange={(e) => state.setBeadSize(e.target.value)}
-                                    value={state.beadSize}
-                                />
-                            </div>
-                            <div className="column-2" style={{ zIndex: 1 }}>
-                                <div className="images__preview">
-                                    <TiffStackViewer tiffList={state.averageBead} scale={state.scale} state={state} canvasRef={null} isExtract={false} />
-                                </div>
-                            </div>
-                        </div>
-                    </>
-                );
-
-            case 2:
-                return (
-                    <>
-                        <div className="row">
-                            <div className="column-1">
-                                <div className="slider-container">
-                                    <label htmlFor="scale-slider">Scale:</label>
-                                    <input
-                                        id="scale-slider"
-                                        type="range"
-                                        min="0.5"
-                                        max="10"
-                                        step="0.1"
-                                        value={state.scale}
-                                        onChange={(e) => state.handleScaleChange(e, 10)}
                                     />
                                 </div>
                                 <div className="box-parameters">
+                                    <TextField
+                                        id="beadSize"
+                                        label="Bead size (micron)"
+                                        variant="outlined"
+                                        placeholder="Enter a bead size"
+                                        fullWidth
+                                        margin="normal"
+                                        name="beadSize"
+                                        onChange={(e) => state.setBeadSize(e.target.value)}
+                                        value={state.beadSize}
+                                    />
                                     <TextField
                                         id="iter"
                                         label="Iteration number"
@@ -185,13 +186,13 @@ const StepperPSF = () => {
                             </div>
                             <div className="column-2">
                                 <div className="images__preview">
-                                    <TifCompare img_1={state.extractedPSF} img_2={state.averageBead} scale={state.scale} state={state} />
+                                    <TifCompare img_1={state.averageBead} img_2={state.extractedPSF} scale={state.scale} state={state} />
                                 </div>
                             </div>
                         </div>
                     </>
                 );
-            case 3:
+            case 2:
                 return (
                     <>
                         <div className="row">
@@ -232,9 +233,7 @@ const StepperPSF = () => {
                                     />
                                 </div>
                             </div>
-
                         </div>
-
                     </>
                 );
             default:
@@ -251,6 +250,8 @@ const StepperPSF = () => {
                 handlePrevStep={state.handlePrevStep}
                 activeStep={state.activeStep}
                 isLoad={state.isLoad}
+                urlPage='/deconvolution'
+                typeRun='Deconvolution'
             />
         </div>
     );

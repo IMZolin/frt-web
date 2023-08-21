@@ -61,6 +61,15 @@ const useAxiosStore = create((set, get) => {
       }
     },
 
+    getAverageBead: async () => {
+      try {
+        const response = await axiosInstance.get('/api/psf_extractor/average_bead/');
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
+
     postBeadExtract: async (params) => {
       try {
         const response = await axiosInstance.post('/api/bead_extractor/extract/', params);

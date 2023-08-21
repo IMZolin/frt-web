@@ -27,10 +27,10 @@ urlpatterns = [
     path('api/convert_image/', views.convert_image, name='convert_image'),
   
     path('api/bead_extractor/mark/', views.bead_mark, name='bead_mark'),
-    
     path('api/bead_extractor/extract/', views.bead_extract, name='bead_extract'),
     path('api/bead_extractor/average/', views.bead_average, name='bead_average'),
     
+    path('api/psf_extractor/average_bead/', views.get_average_bead, name='get_average_bead'),
     path('api/psf_extractor/extract/', views.psf_extract, name='psf_average'),
     # path('api/psf/processing/', views.psf_processing, name='psf_processing'),
     # path('api/deconv/processing/', views.deconv_processing, name='deconv_processing'),

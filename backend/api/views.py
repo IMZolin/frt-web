@@ -35,11 +35,17 @@ def load_image(request):
         try:
             image_data = ImageRaw(fpath=file_list)
             pass2cache(image_type, ['imArray', 'voxel'], [image_data.imArray, image_data.voxel])
-            resolution = image_data.imArray.shape # Get the resolution of the image
+            resolution = image_data.imArray.shape 
+            muli_layer_show, muli_layer_save = None, None
+            if image_type == 'averaged_bead':
+                tiff_image = save_as_tiff(image_raw=image_data, is_one_page=False, filename=f"average_bead.tiff", outtype="uint8")
+                muli_layer_show, muli_layer_save = pil_image_to_byte_stream(pil_image=tiff_image, is_one_page=False)
 
             response_data = {
                 'message': f'Image loaded successfully. Resolution: {resolution}',
                 'resolution': resolution,
+                'muli_layer_show': muli_layer_show,
+                'muli_layer_save': muli_layer_save
             }
 
             return JsonResponse(response_data)
@@ -217,7 +223,7 @@ def bead_extract(request):
             bead_extractor._extractedBeads = None
             bead_extractor.MarkedBeadsExtract()
 
-            pass2cache('bead_extractor', ['data', 'beads_image', 'bead_coords', 'extract_beads', 'select_frame_half', 'average_bead','is_deleted_beads', 'blur_type'], [bead_extractor, cached_image, bead_extractor._beadCoords, bead_extractor._extractedBeads, bead_extractor._selectionFrameHalf, bead_extractor._averageBead, False, 'none'])
+            pass2cache('bead_extractor', ['data', 'beads_image', 'bead_coords', 'extract_beads', 'select_frame_half', 'average_bead', 'blur_type'], [bead_extractor, cached_image, bead_extractor._beadCoords, bead_extractor._extractedBeads, bead_extractor._selectionFrameHalf, bead_extractor._averageBead, 'none'])
             extracted_beads_list = []
             if bead_extractor._extractedBeads: 
                 for index, extracted_bead in enumerate(bead_extractor._extractedBeads):
@@ -244,7 +250,7 @@ def bead_average(request):
             bead_extractor = django_cache.get('bead_extractor')['data']
             bead_extractor.BeadsArithmeticMean()
             bead_extractor.BlurAveragedBead(request.POST.get('blur_type'))
-            pass2cache('bead_extractor', ['data', 'beads_image', 'bead_coords', 'extract_beads', 'select_frame_half', 'average_bead','is_deleted_beads', 'blur_type'], [bead_extractor, django_cache.get('bead_extractor')['beads_image'], django_cache.get('bead_extractor')['bead_coords'], django_cache.get('bead_extractor')['extract_beads'], django_cache.get('bead_extractor')['select_frame_half'], bead_extractor._averageBead, False, request.POST.get('blur_type')])
+            pass2cache('bead_extractor', ['data', 'beads_image', 'bead_coords', 'extract_beads', 'select_frame_half', 'average_bead', 'blur_type'], [bead_extractor, django_cache.get('bead_extractor')['beads_image'], django_cache.get('bead_extractor')['bead_coords'], django_cache.get('bead_extractor')['extract_beads'], django_cache.get('bead_extractor')['select_frame_half'], bead_extractor._averageBead, request.POST.get('blur_type')])
 
             avg_bead = django_cache.get('bead_extractor')['average_bead']
             if isinstance(avg_bead, ImageRaw):
@@ -252,7 +258,7 @@ def bead_average(request):
                 avg_bead_show, avg_bead_save = pil_image_to_byte_stream(pil_image=tiff_image, is_one_page=False)
                 response_data = {
                         'message': 'Bead averaging successfully',
-                        'average_bead': avg_bead_show,
+                        'average_bead_show': avg_bead_show,
                         'average_bead_save': avg_bead_save
                     }
                 return JsonResponse(response_data)
@@ -262,6 +268,28 @@ def bead_average(request):
             return error_response(400, str(e), 'POST')
     else:
         return error_response(400, 'Invalid request. Please make a POST request with the required parameters.', 'POST')
+
+
+@csrf_exempt
+def get_average_bead(request):
+    try:
+        avg_bead_cache = django_cache.get('bead_extractor')['average_bead']
+        
+        if isinstance(avg_bead_cache, ImageRaw):
+            tiff_image = save_as_tiff(image_raw=avg_bead_cache, is_one_page=False, filename="average_bead.tiff", outtype="uint8")
+            avg_bead_show, avg_bead_save = pil_image_to_byte_stream(pil_image=tiff_image, is_one_page=False)
+
+            response_data = {
+                'message': 'Average bead data retrieved successfully',
+                'average_bead_show': avg_bead_show,  
+                'average_bead_save': avg_bead_save  
+            }
+
+            return JsonResponse(response_data)
+        else:
+            return JsonResponse({'error': 'Invalid image data in cache. Unable to process.'}, status=400)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
 
 
 @csrf_exempt
@@ -310,7 +338,7 @@ def psf_extract(request):
             psf_show, psf_save = pil_image_to_byte_stream(pil_image=tiff_image, is_one_page=False)
             response_data = {
                 'message': 'PSF extracted successfully',
-                'extracted_psf': psf_show,
+                'extracted_psf_show': psf_show,
                 'extracted_psf_save': psf_save
             }
 
