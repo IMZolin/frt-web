@@ -56,9 +56,9 @@ const BeadExtractor = () => {
       const response = await axiosStore.postBeadAverage(requestData);
       console.log('Response:', response);
 
-      if (response.average_bead) {
+      if (response.average_bead_show) {
         const file = base64ToTiff(response.average_bead_save, 'image/tiff', `average_bead.tiff`);
-        const newAverageBead = response.average_bead.map((base64Data, index) => {
+        const newAverageBead = response.average_bead_show.map((base64Data, index) => {
           return base64ToTiff(base64Data, 'image/tiff', `average_bead_${index}.tiff`);
         });
         state.setAverageBead(newAverageBead);
@@ -83,31 +83,24 @@ const BeadExtractor = () => {
                   <TextField
                     className="stepper-resolution"
                     id="resolution-x"
-                    label="X (nm/pxl)"
+                    label="Resolution-XY (micron/pxl)"
                     variant="outlined"
-                    placeholder="Enter the resolution in X direction"
+                    placeholder="Enter the resolution in X and Y direction"
                     fullWidth
                     margin="normal"
-                    onChange={(e) => state.setVoxelX(e.target.value)}
+                    onChange={(e) => {
+                      state.setVoxelX(e.target.value);
+                      state.setVoxelY(e.target.value)
+                    }
+                    }
                     value={state.voxelX}
                   />
                   <TextField
                     className="stepper-resolution"
-                    id="resolution-y"
-                    label="Y (nm/pxl)"
-                    variant="outlined"
-                    placeholder=""
-                    fullWidth
-                    margin="normal"
-                    onChange={(e) => state.setVoxelY(e.target.value)}
-                    value={state.voxelY}
-                  />
-                  <TextField
-                    className="stepper-resolution"
                     id="resolution-z"
-                    label="Z (nm/pxl)"
+                    label="Resolution-Z (micron/pxl)"
                     variant="outlined"
-                    placeholder=""
+                    placeholder="Enter the resolution in Z direction"
                     fullWidth
                     margin="normal"
                     onChange={(e) => state.setVoxelZ(e.target.value)}
@@ -310,6 +303,8 @@ const BeadExtractor = () => {
         handlePrevStep={state.handlePrevStep}
         activeStep={state.activeStep}
         isLoad={state.isLoad}
+        urlPage='/psf'
+        typeRun='PSF'
       />
     </div>
   );
