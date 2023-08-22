@@ -30,14 +30,16 @@ export const defaultValues = {
     iter: 50,
     activeStep: 0,
     filename: "",
-    iterPSF: 50,
-    statePSF: 'dropzone',
     maximizeIntensity: false,
     makeGaussianBlur: false,
     gaussianBlurCount: 3,
     regularization: 0.0001,
     deconvMethod: "Richardson-Lucy",
-    marginTop: 0
+    marginTop: 0,
+
+    sourceImage: [],
+    resultImage: [],
+    resultImageSave: []
 };
 
 export const useStateValues = () => {
@@ -80,10 +82,10 @@ export const useStateValues = () => {
     const [deconvMethod, setDeconvMethod] = useState(defaultValues.deconvMethod);
 
     //Deconvolution
-    const [iterPSF, setIterPSF] = useState(defaultValues.iterPSF);
-    const [statePSF, setStatePSF] = useState(defaultValues.statePSF);
-
-
+    const [sourceImage, setSourceImage] = useState(defaultValues.sourceImage);
+    const [resultImage, setResultImage] = useState(defaultValues.resultImage);
+    const [resultImageSave, setResultImageSave] = useState(defaultValues.resultImageSave);
+    
     //Neural network
     const [maximizeIntensity, setMaximizeIntensity] = useState(false);
     const [makeGaussianBlur, setMakeGaussianBlur] = useState(false);
@@ -122,10 +124,6 @@ export const useStateValues = () => {
         const checked = e.target.checked;
         setMakeGaussianBlur(checked);
     };
-
-    const handlePSFChange = (e) => {
-        setStatePSF(e.target.checked ? 'stepper-psf' : 'dropzone');
-    }
 
     const handleDeconvMethodChange = (selectedMethod) => {
         console.log(selectedMethod);
@@ -242,10 +240,6 @@ export const useStateValues = () => {
         setActiveStep,
         filename,
         setFilename,
-        iterPSF,
-        setIterPSF,
-        statePSF,
-        setStatePSF,
         maximizeIntensity,
         setMaximizeIntensity,
         makeGaussianBlur,
@@ -256,7 +250,6 @@ export const useStateValues = () => {
         handlePrevStep,
         handleButtonClick,
         handleGaussianBlurToggle,
-        handlePSFChange,
         tiffType,
         setTiffType,
         tiffTypes,
@@ -299,6 +292,12 @@ export const useStateValues = () => {
         averageBeadSave,
         setAverageBeadSave,
         extractedPSFSave,
-        setExtractedPSFSave
+        setExtractedPSFSave,
+        sourceImage,
+        resultImage,
+        resultImageSave,
+        setSourceImage,
+        setResultImage,
+        setResultImageSave,
     };
 };

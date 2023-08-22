@@ -31,7 +31,11 @@ const Dropzone = ({ files, addFiles, filesDownload, addFilesDownload, imageType,
         voxelZ: null,
       };
 
-      if (imageType.includes('beads_image') || imageType.includes('averaged_bead')) {
+      // TODO : Maybe delete these conditions? We use voxel info with any loaded images 'cauze of we need this info to create 'ImageRaw' instance...  
+      if (imageType.includes('beads_image') || 
+          imageType.includes('averaged_bead') || 
+          imageType.includes('extracted_PSF') ||
+          imageType.includes('source_img')) {
         requestData.voxelX = state.voxelX;
         requestData.voxelY = state.voxelY;
         requestData.voxelZ = state.voxelZ;
