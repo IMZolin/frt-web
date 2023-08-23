@@ -96,6 +96,7 @@ const useAxiosStore = create((set, get) => {
         throw error;
       }
     },
+
     postPSFExtract: async (params) => {
       try {
         const response = await axiosInstance.post('/api/psf_extractor/extract/', params);
@@ -105,6 +106,32 @@ const useAxiosStore = create((set, get) => {
       }
     },
 
+    getPSF: async () => {
+      try {
+        const response = await axiosInstance.get('/api/deconvolution/psf/');
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
+
+    getVoxel: async () => {
+      try {
+        const response = await axiosInstance.get('/api/deconvolution/voxel/');
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
+
+    postDeconvolution: async (params) => {
+      try {
+        const response = await axiosInstance.post('/api/deconvolution/run/', params);
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
 
     setAxiosToken: (newToken) => {
       const instance = get().axiosInstance;

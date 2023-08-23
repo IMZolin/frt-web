@@ -30,12 +30,7 @@ const Dropzone = ({ files, addFiles, filesDownload, addFilesDownload, imageType,
         voxelY: null,
         voxelZ: null,
       };
-
-      // TODO : Maybe delete these conditions? We use voxel info with any loaded images 'cauze of we need this info to create 'ImageRaw' instance...  
-      if (imageType.includes('beads_image') || 
-          imageType.includes('averaged_bead') || 
-          imageType.includes('extracted_PSF') ||
-          imageType.includes('source_img')) {
+      if (imageType.includes('beads_image') || imageType.includes('source_img')) {
         requestData.voxelX = state.voxelX;
         requestData.voxelY = state.voxelY;
         requestData.voxelZ = state.voxelZ;
@@ -43,9 +38,9 @@ const Dropzone = ({ files, addFiles, filesDownload, addFilesDownload, imageType,
 
       const response = await axiosStore.postData(requestData);
       console.log('Response:', response);
-      if (response.muli_layer_show && response.muli_layer_save){
-        const file = base64ToTiff(response.muli_layer_save, 'image/tiff', `extracted_psf.tiff`);
-        const newExtractPSF = response.muli_layer_show.map((base64Data, index) => {
+      if (response.multi_layer_show && response.multi_layer_save){
+        const file = base64ToTiff(response.multi_layer_save, 'image/tiff', `extracted_psf.tiff`);
+        const newExtractPSF = response.multi_layer_show.map((base64Data, index) => {
             return base64ToTiff(base64Data, 'image/tiff', `extracted_psf_${index}.tiff`);
         });
         state.setExtractedPSF(newExtractPSF);

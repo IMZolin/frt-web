@@ -4,6 +4,7 @@ import TiffStackViewer from '../TiffStackViewer';
 import './tif_compare.css';
 
 const TifCompare = ({ img_1, img_2, scale, state }) => {
+//!TODO: implement universal view of big and small images
   return (
     <div className="tif-container">
       <div className="images-container">
