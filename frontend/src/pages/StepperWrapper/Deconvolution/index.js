@@ -3,7 +3,7 @@ import { Button, TextField } from "@mui/material";
 import StepperWrapper from '..';
 import Dropzone from '../../../components/Dropzone';
 import TifCompare from '../../../components/TifCompare';
-import TiffStackViewer from '../../../components/TiffStackViewer';
+import TifViewer from '../../../components/TifViewer';
 import FileDownloader from '../../../components/FileDownloader';
 import { useStateValues } from "../state";
 import { base64ToTiff } from '../../../shared/hooks/showImages';
@@ -200,41 +200,47 @@ useEffect(() => {
       case 3:
         return (
           <>
-            <div className="row">
-              <div className="column-1">
-                <div className="slider-container">
-                  <label htmlFor="scale-slider">Scale:</label>
-                  <input
-                    id="scale-slider"
-                    type="range"
-                    min="0.5"
-                    max="10"
-                    step="0.1"
-                    value={state.scale}
-                    onChange={(e) => state.handleScaleChange(e, 10)}
-                  />
-                </div>
-                <TextField
-                  id="filename"
-                  label="Filename"
-                  variant="outlined"
-                  placeholder="Enter a file name"
-                  fullWidth
-                  margin="normal"
-                  name="filename"
-                  onChange={(e) => state.setFilename(e.target.value)}
-                  value={state.filename}
-                />
-                <FileDownloader fileList={state.resultImageSave} folderName={state.filename} btnName={"Save result"} />
+              <div className="row">
+                  <div className="column-1" style={{ zIndex: 2 }}>
+                      <div className="slider-container">
+                          <label htmlFor="scale-slider">Scale:</label>
+                          <input id="scale-slider" type="range" min="0.5" max="10" step="0.1" value={state.scale} onChange={state.handleScaleChange} />
+                          <label htmlFor="layer-slider">Layer:</label>
+                          <input
+                              id="layer-slider"
+                              type="range"
+                              min="0"
+                              max={state.extractedPSF.length - 1}
+                              step="1"
+                              value={state.layer2}
+                              onChange={(e) => state.handleLayer2Change(e, state.extractedPSF.length - 1)}
+                          />
+                      </div>
+                      <TextField
+                          id="filename"
+                          label="Filename"
+                          variant="outlined"
+                          placeholder="Enter a file name"
+                          fullWidth
+                          margin="normal"
+                          name="filename"
+                          onChange={(e) => state.setFilename(e.target.value)}
+                          value={state.filename}
+                      />
+                      <FileDownloader fileList={state.resultImageSave} folderName={state.filename} btnName={"Save result"} />
+                  </div>
+                  <div className="column-2" style={{ zIndex: 1 }}>
+                      <div className="images__preview">
+                          <TifViewer
+                              img={state.resultImage[state.layer2]}
+                              scale={state.scale}
+                              brightness={state.brightness}
+                          />
+                      </div>
+                  </div>
               </div>
-              <div className="column-2" style={{ zIndex: 1 }}>
-                <div className="images__preview">
-                  <TiffStackViewer tiffList={state.resultImage} scale={state.scale} state={state} canvasRef={null} isExtract={false}/>
-                </div>
-              </div>
-            </div>
           </>
-        );
+      );
       default:
         return 'unknown step';
     }

@@ -38,7 +38,7 @@ def load_image(request):
             pass2cache(image_type, ['imArray', 'voxel'], [image_data.imArray, image_data.voxel])
             resolution = image_data.imArray.shape 
             muli_layer_show, muli_layer_save = None, None
-            if image_type == 'averaged_bead':
+            if image_type == 'averaged_bead' or image_type == 'source_img':
                 tiff_image = save_as_tiff(image_raw=image_data, is_one_page=False, filename=f"average_bead.tiff", outtype="uint8")
                 muli_layer_show, muli_layer_save = pil_image_to_byte_stream(pil_image=tiff_image, is_one_page=False)
 
@@ -358,10 +358,10 @@ def deconvolve_image(request):
             deconvolver.iterationNumber = request.POST.get('iter')
             deconvolver.regularizationParameter = request.POST.get('regularization')
             deconvolver.DeconvolveImage(request.POST.get('deconvMethod'), None, None)
-            print(f"Result: {deconvolver._resultImage}")
-            pass2cache('deconvolution', ['deconvolver', 'psf', 'source_img', 'iter', 'regularization', 'result'], [deconvolver, psf_cache, source_img, request.POST.get('iter'), request.POST.get('regularization'), deconvolver.resultImage])
+            print(f"Result: {deconvolver._deconResult}")
+            pass2cache('deconvolution', ['deconvolver', 'psf', 'source_img', 'iter', 'regularization', 'result'], [deconvolver, psf_cache, source_img, request.POST.get('iter'), request.POST.get('regularization'), deconvolver._deconResult])
 
-            tiff_image = save_as_tiff(image_raw=deconvolver.resultImage, is_one_page=False, filename=f"result_deconv.tiff", outtype="uint8")
+            tiff_image = save_as_tiff(image_raw=deconvolver._deconResult, is_one_page=False, filename=f"result_deconv.tiff", outtype="uint8")
             deconv_show, deconv_save = pil_image_to_byte_stream(pil_image=tiff_image, is_one_page=False)
             response_data = {
                 'message': 'PSF extracted successfully',
