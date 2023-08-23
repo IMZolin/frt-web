@@ -104,7 +104,7 @@ useEffect(() => {
       case 0:
         return (<>
                   <div className="row">
-                    <Dropzone files={state.extractedPSFSave} addFiles={state.setExtractedPSFSave} imageType={'extracted_PSF'} state={state}/>
+                    <Dropzone files={state.extractedPSFSave} addFiles={state.setExtractedPSFSave} imageType={'extracted_psf'} state={state}/>
                   </div>
                 </>);
       case 1:
@@ -124,7 +124,7 @@ useEffect(() => {
                     onChange={(e) => state.handleScaleChange(e, 10)}
                   />
                 </div>
-                <Dropzone files={state.sourceImage} addFiles={state.setSourceImage} imageType={'source_img'} state={state} />
+                <Dropzone files={state.sourceImageSave} addFiles={state.setSourceImageSave} imageType={'source_img'} state={state} />
               </div>
               <div className="column-2">
                 <div className="images__preview">

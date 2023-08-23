@@ -33,17 +33,17 @@ def load_image(request):
     if request.method == 'POST' and request.FILES.getlist('file') and request.POST.get('image_type'):
         file_list = request.FILES.getlist('file')
         image_type = str(request.POST.get('image_type'))
+        muli_layer_show, muli_layer_save = None, None
         try:
             image_data = ImageRaw(fpath=file_list)
             pass2cache(image_type, ['imArray', 'voxel'], [image_data.imArray, image_data.voxel])
             resolution = image_data.imArray.shape 
-            muli_layer_show, muli_layer_save = None, None
-            if image_type == 'averaged_bead' or image_type == 'source_img':
-                tiff_image = save_as_tiff(image_raw=image_data, is_one_page=False, filename=f"average_bead.tiff", outtype="uint8")
+            if image_type == 'averaged_bead':
+                tiff_image = save_as_tiff(image_raw=image_data, is_one_page=False, filename=f"{image_type}.tiff", outtype="uint8")
                 muli_layer_show, muli_layer_save = pil_image_to_byte_stream(pil_image=tiff_image, is_one_page=False)
 
             response_data = {
-                'message': f'Image loaded successfully. Resolution: {resolution}',
+                'message': f'Image {image_type} loaded successfully',
                 'resolution': resolution,
                 'multi_layer_show': muli_layer_show,
                 'multi_layer_save': muli_layer_save
@@ -57,14 +57,16 @@ def load_image(request):
                 voxelZ = float(request.POST.get('voxelZ'))
                 voxel = np.array([voxelZ, voxelY, voxelX])
                 try:
-                    print(image_type)
                     image_data = ImageRaw(fpath=file_list, voxelSizeIn=voxel)
+                    if image_type == 'source_img':
+                        tiff_image = save_as_tiff(image_raw=image_data, is_one_page=False, filename=f"{image_type}.tiff", outtype="uint8")
+                        muli_layer_show, muli_layer_save = pil_image_to_byte_stream(pil_image=tiff_image, is_one_page=False)
                     pass2cache(image_type, ['imArray', 'voxel'], [image_data.imArray, image_data.voxel])
                     response_data = {
                         'message': f'Image {image_type} with voxel loaded successfully',
                         'resolution': image_data.imArray.shape,
-                        'multi_layer_show': None,
-                        'multi_layer_save': None
+                        'multi_layer_show': muli_layer_show,
+                        'multi_layer_save': muli_layer_save
                     }
 
                     return JsonResponse(response_data)
@@ -345,13 +347,9 @@ def deconvolve_image(request):
         try:
             deconvolver = DeconImageModel()
             psf_cache = django_cache.get('psf_extractor')['psf']
-            print(f"PSF cache: {psf_cache}")
             deconvolver._deconPsf = psf_cache
-            # deconvolver._deconPsf = ImageRaw(imArrayIn=psf_cache['imArray'], voxel=list(psf_cache['voxel'].values()))
-            # deconvolver.SetDeconPsf(array=psf_cache['imArray'], voxel=list(psf_cache['voxel'].values()))
             print(f"Decon PSF: {deconvolver._deconPsf}")
             source_img = django_cache.get('source_img')
-            print(f"Source img: {source_img}")
             deconvolver.SetDeconImage(array=source_img['imArray'], voxel=list(source_img['voxel'].values()))
             print(f"Decon img: {deconvolver._deconImage}")
             # deconvolver.SetDeconImage(array=source_img['imArray'], voxel=list(source_img['voxel'].values()))

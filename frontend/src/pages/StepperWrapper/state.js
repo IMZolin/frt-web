@@ -39,7 +39,8 @@ export const defaultValues = {
     sourceImage: [],
     resultImage: [],
     resultImageSave: [],
-    resolution2: []
+    resolution2: [],
+    sourceImageSave: []
 };
 
 export const useStateValues = () => {
@@ -84,6 +85,7 @@ export const useStateValues = () => {
 
     //Deconvolution
     const [sourceImage, setSourceImage] = useState(defaultValues.sourceImage);
+    const [sourceImageSave, setSourceImageSave] = useState(defaultValues.sourceImageSave);
     const [resultImage, setResultImage] = useState(defaultValues.resultImage);
     const [resultImageSave, setResultImageSave] = useState(defaultValues.resultImageSave);
     
@@ -302,5 +304,7 @@ export const useStateValues = () => {
         setResultImageSave,
         resolution2,
         setResolution2,
+        sourceImageSave,
+        setSourceImageSave,
     };
 };
