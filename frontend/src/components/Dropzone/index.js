@@ -30,7 +30,7 @@ const Dropzone = ({ files, addFiles, imageType, state }) => {
         voxelY: null,
         voxelZ: null,
       };
-      if (imageType.includes('beads_image') || imageType.includes('source_img')) {
+      if (imageType.includes('beads_image') || imageType.includes('source_img')|| imageType.includes('averaged_bead') || imageType.includes('extracted_psf')) {
         requestData.voxelX = state.voxelX;
         requestData.voxelY = state.voxelY;
         requestData.voxelZ = state.voxelZ;
@@ -57,27 +57,6 @@ const Dropzone = ({ files, addFiles, imageType, state }) => {
           state.setSourceImageSave([file]);
           addFiles(allFiles);
         }
-        // if (response.image_type == 'extracted_PSF'){
-        //   const file = base64ToTiff(response.multi_layer_save, 'image/tiff', `extracted_psf.tiff`);
-        //   const newExtractPSF = response.multi_layer_show.map((base64Data, index) => {
-        //       return base64ToTiff(base64Data, 'image/tiff', `extracted_psf_${index}.tiff`);
-        //   });
-        //   state.setExtractedPSF(newExtractPSF);
-        //   state.setExtractedPSFSave([file]);
-        //   addFiles(allFiles);
-        //   addFilesDownload(allFiles);
-        // }
-        // else if (response.image_type == 'source_img'){
-        //   const file = base64ToTiff(response.multi_layer_save, 'image/tiff', `source_img.tiff`);
-        //   const newExtractPSF = response.multi_layer_show.map((base64Data, index) => {
-        //       return base64ToTiff(base64Data, 'image/tiff', `extracted_psf_${index}.tiff`);
-        //   });
-        //   state.setExtractedPSF(newExtractPSF);
-        //   state.setExtractedPSFSave([file]);
-        //   addFiles(allFiles);
-        //   addFilesDownload(allFiles);
-        // }
-        
       }
       if (response && response.resolution && Array.isArray(response.resolution)) {
         state.setResolution(response.resolution); 
