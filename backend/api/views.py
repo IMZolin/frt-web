@@ -12,6 +12,7 @@ from celery.result import AsyncResult
 from engine.engine_lib.src.model.ImageRaw_class import ImageRaw
 from engine.engine_lib.src.model.extractor_model import ExtractorModel
 from engine.engine_lib.src.model.decon_psf_model import DeconPsfModel
+from engine.engine_lib.src.model.decon_image_model import DeconImageModel
 from .utils import save_as_tiff, pil_image_to_byte_stream, pass2cache
 from .tasks import load_and_cache_image
 
@@ -32,20 +33,20 @@ def load_image(request):
     if request.method == 'POST' and request.FILES.getlist('file') and request.POST.get('image_type'):
         file_list = request.FILES.getlist('file')
         image_type = str(request.POST.get('image_type'))
+        muli_layer_show, muli_layer_save = None, None
         try:
             image_data = ImageRaw(fpath=file_list)
             pass2cache(image_type, ['imArray', 'voxel'], [image_data.imArray, image_data.voxel])
             resolution = image_data.imArray.shape 
-            muli_layer_show, muli_layer_save = None, None
             if image_type == 'averaged_bead':
-                tiff_image = save_as_tiff(image_raw=image_data, is_one_page=False, filename=f"average_bead.tiff", outtype="uint8")
+                tiff_image = save_as_tiff(image_raw=image_data, is_one_page=False, filename=f"{image_type}.tiff", outtype="uint8")
                 muli_layer_show, muli_layer_save = pil_image_to_byte_stream(pil_image=tiff_image, is_one_page=False)
 
             response_data = {
-                'message': f'Image loaded successfully. Resolution: {resolution}',
+                'message': f'Image {image_type} loaded successfully',
                 'resolution': resolution,
-                'muli_layer_show': muli_layer_show,
-                'muli_layer_save': muli_layer_save
+                'multi_layer_show': muli_layer_show,
+                'multi_layer_save': muli_layer_save
             }
 
             return JsonResponse(response_data)
@@ -57,10 +58,15 @@ def load_image(request):
                 voxel = np.array([voxelZ, voxelY, voxelX])
                 try:
                     image_data = ImageRaw(fpath=file_list, voxelSizeIn=voxel)
+                    if image_type == 'source_img':
+                        tiff_image = save_as_tiff(image_raw=image_data, is_one_page=False, filename=f"{image_type}.tiff", outtype="uint8")
+                        muli_layer_show, muli_layer_save = pil_image_to_byte_stream(pil_image=tiff_image, is_one_page=False)
                     pass2cache(image_type, ['imArray', 'voxel'], [image_data.imArray, image_data.voxel])
                     response_data = {
-                        'message': 'Beads extracting successfully',
+                        'message': f'Image {image_type} with voxel loaded successfully',
                         'resolution': image_data.imArray.shape,
+                        'multi_layer_show': muli_layer_show,
+                        'multi_layer_save': muli_layer_save
                     }
 
                     return JsonResponse(response_data)
@@ -161,28 +167,6 @@ def check_task_status(request, task_id):
 
 
 @csrf_exempt
-def convert_image(request):
-    if request.method == 'POST' and request.FILES.getlist('file') and request.POST.get('output_prefix'):
-        input_files = request.FILES.getlist('file')
-        output_prefix = request.POST.get('output_prefix')
-        
-        try:
-            output_files = []
-            for i, input_file in enumerate(input_files):
-                stack = tifffile.imread(input_file)
-                for j, slice in enumerate(stack):
-                    output_file = f"{output_prefix}_{i+1:03}_{j+1:03}.tif"
-                    tifffile.imwrite(output_file, slice)
-                    output_files.append(output_file)
-
-            return HttpResponse(output_files, content_type='application/json')
-        except Exception as e:
-            return HttpResponse(f"Error during conversion: {e}", status=400, content_type='application/json')
-    
-    return HttpResponse([], content_type='application/json')
-
-
-@csrf_exempt
 def bead_mark(request):
     if request.method == 'POST' and request.POST.get('x') and request.POST.get('y') and request.POST.get('select_size'):
         try:
@@ -278,11 +262,11 @@ def get_average_bead(request):
         if isinstance(avg_bead_cache, ImageRaw):
             tiff_image = save_as_tiff(image_raw=avg_bead_cache, is_one_page=False, filename="average_bead.tiff", outtype="uint8")
             avg_bead_show, avg_bead_save = pil_image_to_byte_stream(pil_image=tiff_image, is_one_page=False)
-
             response_data = {
                 'message': 'Average bead data retrieved successfully',
                 'average_bead_show': avg_bead_show,  
-                'average_bead_save': avg_bead_save  
+                'average_bead_save': avg_bead_save,
+                'voxel': avg_bead_cache.voxel  
             }
 
             return JsonResponse(response_data)
@@ -294,52 +278,93 @@ def get_average_bead(request):
 
 @csrf_exempt
 def psf_extract(request):
-    if request.method == 'POST' and request.POST.get('resolutionXY') and request.POST.get('resolutionZ') and request.POST.get('beadSize') and request.POST.get('iter') and request.POST.get('regularization') and request.POST.get('deconvMethod'):
+    if request.method == 'POST' and request.POST.get('beadSize') and request.POST.get('iter') and request.POST.get('regularization') and request.POST.get('deconvMethod'):
         try:
             psf_extractor = DeconPsfModel()
             cached_image = django_cache.get('averaged_bead')
-
-            voxel_size = [float(request.POST.get('resolutionZ')), float(request.POST.get('resolutionXY')), float(request.POST.get('resolutionXY'))]
-            print(voxel_size)
-
-            psf_extractor.SetPSFImage(array=cached_image['imArray'], voxel=voxel_size)
-
-            # try to set iterations number
-            try:
-                psf_extractor.iterationNumber = request.POST.get('iter')
-            except Exception as e:
-                return error_response(400, str(e), 'POST')
-
-            # try to set regularization param
-            try:
-                psf_extractor.regularizationParameter = request.POST.get('regularization')
-            except Exception as e:
-                return error_response(400, str(e), 'POST')
-
-            # try to set bead radius param
-            try:
-                psf_extractor.beadDiameter = request.POST.get('beadSize')
-            except Exception as e:
-                return error_response(400, str(e), 'POST')
-
-            # pass 2 cache all info 
-            pass2cache('psf_extractor', ['extractor', 'average_bead', 'voxel', 'iter', 'regularization'], [psf_extractor, cached_image, voxel_size, request.POST.get('iter'), request.POST.get('regularization')])
-
-            print(request.POST.get('deconvMethod'), request.POST.get('regularization'), psf_extractor.regularizationParameter)
-
-            # try to make PSF extraction
+            psf_extractor.SetPSFImage(array=cached_image['imArray'], voxel=list(cached_image['voxel'].values()))
+            psf_extractor.iterationNumber = request.POST.get('iter')
+            psf_extractor.regularizationParameter = request.POST.get('regularization')
+            psf_extractor.beadDiameter = request.POST.get('beadSize')
             psf_extractor.CalculatePSF(request.POST.get('deconvMethod'), None, None)
-            print(f"result image shape: {psf_extractor.resultImage.imArray.shape}")
-            
-            # send result to client
+            pass2cache('psf_extractor', ['extractor', 'average_bead', 'iter', 'regularization', 'psf'], [psf_extractor, cached_image, request.POST.get('iter'), request.POST.get('regularization'), psf_extractor.resultImage])
+
             tiff_image = save_as_tiff(image_raw=psf_extractor.resultImage, is_one_page=False, filename=f"extracted_psf.tiff", outtype="uint8")
-            print(len(tiff_image), tiff_image[0])
-            
             psf_show, psf_save = pil_image_to_byte_stream(pil_image=tiff_image, is_one_page=False)
             response_data = {
                 'message': 'PSF extracted successfully',
                 'extracted_psf_show': psf_show,
                 'extracted_psf_save': psf_save
+            }
+
+            return JsonResponse(response_data)
+        except Exception as e:
+            return error_response(400, str(e), 'POST')
+
+    return error_response(400, 'Invalid request. Please make a POST request with the required parameters.', 'POST')
+
+
+@csrf_exempt
+def get_psf(request):
+    try:
+        psf_cache = django_cache.get('psf_extractor')['psf']
+        if isinstance(psf_cache, ImageRaw):
+            tiff_image = save_as_tiff(image_raw=psf_cache, is_one_page=False, filename="average_bead.tiff", outtype="uint8")
+            psf_show, psf_save = pil_image_to_byte_stream(pil_image=tiff_image, is_one_page=False)
+            response_data = {
+                'message': 'PSF data retrieved successfully',
+                'psf_show': psf_show,  
+                'psf_save': psf_save,
+                'resolution': psf_cache.imArray.shape,
+                'voxel': psf_cache.voxel  
+            }
+            return JsonResponse(response_data)
+        else:
+            return JsonResponse({'error': 'Invalid image data in cache. Unable to process.'}, status=400)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+    
+
+@csrf_exempt
+def get_voxel(request):
+    try:
+        psf_cache = django_cache.get('psf_extractor')['psf']
+        if isinstance(psf_cache, ImageRaw):
+            response_data = {
+                'message': 'Voxel retrieved successfully',
+                'voxel': psf_cache.voxel  
+            }
+            return JsonResponse(response_data)
+        else:
+            return JsonResponse({'error': 'Invalid image data in cache. Unable to process.'}, status=400)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+    
+
+@csrf_exempt
+def deconvolve_image(request):
+    if request.method == 'POST' and request.POST.get('iter') and request.POST.get('regularization') and request.POST.get('deconvMethod'):
+        try:
+            deconvolver = DeconImageModel()
+            psf_cache = django_cache.get('psf_extractor')['psf']
+            deconvolver._deconPsf = psf_cache
+            print(f"Decon PSF: {deconvolver._deconPsf}")
+            source_img = django_cache.get('source_img')
+            deconvolver.SetDeconImage(array=source_img['imArray'], voxel=list(source_img['voxel'].values()))
+            print(f"Decon img: {deconvolver._deconImage}")
+            # deconvolver.SetDeconImage(array=source_img['imArray'], voxel=list(source_img['voxel'].values()))
+            deconvolver.iterationNumber = request.POST.get('iter')
+            deconvolver.regularizationParameter = request.POST.get('regularization')
+            deconvolver.DeconvolveImage(request.POST.get('deconvMethod'), None, None)
+            print(f"Result: {deconvolver._deconResult}")
+            pass2cache('deconvolution', ['deconvolver', 'psf', 'source_img', 'iter', 'regularization', 'result'], [deconvolver, psf_cache, source_img, request.POST.get('iter'), request.POST.get('regularization'), deconvolver._deconResult])
+
+            tiff_image = save_as_tiff(image_raw=deconvolver._deconResult, is_one_page=False, filename=f"result_deconv.tiff", outtype="uint8")
+            deconv_show, deconv_save = pil_image_to_byte_stream(pil_image=tiff_image, is_one_page=False)
+            response_data = {
+                'message': 'PSF extracted successfully',
+                'deconv_show': deconv_show,
+                'deconv_save': deconv_save
             }
 
             return JsonResponse(response_data)

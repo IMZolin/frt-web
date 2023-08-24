@@ -23,8 +23,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     
     path('api/load_image/', views.load_image, name='load_image'),
-    
-    path('api/convert_image/', views.convert_image, name='convert_image'),
   
     path('api/bead_extractor/mark/', views.bead_mark, name='bead_mark'),
     path('api/bead_extractor/extract/', views.bead_extract, name='bead_extract'),
@@ -32,6 +30,10 @@ urlpatterns = [
     
     path('api/psf_extractor/average_bead/', views.get_average_bead, name='get_average_bead'),
     path('api/psf_extractor/extract/', views.psf_extract, name='psf_average'),
+
+    path('api/deconvolution/psf/', views.get_psf, name='get_psf'),
+    path('api/deconvolution/voxel/', views.get_voxel, name='get_voxel'),
+    path('api/deconvolution/run/', views.deconvolve_image, name='deconvolve_image'),
     # path('api/psf/processing/', views.psf_processing, name='psf_processing'),
     # path('api/deconv/processing/', views.deconv_processing, name='deconv_processing'),
     # path('api/network/processing/', views.cnn_processing, name='cnn_processing'),

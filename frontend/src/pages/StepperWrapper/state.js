@@ -36,10 +36,11 @@ export const defaultValues = {
     regularization: 0.0001,
     deconvMethod: "Richardson-Lucy",
     marginTop: 0,
-
     sourceImage: [],
     resultImage: [],
-    resultImageSave: []
+    resultImageSave: [],
+    resolution2: [],
+    sourceImageSave: []
 };
 
 export const useStateValues = () => {
@@ -52,6 +53,7 @@ export const useStateValues = () => {
     const [filename, setFilename] = useState(defaultValues.filename);
     const [activeStep, setActiveStep] = useState(defaultValues.activeStep);
     const [resolution, setResolution] = useState(defaultValues.resolution);
+    const [resolution2, setResolution2] = useState(defaultValues.resolution2);
     const [marginTop, setMarginTop] = useState(defaultValues.marginTop);
     //Bead extraction
     const [beads, setBeads] = useState(defaultValues.beads);
@@ -83,6 +85,7 @@ export const useStateValues = () => {
 
     //Deconvolution
     const [sourceImage, setSourceImage] = useState(defaultValues.sourceImage);
+    const [sourceImageSave, setSourceImageSave] = useState(defaultValues.sourceImageSave);
     const [resultImage, setResultImage] = useState(defaultValues.resultImage);
     const [resultImageSave, setResultImageSave] = useState(defaultValues.resultImageSave);
     
@@ -299,5 +302,9 @@ export const useStateValues = () => {
         setSourceImage,
         setResultImage,
         setResultImageSave,
+        resolution2,
+        setResolution2,
+        sourceImageSave,
+        setSourceImageSave,
     };
 };

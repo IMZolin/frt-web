@@ -31,6 +31,11 @@ const StepperPSF = () => {
                 state.setAverageBead(newAverageBead);
                 state.setAverageBeadSave([file])
                 state.setIsLoad(true);
+                if (response.voxel) {
+                    state.setVoxelX(response.voxel.X);
+                    state.setVoxelY(response.voxel.Y);
+                    state.setVoxelZ(response.voxel.Z);
+                }    
             } else {
                 console.log('No average bead data found in the response.');
             }
@@ -50,8 +55,6 @@ const StepperPSF = () => {
 
         try {
             const requestData = {
-                resolutionXY: state.voxelX,
-                resolutionZ: state.voxelZ,
                 beadSize: state.beadSize,
                 iter: state.iter,
                 regularization: state.regularization,
@@ -68,7 +71,6 @@ const StepperPSF = () => {
                 });
                 state.setExtractedPSF(newExtractPSF);
                 state.setExtractedPSFSave([file]);
-                console.log(state.extractedPSF);
             } else {
                 console.log('No extracted PSF found in the response.');
             }
@@ -84,40 +86,7 @@ const StepperPSF = () => {
                 return (
                     <>
                         <div className="row">
-                            <div className="column-1" style={{ zIndex: 2 }}>
-                                <div className="subtitle">Voxel size:</div>
-                                <div className="voxel-box">
-                                    <TextField
-                                        className="stepper-resolution"
-                                        id="resolution-x"
-                                        label="Resolution-XY (micron/pxl)"
-                                        variant="outlined"
-                                        placeholder="Enter the resolution in X and Y direction"
-                                        fullWidth
-                                        margin="normal"
-                                        onChange={(e) => {
-                                            state.setVoxelX(e.target.value);
-                                            state.setVoxelY(e.target.value)
-                                        }
-                                        }
-                                        value={state.voxelX}
-                                    />
-                                    <TextField
-                                        className="stepper-resolution"
-                                        id="resolution-z"
-                                        label="Resolution-Z (micron/pxl)"
-                                        variant="outlined"
-                                        placeholder="Enter the resolution in Z direction"
-                                        fullWidth
-                                        margin="normal"
-                                        onChange={(e) => state.setVoxelZ(e.target.value)}
-                                        value={state.voxelZ}
-                                    />
-                                </div>
-                            </div>
-                            <div className="column-2" style={{ zIndex: 1 }}>
-                                <Dropzone files={state.averageBeadSave} addFiles={state.setAverageBeadSave} imageType={'averaged_bead'} state={state} />
-                            </div>
+                            <Dropzone files={state.averageBeadSave} addFiles={state.setAverageBeadSave} imageType={'averaged_bead'} state={state} />
                         </div>
                     </>);
             case 1:

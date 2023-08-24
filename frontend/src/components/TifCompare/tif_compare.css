@@ -32,10 +32,12 @@
   position: relative;
 }
 
-
-/* .tif-single {
-  flex: 1;
-} */
+.img-container-box {
+  position: relative;
+  overflow: auto;
+  width: 360px;
+  height: 360px;
+}
 
 @media only screen and (max-width: 768px) {
   .tif-container {

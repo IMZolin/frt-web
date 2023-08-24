@@ -1,20 +1,24 @@
 import React from 'react';
 import TifViewer from '../TifViewer';
-import TiffStackViewer from '../TiffStackViewer';
 import './tif_compare.css';
 
 const TifCompare = ({ img_1, img_2, scale, state }) => {
+//!TODO: implement universal view of big and small images
+const shouldApplyStylesForImg1 = state.resolution[1] > 360;
+const shouldApplyStylesForImg2 = state.resolution2[1] > 360;
   return (
     <div className="tif-container">
       <div className="images-container">
         {img_1 ? (
           <div className="img-container">
-            <TifViewer
-              img={img_1[state.layer]}
-              scale={scale}
-              className="tif-single"
-              brightness={state.brightness}
-            />
+            <div className={`${shouldApplyStylesForImg1 ? 'img-container-box' : ''}`}>
+              <TifViewer
+                img={img_1[state.layer]}
+                scale={scale}
+                className="tif-single"
+                brightness={state.brightness}
+              />
+            </div>
             <label className="viewer-label" htmlFor="layer-slider">
               Layer:
             </label>
@@ -33,12 +37,14 @@ const TifCompare = ({ img_1, img_2, scale, state }) => {
         ) : null}
         {img_2 || img_2.length === 0 ? (
           <div className="img-container">
-          <TifViewer
-            img={img_2[state.layer2]}
-            scale={scale}
-            className="tif-single"
-            brightness={state.brightness}
-          />
+          <div className={`${shouldApplyStylesForImg2 ? 'img-container-box' : ''}`}>
+            <TifViewer
+              img={img_2[state.layer2]}
+              scale={scale}
+              className="tif-single"
+              brightness={state.brightness}
+            />
+          </div>
           <label className="viewer-label" htmlFor="layer-slider">
             Layer:
           </label>
