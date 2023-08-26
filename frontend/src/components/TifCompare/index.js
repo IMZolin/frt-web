@@ -3,7 +3,6 @@ import TifViewer from '../TifViewer';
 import './tif_compare.css';
 
 const TifCompare = ({ img_1, img_2, scale, state }) => {
-//!TODO: implement universal view of big and small images
 const shouldApplyStylesForImg1 = state.resolution[1] > 360;
 const shouldApplyStylesForImg2 = state.resolution2[1] > 360;
   return (

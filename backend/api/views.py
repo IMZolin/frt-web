@@ -94,9 +94,11 @@ def load_image(request):
         voxelY = request.POST.get('voxelY')
         voxelZ = request.POST.get('voxelZ')
         try:
+            # Create the tmp folder in the main backend directory if it doesn't exist
             tmp_folder = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'tmp')
             os.makedirs(tmp_folder, exist_ok=True)
 
+            # Save the uploaded files to the tmp folder
             file_paths = []
             for file_obj in file_list:
                 file_path = os.path.join(tmp_folder, file_obj.name)
@@ -105,17 +107,13 @@ def load_image(request):
                         destination.write(chunk)
                 file_paths.append(file_path)
 
-            if voxelX is not None and voxelY is not None and voxelZ is not None:
-                voxel = np.array([float(voxelZ), float(voxelY), float(voxelX)])
-                image_data = ImageRaw(fpath=file_list, voxelSizeIn=voxel)
-            else:
-                image_data = ImageRaw(fpath=file_list)
-
-            pass2cache(image_type, ['imArray', 'voxel'], [image_data.imArray, image_data.voxel])
+            # Enqueue the Celery task
+            task = load_and_cache_image.delay(file_paths, image_type, voxelX, voxelY, voxelZ)
 
             response_data = {
                 'message': 'Image loading task has been enqueued',
-                'resolution': image_data.imArray.shape,
+                'resolution': task.get(),
+                'task_id': task.id
             }
 
             return JsonResponse(response_data)

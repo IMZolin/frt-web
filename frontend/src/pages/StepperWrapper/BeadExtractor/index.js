@@ -1,10 +1,8 @@
 import React, { useRef } from 'react';
 import { Button, TextField } from '@mui/material';
 import StepperWrapper from '../../StepperWrapper';
-import TifViewer from '../../../components/TifViewer';
-import TiffStackViewer from '../../../components/TiffStackViewer';
 import TifCompare from '../../../components/TifCompare';
-import TiffExtractor from '../../../components/TiffExtractor';
+import TiffStackViewer from '../../../components/TiffStackViewer';
 import Dropzone from '../../../components/Dropzone';
 import FileDownloader from '../../../components/FileDownloader';
 import { useStateValues } from '../state';
@@ -119,16 +117,6 @@ const BeadExtractor = () => {
           <>
             <div className="row">
               <div className="column-1">
-                <label htmlFor="layer-slider">Layer:</label>
-                <input
-                  id="layer-slider"
-                  type="range"
-                  min="0"
-                  max={state.beads.length - 1}
-                  step="1"
-                  value={state.layer}
-                  onChange={(e) => state.handleLayerChange(e, state.beads.length - 1)}
-                />
                 <label htmlFor="brightness-slider">Brightness:</label>
                 <input
                   id="brightness-slider"
@@ -169,11 +157,13 @@ const BeadExtractor = () => {
               </div>
               <div className="column-2" style={{ zIndex: 1 }}>
                 <div className="images__preview">
-                  <TiffExtractor
-                    img={state.beads[state.layer]}
+                  <TiffStackViewer
+                    tiffList={state.beads}
                     scale={1}
                     state={state}
                     canvasRef={canvasRef}
+                    isExtract={true}
+                    numImagePage={1}
                   />
                 </div>
               </div>
