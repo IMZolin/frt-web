@@ -2,9 +2,12 @@
 
 - [PSF interface service](#psf-interface-service)
   - [Description](#description)
-  - [Get started](#get-started)
-    - [Development](#development)
-    - [Production](#production)
+  - [Manual for deploying and configuring the application](#manual-for-deploying-and-configuring-the-application)
+    - [Installation](#installation)
+    - [Depolyment guide](#depolyment-guide)
+      - [Development deployment](#development-deployment)
+      - [Production deployment (now it' not available)](#production-deployment-now-it-not-available)
+    - [Engine(API) update manual](#engineapi-update-manual)
   - [Project structure](#project-structure)
   - [Useful materials](#useful-materials)
 
@@ -16,31 +19,42 @@
 
 `Technologies`: ReactJS, Django, Docker, Redis, Nginx, Celery, Flower
 
-## Get started
+## Manual for deploying and configuring the application
+
+### Installation
 
 ```bash
 git clone https://github.com/IMZolin/frt23-3d-interface.git <your project name>
 cd <your project name>
-
-# Frontend set up
-cd frontend
-npm install 
-npm install --force # (if prev step doesn't work) 
-cd ..
+./bin/install.sh
 ```
 
-### Development
+Instead of `<your project name>`, insert the name of the directory where the project will be stored.
+
+`Important`: If you have Windows, you need to change the console to Git Bash to run the command: `./bin/install.sh`
+
+### Depolyment guide
+
+For more detailed instructions on using Docker, refer to the [Docker Manual].
+
+#### Development deployment
 
 ```bash
+#build and run containers
 docker-compose up -d --build
-#or
-docker-compose build
-docker-compose up -d
-
+#stop containers
 docker-compose stop
 ```
 
-### Production
+```bash
+#build and run containers with separate commands
+docker-compose build
+docker-compose up -d
+#stop containers
+docker-compose stop
+```
+
+#### Production deployment (now it' not available)
 
 ```bash
 cd backend
@@ -51,6 +65,25 @@ cd ..
 docker-compose.prod build
 docker-compose.prod up -d
 docker-compose.prod stop
+```
+
+### Engine(API) update manual
+
+url of engine: <https://github.com/IMZolin/simple_psf_extractor>
+
+```bash
+cd backend
+cd backend
+cd engine
+cd engine_lib
+# make some changes
+git add .
+git commit -m"Some updates to engine..."
+git push origin develop
+cd ..
+cd ..
+cd ..
+cd ..
 ```
 
 ## Project structure
@@ -97,3 +130,5 @@ docker-compose.prod stop
 1. Notion report(ru): <https://www.notion.so/1d4cb5d37f1743babc89a2bea9fbc829?pvs=4>
 2. Board in Miro(ru): <https://miro.com/app/board/uXjVMFFZCSg=/?share_link_id=999021127197>
 3. Postman: <https://red-meteor-969100.postman.co/workspace/e7cf7956-c97a-4a54-b834-a2929af5ccdd>
+
+[Docker Manual]: <./Docker_manual.md>
