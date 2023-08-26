@@ -47,7 +47,8 @@ fi
 
 # Clone the engine library
 cd backend/engine
-git -b develop clone https://github.com/gerasimenkoab/simple_psf_extractor.git engine_lib
+git clone -b develop https://github.com/gerasimenkoab/simple_psf_extractor.git engine_lib
+cd engine_lib
 git push origin develop
 cd ../..
 
@@ -58,9 +59,9 @@ cd ..
 
 # Activate .venv environment
 if [ "$OS" == "Linux" ] || [ "$OS" == "macOS" ]; then
+    echo "Activating .venv..."
     source .venv/bin/activate
 elif [ "$OS" == "Windows" ]; then
-    # Use appropriate activation command for Windows
-    # For example, with Git Bash:
+    echo "Activating .venv..."
     source .venv/Scripts/activate
 fi
