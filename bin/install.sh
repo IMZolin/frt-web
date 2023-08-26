@@ -49,7 +49,6 @@ fi
 cd backend/engine
 git clone -b develop https://github.com/gerasimenkoab/simple_psf_extractor.git engine_lib
 cd engine_lib
-git push origin develop
 cd ../../..
 
 # Install frontend dependencies
@@ -65,3 +64,5 @@ elif [ "$OS" == "Windows" ]; then
     echo "Activating .venv..."
     source .venv/Scripts/activate
 fi
+
+git push origin main
