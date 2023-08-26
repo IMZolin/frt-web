@@ -16,8 +16,6 @@ services:
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
     ports:
       - 8000:8000
-    env_file:
-      - ./backend/.env
     depends_on:
       - redis
 
@@ -65,8 +63,6 @@ services:
     container_name: frontend
     ports:
       - 3000:3000
-    env_file:
-      - ./frontend/.env
     volumes:
       - ./frontend/:/usr/src/frontend/
 
