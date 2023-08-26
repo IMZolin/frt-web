@@ -5,6 +5,9 @@ const TifViewer = ({ img, scale, brightness }) => {
   const handleButtonClick = (e) => {
     e.preventDefault();
   };
+  if (!img) {
+    return null;
+  }
   
   return (
     <div className="tif-viewer-container">
