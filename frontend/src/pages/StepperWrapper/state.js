@@ -3,15 +3,11 @@ import { useState, useEffect } from "react";
 
 export const defaultValues = {
     files: [],
-    averageBeadSave: [],
-    extractedPSFSave: [],
     isLoad: false,
     beads: [],
     extractBeads: [],
     centerExtractBeads: [],
     averageBead: [],
-    extractedPSF: [],
-    beadSize: 0.2,
     psfFiles: [],
     voxelX: 0.089,
     voxelY: 0.089,
@@ -19,29 +15,25 @@ export const defaultValues = {
     resolution: [],
     levelBrightness: 1,
     layer: 0,
-    layer2: 0,
     isDeleted: false,
     isRightClick: false,
     selectSize: 36, //px size
     tiffType: '8 bit',
     blurType: 'gauss',
-    resolutionXY: 0.022,
-    resolutionZ: 0.100,
+    resolutionXY: 22,
+    resolutionZ: 100,
     scale: 1,
     iter: 50,
     activeStep: 0,
     filename: "",
+    iterPSF: 50,
+    statePSF: 'dropzone',
     maximizeIntensity: false,
     makeGaussianBlur: false,
     gaussianBlurCount: 3,
     regularization: 0.0001,
-    deconvMethod: "Richardson-Lucy",
-    marginTop: 0,
-    sourceImage: [],
-    resultImage: [],
-    resultImageSave: [],
-    resolution2: [],
-    sourceImageSave: []
+    deconvMethod: 'RL',
+    marginTop: 0
 };
 
 export const useStateValues = () => {
@@ -49,12 +41,10 @@ export const useStateValues = () => {
     const [files, addFiles] = useState(defaultValues.files);
     const [isLoad, setIsLoad] = useState(defaultValues.isLoad);
     const [layer, setLayer] = useState(defaultValues.layer);
-    const [layer2, setLayer2] = useState(defaultValues.layer2);
     const [scale, setScale] = useState(defaultValues.scale);
     const [filename, setFilename] = useState(defaultValues.filename);
     const [activeStep, setActiveStep] = useState(defaultValues.activeStep);
     const [resolution, setResolution] = useState(defaultValues.resolution);
-    const [resolution2, setResolution2] = useState(defaultValues.resolution2);
     const [marginTop, setMarginTop] = useState(defaultValues.marginTop);
     //Bead extraction
     const [beads, setBeads] = useState(defaultValues.beads);
@@ -68,28 +58,22 @@ export const useStateValues = () => {
     const [extractBeads, setExtractBeads] = useState(defaultValues.extractBeads);
     const [centerExtractBeads, setCenterExtractBeads] = useState(defaultValues.centerExtractBeads);
     const [averageBead, setAverageBead] = useState(defaultValues.averageBead);
-    const [averageBeadSave, setAverageBeadSave] = useState(defaultValues.averageBead);
-    const [extractedPSF, setExtractedPSF] = useState(defaultValues.extractedPSF);
-    const [extractedPSFSave, setExtractedPSFSave] = useState(defaultValues.extractedPSFSave);
     const [tiffType, setTiffType] = useState(defaultValues.tiffType);
     const [blurType, setBlurType] = useState(defaultValues.blurType);
 
     const [resolutionXY, setResolutionXY] = useState(defaultValues.resolutionXY);
     const [resolutionZ, setResolutionZ] = useState(defaultValues.resolutionZ);
-
     //PSF
-    const [beadSize, setBeadSize] = useState(defaultValues.beadSize);
     const [psfFiles, addPsfFiles] = useState(defaultValues.psfFiles);
     const [iter, setIter] = useState(defaultValues.iter);
     const [regularization, setRegularization] = useState(defaultValues.regularization);
     const [deconvMethod, setDeconvMethod] = useState(defaultValues.deconvMethod);
 
     //Deconvolution
-    const [sourceImage, setSourceImage] = useState(defaultValues.sourceImage);
-    const [sourceImageSave, setSourceImageSave] = useState(defaultValues.sourceImageSave);
-    const [resultImage, setResultImage] = useState(defaultValues.resultImage);
-    const [resultImageSave, setResultImageSave] = useState(defaultValues.resultImageSave);
-    
+    const [iterPSF, setIterPSF] = useState(defaultValues.iterPSF);
+    const [statePSF, setStatePSF] = useState(defaultValues.statePSF);
+
+
     //Neural network
     const [maximizeIntensity, setMaximizeIntensity] = useState(false);
     const [makeGaussianBlur, setMakeGaussianBlur] = useState(false);
@@ -100,9 +84,9 @@ export const useStateValues = () => {
     const blurTypes = ["gauss", "none", "median"]
 
     const deconvMethods = {
-        "Richardson-Lucy":"RL",
-        "Richardson-Lucy TM":"RLTMR",
-        "Richardson-Lucy TV":"RLTVR"
+        RL: "Richardson-Lucy",
+        RLTM: "Richardson-Lucy TM",
+        RLTV: "Richardson-Lucy TV",
       };
 
     const handleNextStep = () => {
@@ -129,8 +113,11 @@ export const useStateValues = () => {
         setMakeGaussianBlur(checked);
     };
 
+    const handlePSFChange = (e) => {
+        setStatePSF(e.target.checked ? 'stepper-psf' : 'dropzone');
+    }
+
     const handleDeconvMethodChange = (selectedMethod) => {
-        console.log(selectedMethod);
         setDeconvMethod(selectedMethod);
         console.log(selectedMethod);
     };
@@ -145,17 +132,9 @@ export const useStateValues = () => {
         console.log(selectedType);
     };
 
-    const handleLayerChange = (e, maxLayer) => {
-        const value = e.target.value;
-        const newLayer = value > maxLayer ? maxLayer : value;
-        setLayer(newLayer);
-    };
-
-    const handleLayer2Change = (e, maxLayer) => {
-        const value = e.target.value;
-        const newLayer = value > maxLayer ? maxLayer : value;
-        setLayer2(newLayer);
-    };
+    const handleLayerChange = (layer) => {
+        setLayer(layer);
+      };
     
     const drawSquare = (x, y, size, canvasRef) => {
         const canvas = canvasRef.current;
@@ -252,8 +231,6 @@ export const useStateValues = () => {
         setResolutionXY,
         resolutionZ,
         setResolutionZ,
-        beadSize,
-        setBeadSize,
         scale,
         setScale,
         iter,
@@ -262,6 +239,10 @@ export const useStateValues = () => {
         setActiveStep,
         filename,
         setFilename,
+        iterPSF,
+        setIterPSF,
+        statePSF,
+        setStatePSF,
         maximizeIntensity,
         setMaximizeIntensity,
         makeGaussianBlur,
@@ -272,6 +253,7 @@ export const useStateValues = () => {
         handlePrevStep,
         handleButtonClick,
         handleGaussianBlurToggle,
+        handlePSFChange,
         tiffType,
         setTiffType,
         tiffTypes,
@@ -291,8 +273,6 @@ export const useStateValues = () => {
         addPsfFiles,
         averageBead,
         setAverageBead,
-        extractedPSF,
-        setExtractedPSF,
         extractBeads,
         setExtractBeads,
         isRightClick,
@@ -308,23 +288,6 @@ export const useStateValues = () => {
         setResolution,
         marginTop,
         setMarginTop,
-        handleScaleChange,
-        layer2,
-        setLayer2,
-        handleLayer2Change,
-        averageBeadSave,
-        setAverageBeadSave,
-        extractedPSFSave,
-        setExtractedPSFSave,
-        sourceImage,
-        resultImage,
-        resultImageSave,
-        setSourceImage,
-        setResultImage,
-        setResultImageSave,
-        resolution2,
-        setResolution2,
-        sourceImageSave,
-        setSourceImageSave,
+        handleScaleChange
     };
 };
