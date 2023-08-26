@@ -17,19 +17,33 @@ else
     exit 1
 fi
 
+
+# Install Chocolatey if not already installed
+if ! command_exists choco; then
+    if [ "$OS" == "Windows" ]; then
+        echo "Installing Chocolatey on Windows..."
+        # Install Chocolatey using PowerShell
+        powershell -NoProfile -ExecutionPolicy Bypass -Command "iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))"
+    else
+        echo "Chocolatey is only supported on Windows"
+        exit 1
+    fi
+fi
+
 # Install Node.js if not already installed
 if ! command_exists node; then
     if [ "$OS" == "Linux" ]; then
         echo "Installing Node.js on Linux..."
-        # Add your Node.js installation steps for Linux here
+        sudo apt update
+        sudo apt install nodejs
     fi
     if [ "$OS" == "macOS" ]; then
         echo "Installing Node.js on macOS..."
-        # Add your Node.js installation steps for macOS here
+        brew install node
     fi
     if [ "$OS" == "Windows" ]; then
         echo "Installing Node.js on Windows..."
-        # Add your Node.js installation steps for Windows here
+        choco install nodejs
     fi
 fi
 
@@ -49,20 +63,10 @@ fi
 cd backend/engine
 git clone -b develop https://github.com/gerasimenkoab/simple_psf_extractor.git engine_lib
 cd engine_lib
+git pull oriin develop
 cd ../../..
 
 # Install frontend dependencies
 cd frontend
 npm install --force
 cd ..
-
-# Activate .venv environment
-if [ "$OS" == "Linux" ] || [ "$OS" == "macOS" ]; then
-    echo "Activating .venv..."
-    source .venv/bin/activate
-elif [ "$OS" == "Windows" ]; then
-    echo "Activating .venv..."
-    source .venv/Scripts/activate
-fi
-
-git push origin main

@@ -27,6 +27,8 @@
 git clone https://github.com/IMZolin/frt23-3d-interface.git <your project name>
 cd <your project name>
 ./bin/install.sh
+source .venv/Scripts/activate #for Windows
+source .venv/bin/activate #for Linux and Macos
 ```
 
 Instead of `<your project name>`, insert the name of the directory where the project will be stored.
