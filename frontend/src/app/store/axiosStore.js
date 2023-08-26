@@ -61,15 +61,6 @@ const useAxiosStore = create((set, get) => {
       }
     },
 
-    getAverageBead: async () => {
-      try {
-        const response = await axiosInstance.get('/api/psf_extractor/average_bead/');
-        return response.data;
-      } catch (error) {
-        throw error;
-      }
-    },
-
     postBeadExtract: async (params) => {
       try {
         const response = await axiosInstance.post('/api/bead_extractor/extract/', params);
@@ -82,51 +73,6 @@ const useAxiosStore = create((set, get) => {
     postBeadAverage: async (params) => {
       try {
         const response = await axiosInstance.post('/api/bead_extractor/average/', params);
-        return response.data;
-      } catch (error) {
-        throw error;
-      }
-    },
-
-    postBeadMark: async (params) => {
-      try {
-        const response = await axiosInstance.post('/api/bead_extractor/mark/', params);
-        return response.data;
-      } catch (error) {
-        throw error;
-      }
-    },
-
-    postPSFExtract: async (params) => {
-      try {
-        const response = await axiosInstance.post('/api/psf_extractor/extract/', params);
-        return response.data;
-      } catch (error) {
-        throw error;
-      }
-    },
-
-    getPSF: async () => {
-      try {
-        const response = await axiosInstance.get('/api/deconvolution/psf/');
-        return response.data;
-      } catch (error) {
-        throw error;
-      }
-    },
-
-    getVoxel: async () => {
-      try {
-        const response = await axiosInstance.get('/api/deconvolution/voxel/');
-        return response.data;
-      } catch (error) {
-        throw error;
-      }
-    },
-
-    postDeconvolution: async (params) => {
-      try {
-        const response = await axiosInstance.post('/api/deconvolution/run/', params);
         return response.data;
       } catch (error) {
         throw error;

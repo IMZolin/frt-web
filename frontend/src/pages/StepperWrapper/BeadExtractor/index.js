@@ -20,22 +20,20 @@ const BeadExtractor = () => {
 
   const handleBeadExtract = async () => {
     try {
-      const beadCoordsStr = state.centerExtractBeads.map(({ x, y }) => `[${x}, ${y}]`).join(', ');
-
       const requestData = {
         select_size: state.selectSize,
-        bead_coords: `[${beadCoordsStr}]`,
+        bead_coords: '[[39, 102], [181, 21], [234, 272], [336, 612], [103, 591], [564, 737], [481, 718], [510, 646], [534, 934], [351, 977], [258, 1023], [119, 1059], [459, 1589], [77, 1605], [172, 1478], [184, 1358]]',
+        is_deleted: state.isDeleted,
       };
 
       const response = await axiosStore.postBeadExtract(requestData);
       console.log('Response:', response);
 
       if (response.extracted_beads) {
-        const newExtractBeads = response.extracted_beads.map((base64Data, index) => {
-          return base64ToTiff(base64Data, 'image/tiff', `extracted_bead_${index}.tiff`);
+        response.extracted_beads.forEach((base64Data, index) => {
+          const file = base64ToTiff(base64Data, 'image/tiff', `extracted_bead_${index}.tiff`);
+          state.extractBeads.push(file);
         });
-
-        state.setExtractBeads(newExtractBeads);
         console.log(state.extractBeads);
       } else {
         console.log('No extracted beads found in the response.');
@@ -54,13 +52,9 @@ const BeadExtractor = () => {
       const response = await axiosStore.postBeadAverage(requestData);
       console.log('Response:', response);
 
-      if (response.average_bead_show) {
-        const file = base64ToTiff(response.average_bead_save, 'image/tiff', `average_bead.tiff`);
-        const newAverageBead = response.average_bead_show.map((base64Data, index) => {
-          return base64ToTiff(base64Data, 'image/tiff', `average_bead_${index}.tiff`);
-        });
-        state.setAverageBead(newAverageBead);
-        state.setAverageBeadSave([file])
+      if (response.average_bead) {
+        const file = base64ToTiff(response.average_bead, 'image/tiff', `average_bead.tiff`);
+        state.setAverageBead([file]);
         console.log(state.averageBead)
       } else {
         console.log('No average bead found in the response.');
@@ -81,24 +75,31 @@ const BeadExtractor = () => {
                   <TextField
                     className="stepper-resolution"
                     id="resolution-x"
-                    label="Resolution-XY (micron/pxl)"
+                    label="X (nm/pxl)"
                     variant="outlined"
-                    placeholder="Enter the resolution in X and Y direction"
+                    placeholder="Enter the resolution in X direction"
                     fullWidth
                     margin="normal"
-                    onChange={(e) => {
-                      state.setVoxelX(e.target.value);
-                      state.setVoxelY(e.target.value)
-                    }
-                    }
+                    onChange={(e) => state.setVoxelX(e.target.value)}
                     value={state.voxelX}
                   />
                   <TextField
                     className="stepper-resolution"
-                    id="resolution-z"
-                    label="Resolution-Z (micron/pxl)"
+                    id="resolution-y"
+                    label="Y (nm/pxl)"
                     variant="outlined"
-                    placeholder="Enter the resolution in Z direction"
+                    placeholder=""
+                    fullWidth
+                    margin="normal"
+                    onChange={(e) => state.setVoxelY(e.target.value)}
+                    value={state.voxelY}
+                  />
+                  <TextField
+                    className="stepper-resolution"
+                    id="resolution-z"
+                    label="Z (nm/pxl)"
+                    variant="outlined"
+                    placeholder=""
                     fullWidth
                     margin="normal"
                     onChange={(e) => state.setVoxelZ(e.target.value)}
@@ -181,10 +182,10 @@ const BeadExtractor = () => {
                     id="scale-slider"
                     type="range"
                     min="0.5"
-                    max="5"
+                    max="2"
                     step="0.1"
                     value={state.scale}
-                    onChange={(e) => state.handleScaleChange(e, 5)}
+                    onChange={(e) => state.handleScaleChange(e, 2)}
                   />
                 </div>
                 <label htmlFor="brightness-slider">Brightness:</label>
@@ -210,7 +211,7 @@ const BeadExtractor = () => {
               </div>
               <div className="column-2">
                 <div className="images__preview">
-                  <TifCompare img_1={state.extractBeads} img_2={state.averageBead} scale={state.scale} state={state} />
+                  <TifCompare files_1={state.extractBeads} files_2={state.averageBead} scale={state.scale} state={state} canvasRef={canvasRef} isExtract={false} numImagePage={4}/>
                 </div>
               </div>
             </div>
@@ -231,16 +232,6 @@ const BeadExtractor = () => {
                     step="0.1"
                     value={state.scale}
                     onChange={(e) => state.handleScaleChange(e, 5)}
-                  />
-                  <label htmlFor="layer-slider">Layer:</label>
-                  <input
-                    id="layer-slider"
-                    type="range"
-                    min="0"
-                    max={state.averageBead.length - 1}
-                    step="1"
-                    value={state.layer2}
-                    onChange={(e) => state.handleLayer2Change(e, state.averageBead.length - 1)}
                   />
                 </div>
                 <label htmlFor="brightness-slider">Brightness:</label>
@@ -264,15 +255,11 @@ const BeadExtractor = () => {
                   onChange={(e) => state.setFilename(e.target.value)}
                   value={state.filename}
                 />
-                <FileDownloader fileList={state.averageBeadSave} folderName={state.filename} btnName={"Save result"} />
+                <FileDownloader fileList={state.averageBead} folderName={"avg_bead"} btnName={"Save result"} />
               </div>
               <div className="column-2" style={{ zIndex: 1 }}>
                 <div className="images__preview">
-                  <TifViewer
-                    img={state.averageBead[state.layer2]}
-                    scale={state.scale}
-                    brightness={state.brightness}
-                  />
+                  <TiffStackViewer tiffList={state.averageBead} scale={state.scale} state={state} canvasRef={canvasRef} isExtract={false} numImagePage={4}/>
                 </div>
               </div>
             </div>
@@ -293,8 +280,6 @@ const BeadExtractor = () => {
         handlePrevStep={state.handlePrevStep}
         activeStep={state.activeStep}
         isLoad={state.isLoad}
-        urlPage='/psf'
-        typeRun='PSF'
       />
     </div>
   );

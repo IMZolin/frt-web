@@ -46,7 +46,6 @@ const FileDownloader = ({ fileList, folderName, btnName }) => {
 
     const zip = new JSZip();
     fileList.forEach(({ data, id }) => {
-      console.log(typeof data, data)
       if (data && typeof data === 'string') {
         const file_name = `${folderName}_${id}.tiff`;
         const blob = downloadFile(data, file_name);
