@@ -71,10 +71,9 @@ docker-compose.prod stop
 
 ### Engine(API) update manual
 
-url of engine: <https://github.com/IMZolin/simple_psf_extractor>
+url of engine: <https://github.com/gerasimenkoab/simple_psf_extractor>
 
 ```bash
-cd backend
 cd backend
 cd engine
 cd engine_lib
@@ -82,7 +81,6 @@ cd engine_lib
 git add .
 git commit -m"Some updates to engine..."
 git push origin develop
-cd ..
 cd ..
 cd ..
 cd ..
