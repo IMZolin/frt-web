@@ -22,10 +22,12 @@ if ! command_exists node; then
     if [ "$OS" == "Linux" ]; then
         echo "Installing Node.js on Linux..."
         # Add your Node.js installation steps for Linux here
-    elif [ "$OS" == "macOS" ]; then
+    fi
+    if [ "$OS" == "macOS" ]; then
         echo "Installing Node.js on macOS..."
         # Add your Node.js installation steps for macOS here
-    elif [ "$OS" == "Windows" ]; then
+    fi
+    if [ "$OS" == "Windows" ]; then
         echo "Installing Node.js on Windows..."
         # Add your Node.js installation steps for Windows here
     fi
@@ -33,13 +35,13 @@ fi
 
 # Check if .venv directory exists, create if not
 if [ ! -d .venv ]; then
-    echo "Creating .venv directory..."
-    if [ "$OS" == "Linux" ]; then
-        # Add your .venv creation steps for Linux here
-    elif [ "$OS" == "macOS" ]; then
-        # Add your .venv creation steps for macOS here
-    elif [ "$OS" == "Windows" ]; then
-        # Add your .venv creation steps for Windows here
+    if [ "$OS" == "Linux" ] || [ "$OS" == "macOS" ]; then
+        echo "Creating .venv directory..."
+        python3 -m venv .venv
+    fi
+    if [ "$OS" == "Windows" ]; then
+        echo "Creating .venv directory..."
+        python -m venv .venv
     fi
 fi
 
@@ -50,7 +52,6 @@ cd ../..
 
 # Install frontend dependencies
 cd frontend
-npm install
 npm install --force
 cd ..
 
