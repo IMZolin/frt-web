@@ -17,48 +17,55 @@ else
     exit 1
 fi
 
+
+# Install Chocolatey if not already installed
+if ! command_exists choco; then
+    if [ "$OS" == "Windows" ]; then
+        echo "Installing Chocolatey on Windows..."
+        # Install Chocolatey using PowerShell
+        powershell -NoProfile -ExecutionPolicy Bypass -Command "iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))"
+    else
+        echo "Chocolatey is only supported on Windows"
+        exit 1
+    fi
+fi
+
 # Install Node.js if not already installed
 if ! command_exists node; then
     if [ "$OS" == "Linux" ]; then
         echo "Installing Node.js on Linux..."
-        # Add your Node.js installation steps for Linux here
-    elif [ "$OS" == "macOS" ]; then
+        sudo apt update
+        sudo apt install nodejs
+    fi
+    if [ "$OS" == "macOS" ]; then
         echo "Installing Node.js on macOS..."
-        # Add your Node.js installation steps for macOS here
-    elif [ "$OS" == "Windows" ]; then
+        brew install node
+    fi
+    if [ "$OS" == "Windows" ]; then
         echo "Installing Node.js on Windows..."
-        # Add your Node.js installation steps for Windows here
+        choco install nodejs
     fi
 fi
 
 # Check if .venv directory exists, create if not
 if [ ! -d .venv ]; then
-    echo "Creating .venv directory..."
-    if [ "$OS" == "Linux" ]; then
-        # Add your .venv creation steps for Linux here
-    elif [ "$OS" == "macOS" ]; then
-        # Add your .venv creation steps for macOS here
-    elif [ "$OS" == "Windows" ]; then
-        # Add your .venv creation steps for Windows here
+    if [ "$OS" == "Linux" ] || [ "$OS" == "macOS" ]; then
+        echo "Creating .venv directory..."
+        python3 -m venv .venv
+    fi
+    if [ "$OS" == "Windows" ]; then
+        echo "Creating .venv directory..."
+        python -m venv .venv
     fi
 fi
 
 # Clone the engine library
 cd backend/engine
-git clone https://github.com/gerasimenkoab/simple_psf_extractor.git engine_lib
-cd ../..
+git clone -b develop https://github.com/gerasimenkoab/simple_psf_extractor.git engine_lib
+cd engine_lib
+cd ../../..
 
 # Install frontend dependencies
 cd frontend
-npm install
 npm install --force
 cd ..
-
-# Activate .venv environment
-if [ "$OS" == "Linux" ] || [ "$OS" == "macOS" ]; then
-    source .venv/bin/activate
-elif [ "$OS" == "Windows" ]; then
-    # Use appropriate activation command for Windows
-    # For example, with Git Bash:
-    source .venv/Scripts/activate
-fi
