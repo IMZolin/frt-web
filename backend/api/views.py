@@ -13,6 +13,7 @@ from engine.engine_lib.src.model.ImageRaw_class import ImageRaw
 from engine.engine_lib.src.model.extractor_model import ExtractorModel
 from engine.engine_lib.src.model.decon_psf_model import DeconPsfModel
 from engine.engine_lib.src.model.decon_image_model import DeconImageModel
+from engine.engine_lib.src.model.preproces_image_model import PreprocessImageModel
 from .utils import save_as_tiff, pil_image_to_byte_stream, pass2cache
 from .tasks import load_and_cache_image
 
@@ -365,6 +366,41 @@ def deconvolve_image(request):
                 'message': 'PSF extracted successfully',
                 'deconv_show': deconv_show,
                 'deconv_save': deconv_save
+            }
+
+            return JsonResponse(response_data)
+        except Exception as e:
+            return error_response(400, str(e), 'POST')
+
+    return error_response(400, 'Invalid request. Please make a POST request with the required parameters.', 'POST')
+
+
+@csrf_exempt
+def preprocess_image(request):
+    # check if request contains all requiered data 
+    if request.method == 'POST' and request.POST.get('isNeedGaussBlur') and request.POST.get('gaussBlurRad') and request.POST.get('isNeedMaxIntensity'):
+        try:
+            preprocessor = PreprocessImageModel()
+            
+            source_img = django_cache.get('source_img')
+            preprocessor.SetPreprocImage(array=source_img['imArray'], voxel=list(source_img['voxel'].values()))
+            print(f"Preprocess img: {preprocessor._preprocImage}")
+            
+            preprocessor.gaussBlurRad = request.POST.get('gaussBlurRad')
+            preprocessor.isNeedGaussBlur = request.POST.get('isNeedGaussBlur')
+            preprocessor.isNeedMaximizeIntensity = request.POST.get('isNeedMaxIntensity')
+
+            preprocessor.PreprocessImage(None, None)
+
+            print(f"Result: {preprocessor._preprocResult}")
+            pass2cache('preprocessing', ['preprocessor', 'source_img', 'gaussBlurRad', 'isNeedGaussBlur', 'isNeedMaxIntensity', 'preprocessed_img'], [preprocessor, source_img, request.POST.get('gaussBlurRad'), request.POST.get('isNeedGaussBlur'), request.POST.get('isNeedMaxIntensity'), preprocessor._preprocResult])
+
+            tiff_image = save_as_tiff(image_raw=preprocessor._preprocResult, is_one_page=False, filename=f"result_preproc.tiff", outtype="uint8")
+            preproc_show, preproc_save = pil_image_to_byte_stream(pil_image=tiff_image, is_one_page=False)
+            response_data = {
+                'message': 'PSF extracted successfully',
+                'preproc_show': preproc_show,
+                'preproc_save': preproc_save
             }
 
             return JsonResponse(response_data)

@@ -133,6 +133,15 @@ const useAxiosStore = create((set, get) => {
       }
     },
 
+    postPreprocessing: async (params) => {
+      try {
+        const response = await axiosInstance.post('api/cnn_deconv/preprocessing/', params);
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
+
     setAxiosToken: (newToken) => {
       const instance = get().axiosInstance;
       if (newToken != null) {

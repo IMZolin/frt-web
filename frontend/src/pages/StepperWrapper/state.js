@@ -30,13 +30,16 @@ export const defaultValues = {
     iter: 50,
     activeStep: 0,
     filename: "",
-    maximizeIntensity: false,
-    makeGaussianBlur: false,
+    maximizeIntensity: true,
+    makeGaussianBlur: true,
     gaussianBlurCount: 3,
     regularization: 0.0001,
     deconvMethod: "Richardson-Lucy",
     marginTop: 0,
+
     sourceImage: [],
+    preprocImage: [],
+    preprocImageSave: [],
     resultImage: [],
     resultImageSave: [],
     resolution2: [],
@@ -90,9 +93,11 @@ export const useStateValues = () => {
     const [resultImageSave, setResultImageSave] = useState(defaultValues.resultImageSave);
     
     //Neural network
-    const [maximizeIntensity, setMaximizeIntensity] = useState(false);
-    const [makeGaussianBlur, setMakeGaussianBlur] = useState(false);
-    const [gaussianBlurCount, setGaussianBlurCount] = useState(3);
+    const [preprocImage, setPreprocImage] = useState(defaultValues.preprocImage);
+    const [preprocImageSave, setPreprocImageSave] = useState(defaultValues.preprocImageSave);
+    const [maximizeIntensity, setMaximizeIntensity] = useState(defaultValues.maximizeIntensity);
+    const [makeGaussianBlur, setMakeGaussianBlur] = useState(defaultValues.makeGaussianBlur);
+    const [gaussianBlurCount, setGaussianBlurCount] = useState(defaultValues.gaussianBlurCount);
 
     const tiffTypes = ["8 bit", "16 bit", "32 bit"]
 
@@ -306,5 +311,9 @@ export const useStateValues = () => {
         setResolution2,
         sourceImageSave,
         setSourceImageSave,
+        preprocImageSave,
+        setPreprocImageSave,
+        preprocImage,
+        setPreprocImage,
     };
 };
