@@ -7,6 +7,8 @@ import Dropzone from '../../../components/Dropzone';
 import { useStateValues } from "../state";
 import useAxiosStore from '../../../app/store/axiosStore';
 import { base64ToTiff } from '../../../shared/hooks/showImages';
+import ChooseList from '../../../components/ChooseList';
+import FileDownloader from '../../../components/FileDownloader';
 import '../stepper.css';
 
 const NeuralNetwork = () => {
@@ -43,6 +45,13 @@ const NeuralNetwork = () => {
       console.error('Error in preprocessing:', error);
       window.alert('Error in preprocessing: ' + error);
     }
+  };
+
+  const handleCNNDeconvolution = async () => {
+    console.log("Im tryin make deconvolution");
+    // Here will be cnn deconvolution
+    state.setResultImage(state.preprocImage);
+    state.setResultImageSave(state.preprocImageSave);
   };
 
   function getStepContent(step) {
@@ -127,67 +136,32 @@ const NeuralNetwork = () => {
                     max="10"
                     step="0.1"
                     value={state.scale}
-                    onChange={state.handleSliderChange}
+                    onChange={(e) => state.handleScaleChange(e, 10)}
                   />
                 </div>
-                <div className="stepper-psf">
-                  <TextField
-                    id="beadSize"
-                    label="Bead size"
-                    variant="outlined"
-                    placeholder="Enter a bead size"
-                    fullWidth
-                    margin="normal"
-                    name="beadSize"
-                    onChange={(e) => state.setBeadSize(e.target.value)}
-                    value={state.beadSize}
-                  />
-                  <TextField
-                    className="stepper-resolution"
-                    id="resolution-x"
-                    label="Resolution XY (nm/pxl)"
-                    variant="outlined"
-                    placeholder="Enter the resolution in X direction"
-                    fullWidth
-                    margin="normal"
-                    onChange={(e) => state.setResolution1(e.target.value)}
-                    value={state.resolutionXY}
-                  />
-                  <TextField
-                    className="stepper-resolution"
-                    id="resolution-z"
-                    label="Resolution Z (nm/pxl)"
-                    variant="outlined"
-                    placeholder=""
-                    fullWidth
-                    margin="normal"
-                    onChange={(e) => state.setResolution2(e.target.value)}
-                    value={state.resolutionZ}
-                  />
-                  <TextField
-                    id="iter"
-                    label="Iteration number"
-                    variant="outlined"
-                    placeholder="Enter an iteration number"
-                    fullWidth
-                    margin="normal"
-                    name="iter"
-                    onChange={(e) => state.setIter(e.target.value)}
-                    value={state.iter}
-                  />
-                  <Button variant="outlined" className="btn-run">
-                    Run Deconvolution
-                  </Button>
-                </div>
+                <ChooseList
+                  className="choose-list"
+                  name="CNN models"
+                  list={Object.keys(state.deconvMethods)}
+                  selected={state.deconvMethod}
+                  onChange={state.handleDeconvMethodChange}
+                />
+                <Button
+                  variant="outlined"
+                  className="btn-run"
+                  onClick={handleCNNDeconvolution}
+                >
+                  Deconvolve
+                </Button>
               </div>
-              <div className="column-2">
+              <div className="column-2" style={{ zIndex: 1 }}>
                 <div className="images__preview">
-                  <TifCompare files_1={state.extractBeads} files_2={state.averageBead} scale={state.scale} state={state} canvasRef={null} isExtract={false}/>
+                <TifCompare img_1={state.preprocImage} img_2={state.resultImage} scale={state.scale} state={state}/>
                 </div>
               </div>
             </div>
           </>
-        );
+        );;
       case 3:
         return (
           <>
@@ -216,10 +190,11 @@ const NeuralNetwork = () => {
                   onChange={(e) => state.setFilename(e.target.value)}
                   value={state.filename}
                 />
+                <FileDownloader fileList={state.resultImageSave} folderName={state.filename} btnName={"Save result"} />
               </div>
               <div className="column-2" style={{ zIndex: 1 }}>
                 <div className="images__preview">
-                  <TiffStackViewer tiffList={state.averageBead} scale={state.scale} state={state} canvasRef={null} isExtract={false}/>
+                  <TiffStackViewer tiffList={state.resultImage} scale={state.scale} state={state} canvasRef={null} isExtract={false}/>
                 </div>
               </div>
             </div>
