@@ -26,7 +26,7 @@ export const defaultValues = {
     blurType: 'gauss',
     resolutionXY: 0.022,
     resolutionZ: 0.100,
-    scale: 1,
+    scale: 5,
     iter: 50,
     activeStep: 0,
     filename: "",
@@ -40,7 +40,8 @@ export const defaultValues = {
     resultImage: [],
     resultImageSave: [],
     resolution2: [],
-    sourceImageSave: []
+    sourceImageSave: [],
+    scaleCompare: 5
 };
 
 export const useStateValues = () => {
@@ -50,6 +51,7 @@ export const useStateValues = () => {
     const [layer, setLayer] = useState(defaultValues.layer);
     const [layer2, setLayer2] = useState(defaultValues.layer2);
     const [scale, setScale] = useState(defaultValues.scale);
+    const [scaleCompare, setScaleCompare] = useState(defaultValues.scaleCompare);
     const [filename, setFilename] = useState(defaultValues.filename);
     const [activeStep, setActiveStep] = useState(defaultValues.activeStep);
     const [resolution, setResolution] = useState(defaultValues.resolution);
@@ -306,5 +308,7 @@ export const useStateValues = () => {
         setResolution2,
         sourceImageSave,
         setSourceImageSave,
+        scaleCompare,
+        setScaleCompare
     };
 };

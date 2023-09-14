@@ -99,11 +99,11 @@ const StepperPSF = () => {
                                     <input
                                         id="scale-slider"
                                         type="range"
-                                        min="0.5"
-                                        max="10"
+                                        min="3"
+                                        max="7"
                                         step="0.1"
                                         value={state.scale}
-                                        onChange={(e) => state.handleScaleChange(e, 10)}
+                                        onChange={(e) => state.handleScaleChange(e, 7)}
                                     />
                                 </div>
                                 <div className="box-parameters">
@@ -155,7 +155,7 @@ const StepperPSF = () => {
                             </div>
                             <div className="column-2">
                                 <div className="images__preview">
-                                    <TifCompare img_1={state.averageBead} img_2={state.extractedPSF} scale={state.scale} state={state} />
+                                    <TifCompare img_1={state.averageBead} img_2={state.extractedPSF} scale={state.scale} state={state}/>
                                 </div>
                             </div>
                         </div>

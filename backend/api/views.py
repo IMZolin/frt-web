@@ -287,8 +287,8 @@ def psf_extract(request):
             psf_extractor.regularizationParameter = request.POST.get('regularization')
             psf_extractor.beadDiameter = request.POST.get('beadSize')
             psf_extractor.CalculatePSF(request.POST.get('deconvMethod'), None, None)
+            print('Result of PSF', psf_extractor.resultImage, psf_extractor._resultImage)
             pass2cache('psf_extractor', ['extractor', 'average_bead', 'iter', 'regularization', 'psf'], [psf_extractor, cached_image, request.POST.get('iter'), request.POST.get('regularization'), psf_extractor.resultImage])
-
             tiff_image = save_as_tiff(image_raw=psf_extractor.resultImage, is_one_page=False, filename=f"extracted_psf.tiff", outtype="uint8")
             psf_show, psf_save = pil_image_to_byte_stream(pil_image=tiff_image, is_one_page=False)
             response_data = {

@@ -132,9 +132,9 @@ const BeadExtractor = () => {
                 <input
                   id="brightness-slider"
                   type="range"
-                  min="0"
-                  max="10"
-                  step="0.1"
+                  min="1"
+                  max="3"
+                  step="0.01"
                   value={state.levelBrightness}
                   onChange={state.handleSliderBrightnessChange}
                 />
@@ -185,24 +185,38 @@ const BeadExtractor = () => {
             <div className="row">
               <div className="column-1">
                 <div className="slider-container">
+                {state.extractBeads.length === state.averageBead.length && (
+                  <>
+                    <label htmlFor="layer-slider">Layer:</label>
+                    <input
+                      id="layer-slider"
+                      type="range"
+                      min="0"
+                      max={state.beads.length - 1}
+                      step="1"
+                      value={state.layer}
+                      onChange={(e) => state.handleLayerChange(e, state.beads.length - 1)}
+                    />
+                  </>
+                )}
                   <label htmlFor="scale-slider">Scale:</label>
                   <input
                     id="scale-slider"
                     type="range"
-                    min="0.5"
-                    max="5"
+                    min="3"
+                    max="7"
                     step="0.1"
                     value={state.scale}
-                    onChange={(e) => state.handleScaleChange(e, 5)}
+                    onChange={(e) => state.handleScaleChange(e, 7)}
                   />
                 </div>
                 <label htmlFor="brightness-slider">Brightness:</label>
                 <input
                   id="brightness-slider"
                   type="range"
-                  min="0"
-                  max="10"
-                  step="0.1"
+                  min="1"
+                  max="3"
+                  step="0.01"
                   value={state.levelBrightness}
                   onChange={state.handleSliderBrightnessChange}
                 />
@@ -213,18 +227,24 @@ const BeadExtractor = () => {
                   selected={state.blurType}
                   onChange={state.handleBlurTypeChange}
                 />
-                <Button variant="outlined" color="secondary" className="btn-run" onClick={handleBeadAverage}>
+                <Button
+                  variant="outlined"
+                  color="secondary"
+                  className="btn-run"
+                  onClick={handleBeadAverage}
+                >
                   Average Bead
                 </Button>
               </div>
               <div className="column-2">
                 <div className="images__preview">
-                  <TifCompare img_1={state.extractBeads} img_2={state.averageBead} scale={state.scale} state={state} />
+                  {/* <TifCompare img_1={state.extractBeads} img_2={state.averageBead} scale={state.scale} state={state} isSameLength={state.extractBeads.length === state.averageBead.length}/> */}
+                  <TifCompare img_1={state.extractBeads} img_2={state.averageBead} scale={state.scale} state={state} isSameLength={state.extractBeads.length === state.averageBead.length}/>
                 </div>
               </div>
             </div>
           </>
-        );
+        );        
       case 3:
         return (
           <>
@@ -235,11 +255,11 @@ const BeadExtractor = () => {
                   <input
                     id="scale-slider"
                     type="range"
-                    min="0.5"
-                    max="5"
+                    min="3"
+                    max="7"
                     step="0.1"
                     value={state.scale}
-                    onChange={(e) => state.handleScaleChange(e, 5)}
+                    onChange={(e) => state.handleScaleChange(e, 7)}
                   />
                   <label htmlFor="layer-slider">Layer:</label>
                   <input
@@ -256,9 +276,9 @@ const BeadExtractor = () => {
                 <input
                   id="brightness-slider"
                   type="range"
-                  min="0"
-                  max="10"
-                  step="0.1"
+                  min="1"
+                  max="3"
+                  step="0.01"
                   value={state.levelBrightness}
                   onChange={state.handleSliderBrightnessChange}
                 />
@@ -276,11 +296,11 @@ const BeadExtractor = () => {
                 <FileDownloader fileList={state.averageBeadSave} folderName={state.filename} btnName={"Save result"} />
               </div>
               <div className="column-2" style={{ zIndex: 1 }}>
-                <div className="images__preview">
+                <div className="images__preview" style={{marginTop: '30px'}}>
                   <TifViewer
                     img={state.averageBead[state.layer2]}
                     scale={state.scale}
-                    brightness={state.brightness}
+                    brightness={state.levelBrightness}
                   />
                 </div>
               </div>
