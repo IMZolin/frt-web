@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Checkbox, FormControlLabel, TextField } from '@mui/material';
+import { Button, TextField } from '@mui/material';
 import StepperWrapper from '..';
 import TifCompare from '../../../components/TifCompare';
 import TiffStackViewer from '../../../components/TiffStackViewer';
@@ -49,20 +49,42 @@ const NeuralNetwork = () => {
 
   const handleCNNDeconvolution = async () => {
     console.log("Im tryin make deconvolution");
-    // Here will be cnn deconvolution
-    state.setResultImage(state.preprocImage);
-    state.setResultImageSave(state.preprocImageSave);
+    try {
+      const requestData = {
+        // here will be choosen  model
+      };
+      console.log(requestData);
+
+      const response = await axiosStore.postCNNDeconvolution(requestData);
+      console.log('Response:', response);
+
+      if (response.deconv_show && response.deconv_save) {
+          const file = base64ToTiff(response.deconv_save, 'image/tiff', `result_deconv.tiff`);
+          const newResult = response.deconv_show.map((base64Data, index) => {
+              return base64ToTiff(base64Data, 'image/tiff', `result_deconv_${index}.tiff`);
+          }); 
+
+          state.setResultImage(newResult);
+          console.log(newResult);
+          state.setResultImageSave([file]);
+      } else {
+          console.log('No neural deconvolution result found in the response.');
+      }
+    } catch (error) {
+      console.error('Error in preprocessing:', error);
+      window.alert('Error in preprocessing: ' + error);
+    }
   };
 
   function getStepContent(step) {
     switch (step) {
-      case 0:
+      case steps.indexOf('Load image'):
         return (<>
           <div className="row">
             <Dropzone files={state.sourceImage} addFiles={state.setSourceImage} imageType={'source_img'} state={state}/>
           </div>
         </>);
-      case 1:
+      case steps.indexOf('Preprocessing'):
         return (<>
             <div className="row">
                 <div className="column-1">
@@ -122,7 +144,7 @@ const NeuralNetwork = () => {
             </div>
         </>
     );
-      case 2:
+      case steps.indexOf('Deconvolution'):
         return (
           <>
             <div className="row">
@@ -162,7 +184,7 @@ const NeuralNetwork = () => {
             </div>
           </>
         );;
-      case 3:
+      case steps.indexOf('Save results'):
         return (
           <>
             <div className="row">

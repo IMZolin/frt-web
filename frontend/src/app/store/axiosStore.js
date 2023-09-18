@@ -142,6 +142,15 @@ const useAxiosStore = create((set, get) => {
       }
     },
 
+    postCNNDeconvolution: async (params) => {
+      try {
+        const response = await axiosInstance.post('api/cnn_deconv/deconv/', params);
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
+
     setAxiosToken: (newToken) => {
       const instance = get().axiosInstance;
       if (newToken != null) {

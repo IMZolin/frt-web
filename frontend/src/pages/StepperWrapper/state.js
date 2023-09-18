@@ -43,7 +43,9 @@ export const defaultValues = {
     resultImage: [],
     resultImageSave: [],
     resolution2: [],
-    sourceImageSave: []
+    sourceImageSave: [],
+
+    model: []
 };
 
 export const useStateValues = () => {
@@ -98,6 +100,8 @@ export const useStateValues = () => {
     const [maximizeIntensity, setMaximizeIntensity] = useState(defaultValues.maximizeIntensity);
     const [makeGaussianBlur, setMakeGaussianBlur] = useState(defaultValues.makeGaussianBlur);
     const [gaussianBlurCount, setGaussianBlurCount] = useState(defaultValues.gaussianBlurCount);
+    // TODO : Need to delete it later!
+    const [model, setModel] = useState(defaultValues.model);
 
     const tiffTypes = ["8 bit", "16 bit", "32 bit"]
 
@@ -315,5 +319,8 @@ export const useStateValues = () => {
         setPreprocImageSave,
         preprocImage,
         setPreprocImage,
+
+        model,
+        setModel,
     };
 };
