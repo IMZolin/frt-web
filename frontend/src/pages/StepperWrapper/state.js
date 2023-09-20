@@ -165,6 +165,13 @@ export const useStateValues = () => {
         ctx.strokeRect(x - size / 2, y - size / 2, size, size);
     };
 
+    const handleAllDrawClick = async (canvasRef, x, y, markBead) => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const centerCoords = await markBead(x, y, selectSize);
+        drawSquare(centerCoords.x, centerCoords.y, selectSize, canvasRef);
+    };
+
     useEffect(() => {
         console.log(centerExtractBeads, resolution);
     }, [centerExtractBeads, resolution]);
@@ -209,7 +216,6 @@ export const useStateValues = () => {
         setMarginTop(newMarginTop);
       };
     
-
     return {
         files,
         addFiles,
@@ -309,6 +315,7 @@ export const useStateValues = () => {
         sourceImageSave,
         setSourceImageSave,
         scaleCompare,
-        setScaleCompare
+        setScaleCompare,
+        handleAllDrawClick
     };
 };

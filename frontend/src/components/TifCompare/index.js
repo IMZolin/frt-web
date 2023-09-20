@@ -40,7 +40,7 @@ const TifCompare = ({ img_1, img_2, scale, state, isSameLength }) => {
           </div>
         ) : null}
         {img_2.length !== 0 ? (
-          <div className="img-container" style={{marginTop: '30px', marginRight: '200px'}}>
+          <div className="img-container" style={{marginTop: '30px', marginRight: '400px'}}>
             <div className={`${shouldApplyStylesForImg2 ? 'img-container-box' : ''}`}>
               <TifViewer
                 img={img_2[layerChanged]}

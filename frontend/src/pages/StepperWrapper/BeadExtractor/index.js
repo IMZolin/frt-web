@@ -1,9 +1,10 @@
-import React, { useRef } from 'react';
+import React, { useRef, useEffect }  from 'react';
 import { Button, TextField } from '@mui/material';
 import StepperWrapper from '../../StepperWrapper';
 import TifViewer from '../../../components/TifViewer';
 import TifCompare from '../../../components/TifCompare';
 import TiffExtractor from '../../../components/TiffExtractor';
+import useBeadMark from '../../../components/TiffExtractor/hook';
 import Dropzone from '../../../components/Dropzone';
 import FileDownloader from '../../../components/FileDownloader';
 import { useStateValues } from '../state';
@@ -18,6 +19,26 @@ const BeadExtractor = () => {
   const steps = ['Load beads', 'Mark beads', 'Average bead', 'Save results'];
   const axiosStore = useAxiosStore();
   const canvasRef = useRef();
+  const markBead = useBeadMark(); 
+
+  const handleBeadMark = async () => {
+    try {
+      if (state.centerExtractBeads.length > 0) {
+        for (const beadCoords of state.centerExtractBeads) {
+          await state.handleAllDrawClick(canvasRef, beadCoords.x, beadCoords.y, markBead);
+        }
+      } else {
+        console.log('No beads to mark.');
+      }
+    } catch (error) {
+      console.error('Error in Bead Mark:', error);
+    }
+  };
+  useEffect(() => {
+    if (state.activeStep === 1) {
+      handleBeadMark();
+    }
+  }, [state.activeStep]);
 
   const handleBeadExtract = async () => {
     try {
@@ -296,7 +317,7 @@ const BeadExtractor = () => {
                 <FileDownloader fileList={state.averageBeadSave} folderName={state.filename} btnName={"Save result"} />
               </div>
               <div className="column-2" style={{ zIndex: 1 }}>
-                <div className="images__preview" style={{marginTop: '30px'}}>
+                <div className="images__preview" style={{marginTop: '30px', marginRight: '250px'}}>
                   <TifViewer
                     img={state.averageBead[state.layer2]}
                     scale={state.scale}

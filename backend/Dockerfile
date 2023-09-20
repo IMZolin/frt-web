@@ -1,4 +1,4 @@
-FROM python:3.11
+FROM python:3.10
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE 1
@@ -27,5 +27,4 @@ COPY . .
 # Expose the port (not necessary unless you are using it with 'docker run -p')
 EXPOSE 8000
 
-# Set the command to run Celery worker
-CMD ["celery", "-A", "backend", "worker", "--loglevel=info", "--concurrency=4"]
+CMD ["gunicorn", "-c", "gunicorn.conf.py", "backend.wsgi:application"]

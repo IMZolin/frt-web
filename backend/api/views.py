@@ -84,53 +84,6 @@ def load_image(request):
         else:
             return error_response(400, 'Invalid request. Please make a POST request with the required parameters.', 'POST')
 
-"""
-@csrf_exempt
-def load_image(request):
-    if request.method == 'POST' and request.FILES.getlist('file') and request.POST.get('image_type'):
-        file_list = request.FILES.getlist('file')
-        image_type = str(request.POST.get('image_type'))
-        voxelX = request.POST.get('voxelX')
-        voxelY = request.POST.get('voxelY')
-        voxelZ = request.POST.get('voxelZ')
-        try:
-            tmp_folder = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'tmp')
-            os.makedirs(tmp_folder, exist_ok=True)
-
-            file_paths = []
-            for file_obj in file_list:
-                file_path = os.path.join(tmp_folder, file_obj.name)
-                with open(file_path, 'wb') as destination:
-                    for chunk in file_obj.chunks():
-                        destination.write(chunk)
-                file_paths.append(file_path)
-
-            if voxelX is not None and voxelY is not None and voxelZ is not None:
-                voxel = np.array([float(voxelZ), float(voxelY), float(voxelX)])
-                image_data = ImageRaw(fpath=file_list, voxelSizeIn=voxel)
-            else:
-                image_data = ImageRaw(fpath=file_list)
-
-            pass2cache(image_type, ['imArray', 'voxel'], [image_data.imArray, image_data.voxel])
-
-            response_data = {
-                'message': 'Image loading task has been enqueued',
-                'resolution': image_data.imArray.shape,
-            }
-
-            return JsonResponse(response_data)
-        except Exception as e:
-            return error_response(400, str(e), 'POST')
-    else:
-        if request.method != 'POST':
-            return error_response(400, 'Invalid request method. Please make a POST request.', 'POST')
-        elif not request.FILES.getlist('file'):
-            return error_response(400, 'No files were uploaded.', 'POST')
-        elif not request.POST.get('image_type'):
-            return error_response(400, 'No image type specified.', 'POST')
-        else:
-            return error_response(400, 'Invalid request. Please make a POST request with the required parameters.', 'POST')
-"""
 
 def check_task_status(request, task_id):
     try:
@@ -177,7 +130,7 @@ def bead_mark(request):
             bead_extractor.selectionFrameHalf = select_size / 2
             x = round(float(request.POST.get('x')))  
             y = round(float(request.POST.get('y')))  
-            x_center, y_center = bead_extractor.LocateFrameMAxIntensity3D(x, y)
+            x_center, y_center = bead_extractor.LocateFrameMaxIntensity3D(x, y)
 
             response_data = {
                 'message': 'Beads extracting successfully',
