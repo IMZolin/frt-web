@@ -263,7 +263,7 @@ const BeadExtractor = () => {
               </div>
               <div className="column-2">
                 <div className="images__preview">
-                  <TifCompare img_1={state.extractBeads} img_2={state.averageBead} scale={state.scale} state={state} isSameLength={state.extractBeads.length === state.beads.length}/>
+                  <TifCompare img_1={state.extractBeads} img_2={state.averageBead} scale={state.scale} state={state} isSameLength={state.extractBeads.length === state.beads.length} type='beads'/>
                 </div>
               </div>
             </div>

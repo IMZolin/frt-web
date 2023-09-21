@@ -220,7 +220,6 @@ def get_average_bead(request):
                 'average_bead_save': avg_bead_save,
                 'voxel': avg_bead_cache.voxel  
             }
-
             return JsonResponse(response_data)
         else:
             return JsonResponse({'error': 'Invalid image data in cache. Unable to process.'}, status=400)
@@ -236,9 +235,9 @@ def psf_extract(request):
             cached_image = django_cache.get('bead_extractor')['average_bead']
             if cached_image is not None:
                 psf_extractor.SetPSFImage(array=cached_image.imArray, voxel=list(cached_image.voxel.values()))
-                psf_extractor._iterationNumber = request.POST.get('iter')
-                psf_extractor._regularizationParameter = request.POST.get('regularization')
-                psf_extractor._beadDiameter = request.POST.get('beadSize')
+                psf_extractor.iterationNumber = request.POST.get('iter')
+                psf_extractor.regularizationParameter = request.POST.get('regularization')
+                psf_extractor.beadDiameter = request.POST.get('beadSize')
                 psf_extractor.CalculatePSF(request.POST.get('deconvMethod'), None, None)
                 print('Result of PSF: ', psf_extractor.resultImage, psf_extractor._resultImage)
                 pass2cache('psf_extractor', ['extractor', 'iter', 'regularization', 'psf'], [psf_extractor, request.POST.get('iter'), request.POST.get('regularization'), psf_extractor.resultImage])
