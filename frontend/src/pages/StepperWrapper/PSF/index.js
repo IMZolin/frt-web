@@ -38,9 +38,15 @@ const StepperPSF = () => {
                 }    
             } else {
                 console.log('No average bead data found in the response.');
+                window.alert('No average bead data found in the response.');
             }
         } catch (error) {
             console.error('Error fetching average bead:', error);
+            if (error.response && error.response.data && error.response.data.message) {
+                window.alert('Error in PSF extraction: ' + error.response.data.message);
+            } else {
+                window.alert('Error in PSF extraction: ' + error.message);
+            }
         }
     };
 
@@ -73,10 +79,11 @@ const StepperPSF = () => {
                 state.setExtractedPSFSave([file]);
             } else {
                 console.log('No extracted PSF found in the response.');
+                window.alert('No extracted PSF found in the response.');
             }
         } catch (error) {
             console.error('Error in PSF extraction:', error);
-            window.alert('Error in PSF extraction: ' + error);
+            window.alert('Error in PSF extraction: ' + error.response.data.message);
         }
     };
 
@@ -95,15 +102,35 @@ const StepperPSF = () => {
                         <div className="row">
                             <div className="column-1">
                                 <div className="slider-container">
+                                    <label htmlFor="layer-slider">Layer:</label>
+                                    <input
+                                        id="layer-slider"
+                                        type="range"
+                                        min="0"
+                                        max={state.averageBead.length - 1}
+                                        step="1"
+                                        value={state.layer}
+                                        onChange={(e) => state.handleLayerChange(e, state.averageBead.length - 1)}
+                                    />
                                     <label htmlFor="scale-slider">Scale:</label>
                                     <input
                                         id="scale-slider"
                                         type="range"
-                                        min="0.5"
-                                        max="10"
+                                        min="3"
+                                        max="7"
                                         step="0.1"
                                         value={state.scale}
-                                        onChange={(e) => state.handleScaleChange(e, 10)}
+                                        onChange={(e) => state.handleScaleChange(e, 7)}
+                                    />
+                                    <label htmlFor="brightness-slider">Brightness:</label>
+                                    <input
+                                    id="brightness-slider"
+                                    type="range"
+                                    min="1"
+                                    max="3"
+                                    step="0.01"
+                                    value={state.levelBrightness}
+                                    onChange={state.handleSliderBrightnessChange}
                                     />
                                 </div>
                                 <div className="box-parameters">
@@ -148,14 +175,13 @@ const StepperPSF = () => {
                                         onChange={state.handleDeconvMethodChange}
                                     />
                                 </div>
-
                                 <Button variant="outlined" color="secondary" className="btn-run" onClick={handlePSFExtract}>
                                     Calculate PSF
                                 </Button>
                             </div>
                             <div className="column-2">
-                                <div className="images__preview">
-                                    <TifCompare img_1={state.averageBead} img_2={state.extractedPSF} scale={state.scale} state={state} />
+                                <div className="images__preview" style={{marginTop: '30px'}}>
+                                    <TifCompare img_1={state.averageBead} img_2={state.extractedPSF} scale={state.scale} state={state} isSameLength={true} type='psf'/>
                                 </div>
                             </div>
                         </div>
@@ -168,7 +194,7 @@ const StepperPSF = () => {
                             <div className="column-1" style={{ zIndex: 2 }}>
                                 <div className="slider-container">
                                     <label htmlFor="scale-slider">Scale:</label>
-                                    <input id="scale-slider" type="range" min="0.5" max="10" step="0.1" value={state.scale} onChange={state.handleScaleChange} />
+                                    <input id="scale-slider" type="range" min="0.5" max="7" step="0.1" value={state.scale} onChange={state.handleScaleChange} />
                                     <label htmlFor="layer-slider">Layer:</label>
                                     <input
                                         id="layer-slider"
@@ -178,6 +204,16 @@ const StepperPSF = () => {
                                         step="1"
                                         value={state.layer2}
                                         onChange={(e) => state.handleLayer2Change(e, state.extractedPSF.length - 1)}
+                                    />
+                                    <label htmlFor="brightness-slider">Brightness:</label>
+                                    <input
+                                        id="brightness-slider"
+                                        type="range"
+                                        min="1"
+                                        max="3"
+                                        step="0.01"
+                                        value={state.levelBrightness}
+                                        onChange={state.handleSliderBrightnessChange}
                                     />
                                 </div>
                                 <TextField
@@ -194,7 +230,7 @@ const StepperPSF = () => {
                                 <FileDownloader fileList={state.extractedPSFSave} folderName={state.filename} btnName={"Save result"} />
                             </div>
                             <div className="column-2" style={{ zIndex: 1 }}>
-                                <div className="images__preview">
+                                <div className="images__preview" style={{marginTop: '30px', marginRight: '250px'}}>
                                     <TifViewer
                                         img={state.extractedPSF[state.layer2]}
                                         scale={state.scale}

@@ -38,6 +38,7 @@ const Dropzone = ({ files, addFiles, imageType, state }) => {
 
       const response = await axiosStore.postData(requestData);
       console.log('Response:', response);
+      window.alert('Files uploaded successfully');
       if (response.multi_layer_show && response.multi_layer_save){
         console.log("Multi Layer");
         const file = base64ToTiff(response.multi_layer_save, 'image/tiff', `${response.image_type}.tiff`);
@@ -62,9 +63,11 @@ const Dropzone = ({ files, addFiles, imageType, state }) => {
         state.setResolution(response.resolution); 
       } else {
         console.log('Invalid resolution data in the response:', response);
+        window.alert('Invalid resolution data in the response:', response);
       }
     } catch (error) {
       console.error('Error posting data:', error);
+      window.alert('Error posting data:', error);
     }
   };
 

@@ -84,53 +84,6 @@ def load_image(request):
         else:
             return error_response(400, 'Invalid request. Please make a POST request with the required parameters.', 'POST')
 
-"""
-@csrf_exempt
-def load_image(request):
-    if request.method == 'POST' and request.FILES.getlist('file') and request.POST.get('image_type'):
-        file_list = request.FILES.getlist('file')
-        image_type = str(request.POST.get('image_type'))
-        voxelX = request.POST.get('voxelX')
-        voxelY = request.POST.get('voxelY')
-        voxelZ = request.POST.get('voxelZ')
-        try:
-            tmp_folder = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'tmp')
-            os.makedirs(tmp_folder, exist_ok=True)
-
-            file_paths = []
-            for file_obj in file_list:
-                file_path = os.path.join(tmp_folder, file_obj.name)
-                with open(file_path, 'wb') as destination:
-                    for chunk in file_obj.chunks():
-                        destination.write(chunk)
-                file_paths.append(file_path)
-
-            if voxelX is not None and voxelY is not None and voxelZ is not None:
-                voxel = np.array([float(voxelZ), float(voxelY), float(voxelX)])
-                image_data = ImageRaw(fpath=file_list, voxelSizeIn=voxel)
-            else:
-                image_data = ImageRaw(fpath=file_list)
-
-            pass2cache(image_type, ['imArray', 'voxel'], [image_data.imArray, image_data.voxel])
-
-            response_data = {
-                'message': 'Image loading task has been enqueued',
-                'resolution': image_data.imArray.shape,
-            }
-
-            return JsonResponse(response_data)
-        except Exception as e:
-            return error_response(400, str(e), 'POST')
-    else:
-        if request.method != 'POST':
-            return error_response(400, 'Invalid request method. Please make a POST request.', 'POST')
-        elif not request.FILES.getlist('file'):
-            return error_response(400, 'No files were uploaded.', 'POST')
-        elif not request.POST.get('image_type'):
-            return error_response(400, 'No image type specified.', 'POST')
-        else:
-            return error_response(400, 'Invalid request. Please make a POST request with the required parameters.', 'POST')
-"""
 
 def check_task_status(request, task_id):
     try:
@@ -177,7 +130,7 @@ def bead_mark(request):
             bead_extractor.selectionFrameHalf = select_size / 2
             x = round(float(request.POST.get('x')))  
             y = round(float(request.POST.get('y')))  
-            x_center, y_center = bead_extractor.LocateFrameMAxIntensity3D(x, y)
+            x_center, y_center = bead_extractor.LocateFrameMaxIntensity3D(x, y)
 
             response_data = {
                 'message': 'Beads extracting successfully',
@@ -258,7 +211,6 @@ def bead_average(request):
 def get_average_bead(request):
     try:
         avg_bead_cache = django_cache.get('bead_extractor')['average_bead']
-        
         if isinstance(avg_bead_cache, ImageRaw):
             tiff_image = save_as_tiff(image_raw=avg_bead_cache, is_one_page=False, filename="average_bead.tiff", outtype="uint8")
             avg_bead_show, avg_bead_save = pil_image_to_byte_stream(pil_image=tiff_image, is_one_page=False)
@@ -268,7 +220,6 @@ def get_average_bead(request):
                 'average_bead_save': avg_bead_save,
                 'voxel': avg_bead_cache.voxel  
             }
-
             return JsonResponse(response_data)
         else:
             return JsonResponse({'error': 'Invalid image data in cache. Unable to process.'}, status=400)
@@ -281,27 +232,29 @@ def psf_extract(request):
     if request.method == 'POST' and request.POST.get('beadSize') and request.POST.get('iter') and request.POST.get('regularization') and request.POST.get('deconvMethod'):
         try:
             psf_extractor = DeconPsfModel()
-            cached_image = django_cache.get('averaged_bead')
-            psf_extractor.SetPSFImage(array=cached_image['imArray'], voxel=list(cached_image['voxel'].values()))
-            psf_extractor.iterationNumber = request.POST.get('iter')
-            psf_extractor.regularizationParameter = request.POST.get('regularization')
-            psf_extractor.beadDiameter = request.POST.get('beadSize')
-            psf_extractor.CalculatePSF(request.POST.get('deconvMethod'), None, None)
-            pass2cache('psf_extractor', ['extractor', 'average_bead', 'iter', 'regularization', 'psf'], [psf_extractor, cached_image, request.POST.get('iter'), request.POST.get('regularization'), psf_extractor.resultImage])
-
-            tiff_image = save_as_tiff(image_raw=psf_extractor.resultImage, is_one_page=False, filename=f"extracted_psf.tiff", outtype="uint8")
-            psf_show, psf_save = pil_image_to_byte_stream(pil_image=tiff_image, is_one_page=False)
-            response_data = {
-                'message': 'PSF extracted successfully',
-                'extracted_psf_show': psf_show,
-                'extracted_psf_save': psf_save
-            }
-
-            return JsonResponse(response_data)
+            cached_image = django_cache.get('bead_extractor')['average_bead']
+            if cached_image is not None:
+                psf_extractor.SetPSFImage(array=cached_image.imArray, voxel=list(cached_image.voxel.values()))
+                psf_extractor.iterationNumber = request.POST.get('iter')
+                psf_extractor.regularizationParameter = request.POST.get('regularization')
+                psf_extractor.beadDiameter = request.POST.get('beadSize')
+                psf_extractor.CalculatePSF(request.POST.get('deconvMethod'), None, None)
+                print('Result of PSF: ', psf_extractor.resultImage, psf_extractor._resultImage)
+                pass2cache('psf_extractor', ['extractor', 'iter', 'regularization', 'psf'], [psf_extractor, request.POST.get('iter'), request.POST.get('regularization'), psf_extractor.resultImage])
+                tiff_image = save_as_tiff(image_raw=psf_extractor.resultImage, is_one_page=False, filename=f"extracted_psf.tiff", outtype="uint8")
+                psf_show, psf_save = pil_image_to_byte_stream(pil_image=tiff_image, is_one_page=False)
+                response_data = {
+                    'message': 'PSF extracted successfully',
+                    'extracted_psf_show': psf_show,
+                    'extracted_psf_save': psf_save
+                }
+                return JsonResponse(response_data)
+            else:
+                return error_response(400, 'Cached image is None.', 'POST')
         except Exception as e:
             return error_response(400, str(e), 'POST')
-
     return error_response(400, 'Invalid request. Please make a POST request with the required parameters.', 'POST')
+
 
 
 @csrf_exempt

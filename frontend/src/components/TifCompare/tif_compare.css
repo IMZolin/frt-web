@@ -34,7 +34,6 @@
 
 .img-container-box {
   position: relative;
-  overflow: auto;
   width: 360px;
   height: 360px;
 }
