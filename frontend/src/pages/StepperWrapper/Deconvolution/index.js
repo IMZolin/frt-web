@@ -230,7 +230,7 @@ useEffect(() => {
                       <FileDownloader fileList={state.resultImageSave} folderName={state.filename} btnName={"Save result"} />
                   </div>
                   <div className="column-2" style={{ zIndex: 1 }}>
-                      <div className="images__preview">
+                      <div className="images__preview" style={{marginTop: '30px', marginRight: '250px'}}>
                           <TifViewer
                               img={state.resultImage[state.layer2]}
                               scale={state.scale}

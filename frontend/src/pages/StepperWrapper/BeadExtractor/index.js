@@ -32,6 +32,7 @@ const BeadExtractor = () => {
       }
     } catch (error) {
       console.error('Error in Bead Mark:', error);
+      window.alert('Error in Bead Mark: ', error.response);
     }
   };
   useEffect(() => {
@@ -51,7 +52,6 @@ const BeadExtractor = () => {
 
       const response = await axiosStore.postBeadExtract(requestData);
       console.log('Response:', response);
-
       if (response.extracted_beads) {
         const newExtractBeads = response.extracted_beads.map((base64Data, index) => {
           return base64ToTiff(base64Data, 'image/tiff', `extracted_bead_${index}.tiff`);
@@ -59,11 +59,14 @@ const BeadExtractor = () => {
 
         state.setExtractBeads(newExtractBeads);
         console.log(state.extractBeads);
+        window.alert(`Beads extracting successfully: ${response.extracted_beads.length} beads`);
       } else {
         console.log('No extracted beads found in the response.');
+        window.alert('No extracted beads found in the response.');
       }
     } catch (error) {
-      console.error('Error in Bead Extract:', error);
+      console.error('Error in Bead extraction: ', error);
+      window.alert('Error in Bead extraction: ' + error.response);
     }
   };
 
@@ -75,7 +78,6 @@ const BeadExtractor = () => {
 
       const response = await axiosStore.postBeadAverage(requestData);
       console.log('Response:', response);
-
       if (response.average_bead_show) {
         const file = base64ToTiff(response.average_bead_save, 'image/tiff', `average_bead.tiff`);
         const newAverageBead = response.average_bead_show.map((base64Data, index) => {
@@ -86,9 +88,11 @@ const BeadExtractor = () => {
         console.log(state.averageBead)
       } else {
         console.log('No average bead found in the response.');
+        window.alert('No average bead found in the response.');
       }
     } catch (error) {
       console.error('Error in Bead Average:', error);
+      window.alert('Error in Bead Average: ' + error.response);
     }
   };
   function getStepContent(step) {
@@ -187,7 +191,7 @@ const BeadExtractor = () => {
                 />
                 <FileDownloader fileList={state.extractBeads} folderName={"extract_beads"} btnName={"Save beads"} />
               </div>
-              <div className="column-2" style={{ zIndex: 1 }}>
+              <div className="column-2" style={{ zIndex: 1, marginLeft: '20px', marginTop: '-10px'}}>
                 <div className="images__preview">
                   <TiffExtractor
                     img={state.beads[state.layer]}
@@ -259,8 +263,7 @@ const BeadExtractor = () => {
               </div>
               <div className="column-2">
                 <div className="images__preview">
-                  {/* <TifCompare img_1={state.extractBeads} img_2={state.averageBead} scale={state.scale} state={state} isSameLength={state.extractBeads.length === state.averageBead.length}/> */}
-                  <TifCompare img_1={state.extractBeads} img_2={state.averageBead} scale={state.scale} state={state} isSameLength={state.extractBeads.length === state.averageBead.length}/>
+                  <TifCompare img_1={state.extractBeads} img_2={state.averageBead} scale={state.scale} state={state} isSameLength={state.extractBeads.length === state.beads.length}/>
                 </div>
               </div>
             </div>

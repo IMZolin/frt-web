@@ -38,9 +38,15 @@ const StepperPSF = () => {
                 }    
             } else {
                 console.log('No average bead data found in the response.');
+                window.alert('No average bead data found in the response.');
             }
         } catch (error) {
             console.error('Error fetching average bead:', error);
+            if (error.response && error.response.data && error.response.data.message) {
+                window.alert('Error in PSF extraction: ' + error.response.data.message);
+            } else {
+                window.alert('Error in PSF extraction: ' + error.message);
+            }
         }
     };
 
@@ -73,10 +79,11 @@ const StepperPSF = () => {
                 state.setExtractedPSFSave([file]);
             } else {
                 console.log('No extracted PSF found in the response.');
+                window.alert('No extracted PSF found in the response.');
             }
         } catch (error) {
             console.error('Error in PSF extraction:', error);
-            window.alert('Error in PSF extraction: ' + error);
+            window.alert('Error in PSF extraction: ' + error.response.data.message);
         }
     };
 
@@ -154,8 +161,8 @@ const StepperPSF = () => {
                                 </Button>
                             </div>
                             <div className="column-2">
-                                <div className="images__preview">
-                                    <TifCompare img_1={state.averageBead} img_2={state.extractedPSF} scale={state.scale} state={state}/>
+                                <div className="images__preview" style={{marginTop: '30px'}}>
+                                    <TifCompare img_1={state.averageBead} img_2={state.extractedPSF} scale={state.scale} state={state} isSameLength={state.averageBead.length === state.extractedPSF.length}/>
                                 </div>
                             </div>
                         </div>
@@ -194,7 +201,7 @@ const StepperPSF = () => {
                                 <FileDownloader fileList={state.extractedPSFSave} folderName={state.filename} btnName={"Save result"} />
                             </div>
                             <div className="column-2" style={{ zIndex: 1 }}>
-                                <div className="images__preview">
+                                <div className="images__preview" style={{marginTop: '30px', marginRight: '250px'}}>
                                     <TifViewer
                                         img={state.extractedPSF[state.layer2]}
                                         scale={state.scale}

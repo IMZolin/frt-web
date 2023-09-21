@@ -2,16 +2,16 @@ import React from 'react';
 import TifViewer from '../TifViewer';
 import './tif_compare.css';
 
-const TifCompare = ({ img_1, img_2, scale, state, isSameLength }) => {
+const TifCompare = ({ img_1, img_2, scale, state, isSameLength}) => {
   const shouldApplyStylesForImg1 = state.resolution[1] > 360;
   const shouldApplyStylesForImg2 = state.resolution2[1] > 360;
   const layerChanged = isSameLength ? state.layer : state.layer2;
   return (
-    <div className="tif-container">
+    <div className="tif-container" style={{marginBottom: '-100px', marginLeft: '100px'}}>
       <div className="images-container">
         {img_1.length !== 0 ? (
-          <div className="img-container">
-            <div className={`${shouldApplyStylesForImg1 ? 'img-container-box' : ''}`}>
+          <div className="img-container" style={{marginTop: '30px'}}>
+            <div className={`${shouldApplyStylesForImg1 ? 'img-container-box' : ''}`} style={{marginBottom: '-180px'}}>
               <TifViewer
                 img={img_1[state.layer]}
                 scale={scale}
@@ -20,7 +20,7 @@ const TifCompare = ({ img_1, img_2, scale, state, isSameLength }) => {
               />
             </div>
             {isSameLength ? null : (
-              <div>
+              <div style={{marginTop: '-100px', marginBottom: '10px'}}>
                 <label className="viewer-label" htmlFor="layer-slider">
                   Layer:
                 </label>
@@ -40,7 +40,7 @@ const TifCompare = ({ img_1, img_2, scale, state, isSameLength }) => {
           </div>
         ) : null}
         {img_2.length !== 0 ? (
-          <div className="img-container" style={{marginTop: '30px', marginRight: '400px'}}>
+          <div className="img-container" style={{marginTop: '30px', marginRight: '450px'}}>
             <div className={`${shouldApplyStylesForImg2 ? 'img-container-box' : ''}`}>
               <TifViewer
                 img={img_2[layerChanged]}
@@ -50,7 +50,7 @@ const TifCompare = ({ img_1, img_2, scale, state, isSameLength }) => {
               />
             </div>
             {isSameLength ? null : (
-              <div style={{marginTop: '30px'}}>
+              <div style={{marginTop: '50px', marginBottom: '10px'}}>
                 <label className="viewer-label" htmlFor="layer-slider">
                   Layer:
                 </label>
