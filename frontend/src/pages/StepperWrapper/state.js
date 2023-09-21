@@ -26,7 +26,7 @@ export const defaultValues = {
     blurType: 'gauss',
     resolutionXY: 0.022,
     resolutionZ: 0.100,
-    scale: 1,
+    scale: 5,
     iter: 50,
     activeStep: 0,
     filename: "",
@@ -44,8 +44,8 @@ export const defaultValues = {
     resultImageSave: [],
     resolution2: [],
     sourceImageSave: [],
-
-    model: []
+    model: [],
+    scaleCompare: 5
 };
 
 export const useStateValues = () => {
@@ -55,6 +55,7 @@ export const useStateValues = () => {
     const [layer, setLayer] = useState(defaultValues.layer);
     const [layer2, setLayer2] = useState(defaultValues.layer2);
     const [scale, setScale] = useState(defaultValues.scale);
+    const [scaleCompare, setScaleCompare] = useState(defaultValues.scaleCompare);
     const [filename, setFilename] = useState(defaultValues.filename);
     const [activeStep, setActiveStep] = useState(defaultValues.activeStep);
     const [resolution, setResolution] = useState(defaultValues.resolution);
@@ -172,6 +173,13 @@ export const useStateValues = () => {
         ctx.strokeRect(x - size / 2, y - size / 2, size, size);
     };
 
+    const handleAllDrawClick = async (canvasRef, x, y, markBead) => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const centerCoords = await markBead(x, y, selectSize);
+        drawSquare(centerCoords.x, centerCoords.y, selectSize, canvasRef);
+    };
+
     useEffect(() => {
         console.log(centerExtractBeads, resolution);
     }, [centerExtractBeads, resolution]);
@@ -216,7 +224,6 @@ export const useStateValues = () => {
         setMarginTop(newMarginTop);
       };
     
-
     return {
         files,
         addFiles,
@@ -315,11 +322,13 @@ export const useStateValues = () => {
         setResolution2,
         sourceImageSave,
         setSourceImageSave,
+        scaleCompare,
+        setScaleCompare,
+        handleAllDrawClick,
         preprocImageSave,
         setPreprocImageSave,
         preprocImage,
         setPreprocImage,
-
         model,
         setModel,
     };

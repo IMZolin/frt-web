@@ -61,8 +61,9 @@ fi
 
 # Clone the engine library
 cd backend/engine
-git clone -b develop https://github.com/gerasimenkoab/simple_psf_extractor.git engine_lib
+git clone -b main https://github.com/gerasimenkoab/simple_psf_extractor.git engine_lib
 cd engine_lib
+pip install -r requirements.txt
 cd ../../..
 
 # Install frontend dependencies

@@ -128,7 +128,7 @@ useEffect(() => {
               </div>
               <div className="column-2">
                 <div className="images__preview">
-                  <TifCompare img_1={state.sourceImage} img_2={state.extractedPSF} scale={state.scale} state={state}/>
+                  <TifCompare img_1={state.sourceImage} img_2={state.extractedPSF} scale={state.scale} state={state} isSameLength={state.sourceImage.length === state.extractedPSF.length} type='deconvolution'/>
                 </div>
               </div>
             </div>
@@ -145,10 +145,30 @@ useEffect(() => {
                     id="scale-slider"
                     type="range"
                     min="0.5"
-                    max="10"
+                    max="7"
                     step="0.1"
                     value={state.scale}
-                    onChange={(e) => state.handleScaleChange(e, 10)}
+                    onChange={(e) => state.handleScaleChange(e, 7)}
+                  />
+                  <label htmlFor="layer-slider">Layer:</label>
+                  <input
+                    id="layer-slider"
+                    type="range"
+                    min="0"
+                    max={state.beads.length - 1}
+                    step="1"
+                    value={state.layer}
+                    onChange={(e) => state.handleLayerChange(e, state.beads.length - 1)}
+                  />
+                  <label htmlFor="brightness-slider">Brightness:</label>
+                  <input
+                    id="brightness-slider"
+                    type="range"
+                    min="1"
+                    max="3"
+                    step="0.01"
+                    value={state.levelBrightness}
+                    onChange={state.handleSliderBrightnessChange}
                   />
                 </div>
                 <TextField
@@ -191,7 +211,7 @@ useEffect(() => {
               </div>
               <div className="column-2" style={{ zIndex: 1 }}>
                 <div className="images__preview">
-                <TifCompare img_1={state.sourceImage} img_2={state.resultImage} scale={state.scale} state={state}/>
+                  <TifCompare img_1={state.sourceImage} img_2={state.resultImage} scale={state.scale} state={state} isSameLength={true} type='deconvolution'/>
                 </div>
               </div>
             </div>
@@ -230,7 +250,7 @@ useEffect(() => {
                       <FileDownloader fileList={state.resultImageSave} folderName={state.filename} btnName={"Save result"} />
                   </div>
                   <div className="column-2" style={{ zIndex: 1 }}>
-                      <div className="images__preview">
+                      <div className="images__preview" style={{marginTop: '30px', marginRight: '250px'}}>
                           <TifViewer
                               img={state.resultImage[state.layer2]}
                               scale={state.scale}
