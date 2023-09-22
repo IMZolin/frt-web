@@ -36,8 +36,8 @@ urlpatterns = [
     path('api/deconvolution/run/', views.deconvolve_image, name='deconvolve_image'),
 
     
-    path('api/cnn_deconv/preprocessing/', views.preprocess_image, name='preprocess_image'),
-    path('api/cnn_deconv/deconv/', views.cnn_deconv_image, name='cnn_deconv_image'),
+    # path('api/cnn_deconv/preprocessing/', views.preprocess_image, name='preprocess_image'),
+    # path('api/cnn_deconv/deconv/', views.cnn_deconv_image, name='cnn_deconv_image'),
 
 
     path('api/hello_world/', views.hello_world, name='hello_world'),

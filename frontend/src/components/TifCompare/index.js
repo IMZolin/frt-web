@@ -3,24 +3,26 @@ import TifViewer from '../TifViewer';
 import './tif_compare.css';
 
 const TifCompare = ({ img_1, img_2, scale, state, isSameLength, type}) => {
-  const shouldApplyStylesForImg1 = type==='deconvolution' ? state.resolution[1] > 50 : state.resolution[1] > 360;
-  const shouldApplyStylesForImg2 = type==='deconvolution' ? state.resolution[1] > 50 : state.resolution[1] > 360;
+  const shouldApplyStylesForImg1 = state.resolution[1] > 360;
+  const shouldApplyStylesForImg2 = state.resolution2[1] > 360;
   const layerChanged = isSameLength ? state.layer : state.layer2;
+  const img1Scale = type === 'deconvolution' || type === 'deconvolution-2' ? 0.35 * scale : scale;
+  const img1Scale2 = type === 'deconvolution-2' ? 0.35 * scale : scale;
   return (
-    <div className="tif-container" style={{marginBottom: '-100px', marginLeft: `${type==='beads' ? '250px' : '350px'}`, marginTop: `${type==='beads' ? '-70px' : ''}`}}>
+    <div className="tif-container" style={{marginBottom: `${type==='deconvolution' ? '' : '-100px'}`, marginLeft: `${type==='beads' ? '130px' : '300px'}`}}>
       <div className="images-container">
         {img_1.length !== 0 ? (
-          <div className="img-container" style={{marginTop:`${type==='deconvolution' ? '-100px' : '30px'}`, marginRight:`${type==='deconvolution' ? '200px' : ''}`}}>
-            <div className={`${shouldApplyStylesForImg1 ? 'img-container-box' : ''}`} style={{marginBottom: `${type==='beads' ? '-180px' : '130px'}`}}>
+          <div className="img-container" style={{marginTop: '30px'}}>
+            <div className={`${shouldApplyStylesForImg1 ? 'img-container-box' : ''}`} style={{marginBottom: '-180px'}}>
               <TifViewer
                 img={img_1[state.layer]}
-                scale={scale}
+                scale={img1Scale}
                 className="tif-single"
                 brightness={state.levelBrightness}
               />
             </div>
             {isSameLength ? null : (
-              <div style={{marginTop: '-100px', marginBottom: '30px', zIndex: 3}}>
+              <div style={{marginTop: `${type==='deconvolution' ? '130px' : '-80px'}`, marginBottom: '30px'}}>
                 <label className="viewer-label" htmlFor="layer-slider">
                   Layer:
                 </label>
@@ -40,11 +42,11 @@ const TifCompare = ({ img_1, img_2, scale, state, isSameLength, type}) => {
           </div>
         ) : null}
         {img_2.length !== 0 ? (
-          <div className="img-container" style={{marginTop: '30px', marginRight: `${isSameLength ? '510px' : '450px'}`}}>
+          <div className="img-container" style={{marginTop: '30px', marginRight: `${isSameLength ? '550px' : '440px'}`}}>
             <div className={`${shouldApplyStylesForImg2 ? 'img-container-box' : ''}`}>
               <TifViewer
                 img={img_2[layerChanged]}
-                scale={scale}
+                scale={img1Scale2}
                 className="tif-single"
                 brightness={state.levelBrightness}
               />

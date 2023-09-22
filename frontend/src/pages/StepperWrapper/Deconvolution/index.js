@@ -71,7 +71,8 @@ useEffect(() => {
 }, [state.activeStep]);
 
   const handleDeconvolve = async () => {
-    console.log("Im tryin make deconvolve");
+    console.log("Im trying make deconvolve");
+    window.alert("Im trying make deconvolve");
     try {
       const requestData = {
         iter: state.iter,
@@ -92,6 +93,7 @@ useEffect(() => {
           state.setResultImageSave([file]); 
       } else {
           console.log('No deconvolution result found in the response.');
+          window.alert('No deconvolution result found in the response.');
       }
   } catch (error) {
       console.error('Error in Deconvolution:', error);
@@ -118,10 +120,10 @@ useEffect(() => {
                     id="scale-slider"
                     type="range"
                     min="0.5"
-                    max="10"
+                    max="7"
                     step="0.1"
                     value={state.scale}
-                    onChange={(e) => state.handleScaleChange(e, 10)}
+                    onChange={(e) => state.handleScaleChange(e, 7)}
                   />
                 </div>
                 <Dropzone files={state.sourceImageSave} addFiles={state.setSourceImageSave} imageType={'source_img'} state={state} />
@@ -155,10 +157,10 @@ useEffect(() => {
                     id="layer-slider"
                     type="range"
                     min="0"
-                    max={state.beads.length - 1}
+                    max={state.sourceImage.length - 1}
                     step="1"
                     value={state.layer}
-                    onChange={(e) => state.handleLayerChange(e, state.beads.length - 1)}
+                    onChange={(e) => state.handleLayerChange(e, state.sourceImage.length - 1)}
                   />
                   <label htmlFor="brightness-slider">Brightness:</label>
                   <input
@@ -211,7 +213,7 @@ useEffect(() => {
               </div>
               <div className="column-2" style={{ zIndex: 1 }}>
                 <div className="images__preview">
-                  <TifCompare img_1={state.sourceImage} img_2={state.resultImage} scale={state.scale} state={state} isSameLength={true} type='deconvolution'/>
+                  <TifCompare img_1={state.sourceImage} img_2={state.resultImage} scale={state.scale} state={state} isSameLength={true} type='deconvolution-2'/>
                 </div>
               </div>
             </div>

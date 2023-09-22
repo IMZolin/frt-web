@@ -58,7 +58,7 @@ const StepperPSF = () => {
 
     const handlePSFExtract = async () => {
         console.log("Im tryin make psf extraction");
-
+        window.alert("Im trying make psf extraction");
         try {
             const requestData = {
                 beadSize: state.beadSize,
