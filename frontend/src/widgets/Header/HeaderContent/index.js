@@ -43,28 +43,25 @@ const Header = () => {
     <>
       <div className="header">
         <div className="header__logo" onClick={() => navigate('/')}>
-          <img src={LogoImage} alt="Logo" className='logo-image'/>
+          <img src={LogoImage} alt="Logo" className='logo-image' style={{ width: '20%', marginTop: '10px', marginLeft: '10px'}} />
         </div>
-        <div className="header__wrapper">
-          {/* <IconButton onClick={() => navigate('/favourite')}>
-            <Love className="love" />
-          </IconButton> */}
+        <div className="header__wrapper" style={{marginTop: '-10px'}}>
           <div onClick={() => navigate('/profile')} className="avatar">
-          <UserAvatar
-            width="35px"
-            height="35px"
-            avatar={''}
-            onClick={() => navigate('/profile')}
-          />
-        </div>
-        <Button
-          onClick={() => setAxiosToken(null)}
-          color="secondary"
-          variant="outlined"
-          className="signout"
-        >
-          Sign out
-        </Button>
+            <UserAvatar
+              width="35px"
+              height="35px"
+              avatar={''}
+              onClick={() => navigate('/profile')}
+            />
+          </div>
+          <Button
+            onClick={() => setAxiosToken(null)}
+            color="secondary"
+            variant="outlined"
+            className="signout"
+          >
+            Sign out
+          </Button>
         </div>
       </div>
       {open_Entry && (

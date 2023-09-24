@@ -230,7 +230,7 @@ const NeuralNetwork = () => {
   return (
     <div>
       <StepperWrapper
-        name="Neural networks"
+        name="Neural network"
         stepContent={getStepContent}
         steps={steps}
         handleNextStep={state.handleNextStep}
