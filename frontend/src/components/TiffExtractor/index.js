@@ -35,7 +35,7 @@ const TiffExtractor = ({ img, scale, state, canvasRef }) => {
   };
 
   return (
-    <div className="tiff-wrapper" style={{marginLeft: '300px'}}>
+    <div className="tiff-wrapper" style={{marginLeft: '-10px'}}>
       <div className="tiff-canvas">
         <canvas
           ref={canvasRef}

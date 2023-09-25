@@ -36,7 +36,7 @@ const StepperWrapper = ({ name, stepContent, steps, handleNextStep, handlePrevSt
                   <Button disabled={activeStep === 0} onClick={handlePrevStep} className="btn-back" variant="outlined">
                     Back
                   </Button>
-                  <Button variant="outlined" color="primary" onClick={handleButtonClick} disabled={!isLoad}>
+                  <Button variant="outlined" color="primary" onClick={handleButtonClick} disabled={!isLoad} style={{marginLeft: '5px'}}>
                     {activeStep === steps.length - 1 ? `Go to ${typeRun}` : 'Next'}
                   </Button>
                 </div>

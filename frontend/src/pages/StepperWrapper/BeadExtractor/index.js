@@ -142,8 +142,8 @@ const BeadExtractor = () => {
         return (
           <>
             <div className="row">
-              <div className="column-1">
-                <label htmlFor="layer-slider">Layer:</label>
+              <div className="column-1" style={{marginTop: '-10px'}}>
+                <label htmlFor="layer-slider">Layer:</label><br/>
                 <input
                   id="layer-slider"
                   type="range"
@@ -212,7 +212,7 @@ const BeadExtractor = () => {
                 <div className="slider-container">
                 {state.extractBeads.length === state.averageBead.length && (
                   <>
-                    <label htmlFor="layer-slider">Layer:</label>
+                    <label htmlFor="layer-slider">Layer:</label><br/>
                     <input
                       id="layer-slider"
                       type="range"
@@ -224,7 +224,7 @@ const BeadExtractor = () => {
                     />
                   </>
                 )}
-                  <label htmlFor="scale-slider">Scale:</label>
+                  <label htmlFor="scale-slider">Scale:</label><br/>
                   <input
                     id="scale-slider"
                     type="range"
