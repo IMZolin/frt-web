@@ -39,4 +39,5 @@ urlpatterns = [
     # path('api/network/processing/', views.cnn_processing, name='cnn_processing'),
     
     path('api/hello_world/', views.hello_world, name='hello_world'),
+    
 ]
