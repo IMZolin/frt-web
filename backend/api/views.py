@@ -13,9 +13,7 @@ from engine.engine_lib.src.model.ImageRaw_class import ImageRaw
 from engine.engine_lib.src.model.extractor_model import ExtractorModel
 from engine.engine_lib.src.model.decon_psf_model import DeconPsfModel
 from engine.engine_lib.src.model.decon_image_model import DeconImageModel
-# from engine.engine_lib.src.model.preproces_image_model import PreprocessImageModel
-# from engine.engine_lib.src.model.cnn_deconv_model import CNNDeconvModel
-from .utils import save_as_tiff, pil_image_to_byte_stream, pass2cache
+from .utils import save_as_tiff, pil_image_to_byte_stream, pass2cache, generate_projections
 from .tasks import load_and_cache_image
 
 logger = logging.getLogger(__name__)
@@ -63,12 +61,14 @@ def load_image(request):
                     if image_type == 'source_img':
                         tiff_image = save_as_tiff(image_raw=image_data, is_one_page=False, filename=f"{image_type}.tiff", outtype="uint8")
                         muli_layer_show, muli_layer_save = pil_image_to_byte_stream(pil_image=tiff_image, is_one_page=False)
+                        img_projection = generate_projections(image_data)
                     pass2cache(image_type, ['imArray', 'voxel'], [image_data.imArray, image_data.voxel])
                     response_data = {
                         'message': f'Image {image_type} with voxel loaded successfully',
                         'resolution': image_data.imArray.shape,
                         'multi_layer_show': muli_layer_show,
-                        'multi_layer_save': muli_layer_save
+                        'multi_layer_save': muli_layer_save,
+                        'img_projection': img_projection
                     }
 
                     return JsonResponse(response_data)
@@ -195,10 +195,12 @@ def bead_average(request):
             if isinstance(avg_bead, ImageRaw):
                 tiff_image = save_as_tiff(image_raw=avg_bead, is_one_page=False, filename=f"average_bead.tiff", outtype="uint8")
                 avg_bead_show, avg_bead_save = pil_image_to_byte_stream(pil_image=tiff_image, is_one_page=False)
+                img_projection = generate_projections(avg_bead)
                 response_data = {
                         'message': 'Bead averaging successfully',
                         'average_bead_show': avg_bead_show,
-                        'average_bead_save': avg_bead_save
+                        'average_bead_save': avg_bead_save,
+                        'img_projection': img_projection  
                     }
                 return JsonResponse(response_data)
             else:
@@ -216,11 +218,13 @@ def get_average_bead(request):
         if isinstance(avg_bead_cache, ImageRaw):
             tiff_image = save_as_tiff(image_raw=avg_bead_cache, is_one_page=False, filename="average_bead.tiff", outtype="uint8")
             avg_bead_show, avg_bead_save = pil_image_to_byte_stream(pil_image=tiff_image, is_one_page=False)
+            img_projection = generate_projections(avg_bead_cache)
             response_data = {
                 'message': 'Average bead data retrieved successfully',
                 'average_bead_show': avg_bead_show,  
                 'average_bead_save': avg_bead_save,
-                'voxel': avg_bead_cache.voxel  
+                'voxel': avg_bead_cache.voxel,
+                'img_projection': img_projection  
             }
             return JsonResponse(response_data)
         else:
@@ -245,10 +249,12 @@ def psf_extract(request):
                 pass2cache('psf_extractor', ['extractor', 'iter', 'regularization', 'psf'], [psf_extractor, request.POST.get('iter'), request.POST.get('regularization'), psf_extractor.resultImage])
                 tiff_image = save_as_tiff(image_raw=psf_extractor.resultImage, is_one_page=False, filename=f"extracted_psf.tiff", outtype="uint8")
                 psf_show, psf_save = pil_image_to_byte_stream(pil_image=tiff_image, is_one_page=False)
+                img_projection = generate_projections(psf_extractor.resultImage)
                 response_data = {
                     'message': 'PSF extracted successfully',
                     'extracted_psf_show': psf_show,
-                    'extracted_psf_save': psf_save
+                    'extracted_psf_save': psf_save,
+                    'img_projection': img_projection
                 }
                 return JsonResponse(response_data)
             else:
@@ -266,12 +272,14 @@ def get_psf(request):
         if isinstance(psf_cache, ImageRaw):
             tiff_image = save_as_tiff(image_raw=psf_cache, is_one_page=False, filename="average_bead.tiff", outtype="uint8")
             psf_show, psf_save = pil_image_to_byte_stream(pil_image=tiff_image, is_one_page=False)
+            img_projection = generate_projections(psf_cache)
             response_data = {
                 'message': 'PSF data retrieved successfully',
                 'psf_show': psf_show,  
                 'psf_save': psf_save,
                 'resolution': psf_cache.imArray.shape,
-                'voxel': psf_cache.voxel  
+                'voxel': psf_cache.voxel,
+                'img_projection': img_projection
             }
             return JsonResponse(response_data)
         else:
@@ -316,10 +324,12 @@ def deconvolve_image(request):
 
             tiff_image = save_as_tiff(image_raw=deconvolver._deconResult, is_one_page=False, filename=f"result_deconv.tiff", outtype="uint8")
             deconv_show, deconv_save = pil_image_to_byte_stream(pil_image=tiff_image, is_one_page=False)
+            img_projection = generate_projections(deconvolver._deconResult)
             response_data = {
                 'message': 'PSF extracted successfully',
                 'deconv_show': deconv_show,
-                'deconv_save': deconv_save
+                'deconv_save': deconv_save,
+                'img_projection': img_projection
             }
 
             return JsonResponse(response_data)
