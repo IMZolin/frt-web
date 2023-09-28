@@ -22,11 +22,15 @@ const Deconvolution = () => {
         const response = await axiosStore.getPSF();
         console.log('Response:', response);
 
-        if (response.psf_show && response.psf_save) {
+        if (response.psf_show && response.psf_save && response.img_projection) {
             const file = base64ToTiff(response.psf_save, 'image/tiff', `extracted_psf.tiff`);
             const newExtractPSF = response.psf_show.map((base64Data, index) => {
                 return base64ToTiff(base64Data, 'image/tiff', `extracted_psf_${index}.tiff`);
             });
+            const newProjection = response.img_projection.map((base64Data, index) => {
+                return base64ToTiff(base64Data, 'image/tiff', `psf_xyz_${index}.tiff`);
+            });
+            state.setExtractedPSFProjection(newProjection);
             state.setExtractedPSF(newExtractPSF);
             state.setExtractedPSFSave([file]);
             state.setIsLoad(true);
@@ -38,9 +42,11 @@ const Deconvolution = () => {
             }    
         } else {
             console.log('No psf data found in the response.');
+            window.alert('No psf data found in the response.');
         }
     } catch (error) {
         console.error('Error fetching average bead:', error);
+        window.alert('Error fetching average bead:', error);
     }
 };
 
@@ -55,9 +61,11 @@ const Deconvolution = () => {
         state.setVoxelZ(response.voxel.Z);
       } else {
         console.log('No voxel data found in the response.');
+        window.alert('No voxel data found in the response.');
       }
     } catch (error) {
       console.error('Error fetching average bead:', error);
+      window.alert('Error fetching average bead:', error);
     }
   };
 
@@ -83,11 +91,15 @@ useEffect(() => {
       const response = await axiosStore.postDeconvolution(requestData);
       console.log('Response:', response);
 
-      if (response.deconv_show) {
+      if (response.deconv_show && response.deconv_save && response.img_projection) {
           const file = base64ToTiff(response.deconv_save, 'image/tiff', `result_deconv.tiff`);
           const newResult = response.deconv_show.map((base64Data, index) => {
               return base64ToTiff(base64Data, 'image/tiff', `result_deconv_${index}.tiff`);
           });
+          const newProjection = response.img_projection.map((base64Data, index) => {
+            return base64ToTiff(base64Data, 'image/tiff', `result_deconv_xyz_${index}.tiff`);
+          });
+          state.setResultImageProjection(newProjection);
           state.setResultImage(newResult);
           console.log(newResult);
           state.setResultImageSave([file]); 
@@ -125,12 +137,22 @@ useEffect(() => {
                     value={state.scale}
                     onChange={(e) => state.handleScaleChange(e, 7)}
                   />
+                  <label htmlFor="brightness-slider">Brightness:</label><br/>
+                  <input
+                      id="brightness-slider"
+                      type="range"
+                      min="1"
+                      max="3"
+                      step="0.01"
+                      value={state.levelBrightness}
+                      onChange={state.handleSliderBrightnessChange}
+                  />
                 </div>
                 <Dropzone files={state.sourceImageSave} addFiles={state.setSourceImageSave} imageType={'source_img'} state={state} />
               </div>
               <div className="column-2">
                 <div className="images__preview">
-                  <TifCompare img_1={state.sourceImage} img_2={state.extractedPSF} scale={state.scale} state={state} isSameLength={state.sourceImage.length === state.extractedPSF.length} type='deconvolution'/>
+                  <TifCompare img_1={state.sourceImage} img_2={state.extractedPSF} img_1_projection={state.sourceImageProjection[0]} img_2_projection={state.extractedPSFProjection[0]} scale={state.scale} state={state} isSameLength={state.sourceImage.length === state.extractedPSF.length} type='deconvolution'/>
                 </div>
               </div>
             </div>
@@ -151,7 +173,7 @@ useEffect(() => {
                     step="0.1"
                     value={state.scale}
                     onChange={(e) => state.handleScaleChange(e, 7)}
-                  />
+                  /><br/>
                   <label htmlFor="layer-slider">Layer:</label><br/>
                   <input
                     id="layer-slider"
@@ -161,7 +183,7 @@ useEffect(() => {
                     step="1"
                     value={state.layer}
                     onChange={(e) => state.handleLayerChange(e, state.sourceImage.length - 1)}
-                  />
+                  /><br/>
                   <label htmlFor="brightness-slider">Brightness:</label><br/>
                   <input
                     id="brightness-slider"
@@ -213,7 +235,7 @@ useEffect(() => {
               </div>
               <div className="column-2" style={{ zIndex: 1 }}>
                 <div className="images__preview">
-                  <TifCompare img_1={state.sourceImage} img_2={state.resultImage} scale={state.scale} state={state} isSameLength={true} type='deconvolution-2'/>
+                  <TifCompare img_1={state.sourceImage} img_2={state.resultImage} img_1_projection={state.sourceImageProjection[0]} img_2_projection={state.resultImageProjection[0]} scale={state.scale} state={state} isSameLength={true} type='deconvolution-2'/>
                 </div>
               </div>
             </div>
@@ -232,10 +254,20 @@ useEffect(() => {
                               id="layer-slider"
                               type="range"
                               min="0"
-                              max={state.extractedPSF.length - 1}
+                              max={state.resultImage.length - 1}
                               step="1"
                               value={state.layer2}
-                              onChange={(e) => state.handleLayer2Change(e, state.extractedPSF.length - 1)}
+                              onChange={(e) => state.handleLayer2Change(e, state.resultImage.length - 1)}
+                          />
+                          <label htmlFor="brightness-slider">Brightness:</label><br/>
+                          <input
+                              id="brightness-slider"
+                              type="range"
+                              min="1"
+                              max="3"
+                              step="0.01"
+                              value={state.levelBrightness}
+                              onChange={state.handleSliderBrightnessChange}
                           />
                       </div>
                       <TextField
@@ -257,6 +289,7 @@ useEffect(() => {
                               img={state.resultImage[state.layer2]}
                               scale={state.scale}
                               brightness={state.brightness}
+                              imageProjection={state.resultImageProjection[0]}
                           />
                       </div>
                   </div>

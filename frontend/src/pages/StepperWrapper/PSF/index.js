@@ -23,13 +23,17 @@ const StepperPSF = () => {
             const response = await axiosStore.getAverageBead();
             console.log('Response:', response);
 
-            if (response.average_bead_show && response.average_bead_save) {
+            if (response.average_bead_show && response.average_bead_save && response.img_projection) {
                 const file = base64ToTiff(response.average_bead_save, 'image/tiff', `average_bead.tiff`);
                 const newAverageBead = response.average_bead_show.map((base64Data, index) => {
                     return base64ToTiff(base64Data, 'image/tiff', `average_bead_${index}.tiff`);
                 });
+                const newProjection = response.img_projection.map((base64Data, index) => {
+                    return base64ToTiff(base64Data, 'image/tiff', `avg_bead_xyz_${index}.tiff`);
+                });
+                state.setAverageBeadProjection(newProjection);
                 state.setAverageBead(newAverageBead);
-                state.setAverageBeadSave([file])
+                state.setAverageBeadSave([file]);
                 state.setIsLoad(true);
                 if (response.voxel) {
                     state.setVoxelX(response.voxel.X);
@@ -70,11 +74,15 @@ const StepperPSF = () => {
             const response = await axiosStore.postPSFExtract(requestData);
             console.log('Response:', response);
 
-            if (response.extracted_psf_show) {
+            if (response.extracted_psf_show && response.extracted_psf_save && response.img_projection) {
                 const file = base64ToTiff(response.extracted_psf_save, 'image/tiff', `extracted_psf.tiff`);
                 const newExtractPSF = response.extracted_psf_show.map((base64Data, index) => {
                     return base64ToTiff(base64Data, 'image/tiff', `extracted_psf_${index}.tiff`);
                 });
+                const newProjection = response.img_projection.map((base64Data, index) => {
+                    return base64ToTiff(base64Data, 'image/tiff', `psf_xyz_${index}.tiff`);
+                });
+                state.setExtractedPSFProjection(newProjection);
                 state.setExtractedPSF(newExtractPSF);
                 state.setExtractedPSFSave([file]);
             } else {
@@ -181,7 +189,7 @@ const StepperPSF = () => {
                             </div>
                             <div className="column-2">
                                 <div className="images__preview" style={{marginTop: '30px'}}>
-                                    <TifCompare img_1={state.averageBead} img_2={state.extractedPSF} scale={state.scale} state={state} isSameLength={true} type='psf'/>
+                                    <TifCompare img_1={state.averageBead} img_2={state.extractedPSF} img_1_projection={state.averageBeadProjection[0]} img_2_projection={state.extractedPSFProjection[0]} scale={state.scale} state={state} isSameLength={true} type='psf'/>
                                 </div>
                             </div>
                         </div>
@@ -235,6 +243,7 @@ const StepperPSF = () => {
                                         img={state.extractedPSF[state.layer2]}
                                         scale={state.scale}
                                         brightness={state.brightness}
+                                        imageProjection={state.extractedPSFProjection[0]}
                                     />
                                 </div>
                             </div>

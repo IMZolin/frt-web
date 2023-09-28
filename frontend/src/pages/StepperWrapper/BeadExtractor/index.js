@@ -1,4 +1,4 @@
-import React, { useRef, useEffect }  from 'react';
+import React, { useRef, useEffect } from 'react';
 import { Button, TextField } from '@mui/material';
 import StepperWrapper from '../../StepperWrapper';
 import TifViewer from '../../../components/TifViewer';
@@ -19,26 +19,8 @@ const BeadExtractor = () => {
   const steps = ['Load beads', 'Mark beads', 'Average bead', 'Save results'];
   const axiosStore = useAxiosStore();
   const canvasRef = useRef();
-  const markBead = useBeadMark(); 
+  const markBead = useBeadMark();
 
-  async function openAndConvertTiffFile() {
-    try {
-      const response = await fetch('xyz_bead_example.tiff'); 
-      if (!response.ok) {
-        throw new Error('Failed to fetch the file.');
-      }
-      const fileContent = await response.arrayBuffer();
-      const blob = new Blob([fileContent], { type: 'image/tiff' });
-      const tiffFile = new File([blob], 'example.tiff', { type: 'image/tiff' });
-      console.log(tiffFile); 
-      return tiffFile;
-    } catch (error) {
-      console.error('Error opening and converting file:', error);
-    }
-  }
-
-  const newAverageBeadProjection = openAndConvertTiffFile();
-  console.log(newAverageBeadProjection);
   const handleBeadMark = async () => {
     try {
       if (state.centerExtractBeads.length > 0) {
@@ -105,9 +87,12 @@ const BeadExtractor = () => {
         state.setAverageBeadSave([file]);
         //!TODO: get img_projection from request
         if (response.img_projection) {
-          state.setAverageBeadProjection(response.img_projection);
+          const newProjection = response.img_projection.map((base64Data, index) => {
+            return base64ToTiff(base64Data, 'image/tiff', `avg_bead_xyz_${index}.tiff`);
+        });
+        state.setAverageBeadProjection(newProjection);
+        console.log(response.img_projection);
         } else {
-          state.setAverageBeadProjection([newAverageBeadProjection]);
           console.log('No average bead projection found in the response.');
           window.alert('No average bead projection found in the response.');
         }
@@ -167,8 +152,8 @@ const BeadExtractor = () => {
         return (
           <>
             <div className="row">
-              <div className="column-1" style={{marginTop: '-10px'}}>
-                <label htmlFor="layer-slider">Layer:</label><br/>
+              <div className="column-1" style={{ marginTop: '-10px' }}>
+                <label htmlFor="layer-slider">Layer:</label><br />
                 <input
                   id="layer-slider"
                   type="range"
@@ -216,7 +201,7 @@ const BeadExtractor = () => {
                 />
                 <FileDownloader fileList={state.extractBeads} folderName={"extract_beads"} btnName={"Save beads"} />
               </div>
-              <div className="column-2" style={{ zIndex: 1, marginLeft: '20px', marginTop: '-10px'}}>
+              <div className="column-2" style={{ zIndex: 1, marginLeft: '20px', marginTop: '-10px' }}>
                 <div className="images__preview">
                   <TiffExtractor
                     img={state.beads[state.layer]}
@@ -235,21 +220,21 @@ const BeadExtractor = () => {
             <div className="row">
               <div className="column-1">
                 <div className="slider-container">
-                {state.extractBeads.length === state.averageBead.length && (
-                  <>
-                    <label htmlFor="layer-slider">Layer:</label><br/>
-                    <input
-                      id="layer-slider"
-                      type="range"
-                      min="0"
-                      max={state.beads.length - 1}
-                      step="1"
-                      value={state.layer}
-                      onChange={(e) => state.handleLayerChange(e, state.beads.length - 1)}
-                    />
-                  </>
-                )}<br/>
-                  <label htmlFor="scale-slider">Scale:</label><br/>
+                  {state.extractBeads.length === state.averageBead.length && (
+                    <>
+                      <label htmlFor="layer-slider">Layer:</label><br />
+                      <input
+                        id="layer-slider"
+                        type="range"
+                        min="0"
+                        max={state.beads.length - 1}
+                        step="1"
+                        value={state.layer}
+                        onChange={(e) => state.handleLayerChange(e, state.beads.length - 1)}
+                      />
+                    </>
+                  )}<br />
+                  <label htmlFor="scale-slider">Scale:</label><br />
                   <input
                     id="scale-slider"
                     type="range"
@@ -288,19 +273,19 @@ const BeadExtractor = () => {
               </div>
               <div className="column-2">
                 <div className="images__preview">
-                  <TifCompare img_1={state.extractBeads} img_2={state.averageBead} img_1_projection={null} img_2_projection={state.averageBeadProjection} scale={state.scale} state={state} isSameLength={state.extractBeads.length === state.beads.length} type='beads'/>
+                  <TifCompare img_1={state.extractBeads} img_2={state.averageBead} img_1_projection={null} img_2_projection={state.averageBeadProjection[0]} scale={state.scale} state={state} isSameLength={state.extractBeads.length === state.beads.length} type='beads' />
                 </div>
               </div>
             </div>
           </>
-        );        
+        );
       case 3:
         return (
           <>
             <div className="row">
               <div className="column-1" style={{ zIndex: 2 }}>
                 <div className="slider-container">
-                  <label htmlFor="scale-slider">Scale:</label><br/>
+                  <label htmlFor="scale-slider">Scale:</label><br />
                   <input
                     id="scale-slider"
                     type="range"
@@ -310,7 +295,7 @@ const BeadExtractor = () => {
                     value={state.scale}
                     onChange={(e) => state.handleScaleChange(e, 7)}
                   />
-                  <label htmlFor="layer-slider">Layer:</label><br/>
+                  <label htmlFor="layer-slider">Layer:</label><br />
                   <input
                     id="layer-slider"
                     type="range"
@@ -321,7 +306,7 @@ const BeadExtractor = () => {
                     onChange={(e) => state.handleLayer2Change(e, state.averageBead.length - 1)}
                   />
                 </div>
-                <label htmlFor="brightness-slider">Brightness:</label><br/>
+                <label htmlFor="brightness-slider">Brightness:</label><br />
                 <input
                   id="brightness-slider"
                   type="range"
@@ -345,12 +330,12 @@ const BeadExtractor = () => {
                 <FileDownloader fileList={state.averageBeadSave} folderName={state.filename} btnName={"Save result"} />
               </div>
               <div className="column-2" style={{ zIndex: 1 }}>
-                <div className="images__preview" style={{marginTop: '30px', marginRight: '250px'}}>
+                <div className="images__preview" style={{ marginTop: '30px', marginRight: '250px' }}>
                   <TifViewer
                     img={state.averageBead[state.layer2]}
                     scale={state.scale}
                     brightness={state.levelBrightness}
-                    imageProjection={state.averageBeadProjection}
+                    imageProjection={state.averageBeadProjection[0]}
                   />
                 </div>
               </div>

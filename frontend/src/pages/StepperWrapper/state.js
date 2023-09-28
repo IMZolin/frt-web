@@ -42,6 +42,7 @@ export const defaultValues = {
     sourceImage: [],
     sourceImageProjection: [],
     preprocImage: [],
+    preprocImageProjection: [],
     preprocImageSave: [],
     resultImage: [],
     resultImageProjection: [],
@@ -105,6 +106,7 @@ export const useStateValues = () => {
     
     //Neural network
     const [preprocImage, setPreprocImage] = useState(defaultValues.preprocImage);
+    const [preprocImageProjection, setPreprocImageProjection] = useState(defaultValues.preprocImageProjection);
     const [preprocImageSave, setPreprocImageSave] = useState(defaultValues.preprocImageSave);
     const [maximizeIntensity, setMaximizeIntensity] = useState(defaultValues.maximizeIntensity);
     const [makeGaussianBlur, setMakeGaussianBlur] = useState(defaultValues.makeGaussianBlur);
@@ -346,6 +348,8 @@ export const useStateValues = () => {
         resultImageProjection,
         setResultImageProjection,
         sourceImageProjection,
-        setSourceImageProjection
+        setSourceImageProjection,
+        preprocImageProjection,
+        setPreprocImageProjection,
     };
 };
