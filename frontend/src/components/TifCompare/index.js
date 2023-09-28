@@ -2,11 +2,13 @@ import React from 'react';
 import TifViewer from '../TifViewer';
 import './tif_compare.css';
 
-const TifCompare = ({ img_1, img_2, scale, state, isSameLength, type}) => {
+const TifCompare = ({ img_1, img_2, img_1_projection, img_2_projection, scale, state, isSameLength, type}) => {
   const shouldApplyStylesForImg1 = state.resolution[1] > 360;
   const shouldApplyStylesForImg2 = state.resolution2[1] > 360;
   const layerChanged = isSameLength ? state.layer : state.layer2;
   const img1Scale = type === 'deconvolution' || type === 'deconvolution-2' ? 0.35 * scale : scale;
+  const isImg1Projection = img_1_projection !== null;
+  const isImg2Projection = img_2_projection !== null;
   const img1Scale2 = type === 'deconvolution-2' ? 0.35 * scale : scale;
   return (
     <div className="tif-container" style={{marginBottom: `${type==='deconvolution' ? '' : '-100px'}`, marginLeft: `${type==='beads' ? '130px' : '300px'}`}}>
@@ -19,6 +21,7 @@ const TifCompare = ({ img_1, img_2, scale, state, isSameLength, type}) => {
                 scale={img1Scale}
                 className="tif-single"
                 brightness={state.levelBrightness}
+                imageProjection={isImg1Projection ? img_1_projection : null}
               />
             </div>
             {isSameLength ? null : (
@@ -49,6 +52,7 @@ const TifCompare = ({ img_1, img_2, scale, state, isSameLength, type}) => {
                 scale={img1Scale2}
                 className="tif-single"
                 brightness={state.levelBrightness}
+                imageProjection={isImg2Projection ? img_2_projection : null}
               />
             </div>
             {isSameLength ? null : (

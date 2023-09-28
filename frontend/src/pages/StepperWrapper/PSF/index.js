@@ -102,7 +102,7 @@ const StepperPSF = () => {
                         <div className="row">
                             <div className="column-1">
                                 <div className="slider-container">
-                                    <label htmlFor="layer-slider">Layer:</label>
+                                    <label htmlFor="layer-slider">Layer:</label><br/>
                                     <input
                                         id="layer-slider"
                                         type="range"
@@ -112,7 +112,7 @@ const StepperPSF = () => {
                                         value={state.layer}
                                         onChange={(e) => state.handleLayerChange(e, state.averageBead.length - 1)}
                                     />
-                                    <label htmlFor="scale-slider">Scale:</label>
+                                    <label htmlFor="scale-slider">Scale:</label><br/>
                                     <input
                                         id="scale-slider"
                                         type="range"
@@ -122,7 +122,7 @@ const StepperPSF = () => {
                                         value={state.scale}
                                         onChange={(e) => state.handleScaleChange(e, 7)}
                                     />
-                                    <label htmlFor="brightness-slider">Brightness:</label>
+                                    <label htmlFor="brightness-slider">Brightness:</label><br/>
                                     <input
                                     id="brightness-slider"
                                     type="range"
@@ -193,9 +193,9 @@ const StepperPSF = () => {
                         <div className="row">
                             <div className="column-1" style={{ zIndex: 2 }}>
                                 <div className="slider-container">
-                                    <label htmlFor="scale-slider">Scale:</label>
+                                    <label htmlFor="scale-slider">Scale:</label><br/>
                                     <input id="scale-slider" type="range" min="0.5" max="7" step="0.1" value={state.scale} onChange={state.handleScaleChange} />
-                                    <label htmlFor="layer-slider">Layer:</label>
+                                    <label htmlFor="layer-slider">Layer:</label><br/>
                                     <input
                                         id="layer-slider"
                                         type="range"
@@ -205,7 +205,7 @@ const StepperPSF = () => {
                                         value={state.layer2}
                                         onChange={(e) => state.handleLayer2Change(e, state.extractedPSF.length - 1)}
                                     />
-                                    <label htmlFor="brightness-slider">Brightness:</label>
+                                    <label htmlFor="brightness-slider">Brightness:</label><br/>
                                     <input
                                         id="brightness-slider"
                                         type="range"

@@ -52,7 +52,7 @@ const TiffExtractor = ({ img, scale, state, canvasRef }) => {
           }}
           onClick={(e) => handleDrawClick(e, canvasRef)}
         />
-        <TifViewer img={img} scale={scale} brightness={state.levelBrightness} />
+        <TifViewer img={img} scale={scale} brightness={state.levelBrightness} imageProjection={null}/>
       </div>
     </div>
   );

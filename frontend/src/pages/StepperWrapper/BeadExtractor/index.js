@@ -21,6 +21,24 @@ const BeadExtractor = () => {
   const canvasRef = useRef();
   const markBead = useBeadMark(); 
 
+  async function openAndConvertTiffFile() {
+    try {
+      const response = await fetch('xyz_bead_example.tiff'); 
+      if (!response.ok) {
+        throw new Error('Failed to fetch the file.');
+      }
+      const fileContent = await response.arrayBuffer();
+      const blob = new Blob([fileContent], { type: 'image/tiff' });
+      const tiffFile = new File([blob], 'example.tiff', { type: 'image/tiff' });
+      console.log(tiffFile); 
+      return tiffFile;
+    } catch (error) {
+      console.error('Error opening and converting file:', error);
+    }
+  }
+
+  const newAverageBeadProjection = openAndConvertTiffFile();
+  console.log(newAverageBeadProjection);
   const handleBeadMark = async () => {
     try {
       if (state.centerExtractBeads.length > 0) {
@@ -84,8 +102,15 @@ const BeadExtractor = () => {
           return base64ToTiff(base64Data, 'image/tiff', `average_bead_${index}.tiff`);
         });
         state.setAverageBead(newAverageBead);
-        state.setAverageBeadSave([file])
-        console.log(state.averageBead)
+        state.setAverageBeadSave([file]);
+        //!TODO: get img_projection from request
+        if (response.img_projection) {
+          state.setAverageBeadProjection(response.img_projection);
+        } else {
+          state.setAverageBeadProjection([newAverageBeadProjection]);
+          console.log('No average bead projection found in the response.');
+          window.alert('No average bead projection found in the response.');
+        }
       } else {
         console.log('No average bead found in the response.');
         window.alert('No average bead found in the response.');
@@ -223,7 +248,7 @@ const BeadExtractor = () => {
                       onChange={(e) => state.handleLayerChange(e, state.beads.length - 1)}
                     />
                   </>
-                )}
+                )}<br/>
                   <label htmlFor="scale-slider">Scale:</label><br/>
                   <input
                     id="scale-slider"
@@ -263,7 +288,7 @@ const BeadExtractor = () => {
               </div>
               <div className="column-2">
                 <div className="images__preview">
-                  <TifCompare img_1={state.extractBeads} img_2={state.averageBead} scale={state.scale} state={state} isSameLength={state.extractBeads.length === state.beads.length} type='beads'/>
+                  <TifCompare img_1={state.extractBeads} img_2={state.averageBead} img_1_projection={null} img_2_projection={state.averageBeadProjection} scale={state.scale} state={state} isSameLength={state.extractBeads.length === state.beads.length} type='beads'/>
                 </div>
               </div>
             </div>
@@ -275,7 +300,7 @@ const BeadExtractor = () => {
             <div className="row">
               <div className="column-1" style={{ zIndex: 2 }}>
                 <div className="slider-container">
-                  <label htmlFor="scale-slider">Scale:</label>
+                  <label htmlFor="scale-slider">Scale:</label><br/>
                   <input
                     id="scale-slider"
                     type="range"
@@ -285,7 +310,7 @@ const BeadExtractor = () => {
                     value={state.scale}
                     onChange={(e) => state.handleScaleChange(e, 7)}
                   />
-                  <label htmlFor="layer-slider">Layer:</label>
+                  <label htmlFor="layer-slider">Layer:</label><br/>
                   <input
                     id="layer-slider"
                     type="range"
@@ -296,7 +321,7 @@ const BeadExtractor = () => {
                     onChange={(e) => state.handleLayer2Change(e, state.averageBead.length - 1)}
                   />
                 </div>
-                <label htmlFor="brightness-slider">Brightness:</label>
+                <label htmlFor="brightness-slider">Brightness:</label><br/>
                 <input
                   id="brightness-slider"
                   type="range"
@@ -325,6 +350,7 @@ const BeadExtractor = () => {
                     img={state.averageBead[state.layer2]}
                     scale={state.scale}
                     brightness={state.levelBrightness}
+                    imageProjection={state.averageBeadProjection}
                   />
                 </div>
               </div>

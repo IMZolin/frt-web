@@ -9,7 +9,9 @@ export const defaultValues = {
     extractBeads: [],
     centerExtractBeads: [],
     averageBead: [],
+    averageBeadProjection: [],
     extractedPSF: [],
+    extractedPSFProjection: [],
     beadSize: 0.2,
     psfFiles: [],
     voxelX: 0.089,
@@ -38,9 +40,11 @@ export const defaultValues = {
     marginTop: 0,
 
     sourceImage: [],
+    sourceImageProjection: [],
     preprocImage: [],
     preprocImageSave: [],
     resultImage: [],
+    resultImageProjection: [],
     resultImageSave: [],
     resolution2: [],
     sourceImageSave: [],
@@ -73,8 +77,10 @@ export const useStateValues = () => {
     const [extractBeads, setExtractBeads] = useState(defaultValues.extractBeads);
     const [centerExtractBeads, setCenterExtractBeads] = useState(defaultValues.centerExtractBeads);
     const [averageBead, setAverageBead] = useState(defaultValues.averageBead);
+    const [averageBeadProjection, setAverageBeadProjection] = useState(defaultValues.averageBeadProjection);
     const [averageBeadSave, setAverageBeadSave] = useState(defaultValues.averageBead);
     const [extractedPSF, setExtractedPSF] = useState(defaultValues.extractedPSF);
+    const [extractedPSFProjection, setExtractedPSFProjection] = useState(defaultValues.extractedPSFProjection);
     const [extractedPSFSave, setExtractedPSFSave] = useState(defaultValues.extractedPSFSave);
     const [tiffType, setTiffType] = useState(defaultValues.tiffType);
     const [blurType, setBlurType] = useState(defaultValues.blurType);
@@ -91,8 +97,10 @@ export const useStateValues = () => {
 
     //Deconvolution
     const [sourceImage, setSourceImage] = useState(defaultValues.sourceImage);
+    const [sourceImageProjection, setSourceImageProjection] = useState(defaultValues.sourceImageProjection);
     const [sourceImageSave, setSourceImageSave] = useState(defaultValues.sourceImageSave);
     const [resultImage, setResultImage] = useState(defaultValues.resultImage);
+    const [resultImageProjection, setResultImageProjection] = useState(defaultValues.resultImageProjection);
     const [resultImageSave, setResultImageSave] = useState(defaultValues.resultImageSave);
     
     //Neural network
@@ -331,5 +339,13 @@ export const useStateValues = () => {
         setPreprocImage,
         model,
         setModel,
+        averageBeadProjection,
+        setAverageBeadProjection,
+        extractedPSFProjection,
+        setExtractedPSFProjection,
+        resultImageProjection,
+        setResultImageProjection,
+        sourceImageProjection,
+        setSourceImageProjection
     };
 };
