@@ -7,6 +7,9 @@ ENV PYTHONUNBUFFERED 1
 # Set working directory
 WORKDIR /app
 
+# Copy models to testing
+COPY ./engine/engine_lib/src/cnn/CNN_Deconvolution/models/3d_gaus_blur.h5 .
+
 # Install system dependencies for Celery (e.g., Redis)
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \

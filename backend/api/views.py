@@ -226,7 +226,6 @@ def get_average_bead(request):
                 'voxel': avg_bead_cache.voxel,
                 'img_projection': img_projection  
             }
-
             return JsonResponse(response_data)
         else:
             return JsonResponse({'error': 'Invalid image data in cache. Unable to process.'}, status=400)
@@ -242,9 +241,9 @@ def psf_extract(request):
             cached_image = django_cache.get('bead_extractor')['average_bead']
             if cached_image is not None:
                 psf_extractor.SetPSFImage(array=cached_image.imArray, voxel=list(cached_image.voxel.values()))
-                psf_extractor._iterationNumber = request.POST.get('iter')
-                psf_extractor._regularizationParameter = request.POST.get('regularization')
-                psf_extractor._beadDiameter = request.POST.get('beadSize')
+                psf_extractor.iterationNumber = request.POST.get('iter')
+                psf_extractor.regularizationParameter = request.POST.get('regularization')
+                psf_extractor.beadDiameter = request.POST.get('beadSize')
                 psf_extractor.CalculatePSF(request.POST.get('deconvMethod'), None, None)
                 print('Result of PSF: ', psf_extractor.resultImage, psf_extractor._resultImage)
                 pass2cache('psf_extractor', ['extractor', 'iter', 'regularization', 'psf'], [psf_extractor, request.POST.get('iter'), request.POST.get('regularization'), psf_extractor.resultImage])
@@ -339,6 +338,70 @@ def deconvolve_image(request):
 
     return error_response(400, 'Invalid request. Please make a POST request with the required parameters.', 'POST')
 
+
+# @csrf_exempt
+# def preprocess_image(request):
+#     # check if request contains all requiered data 
+#     if request.method == 'POST' and request.POST.get('isNeedGaussBlur') and request.POST.get('gaussBlurRad') and request.POST.get('isNeedMaxIntensity'):
+#         try:
+#             preprocessor = PreprocessImageModel()
+            
+#             source_img = django_cache.get('source_img')
+#             preprocessor.SetPreprocImage(array=source_img['imArray'], voxel=list(source_img['voxel'].values()))
+#             print(f"Preprocess img: {preprocessor._preprocImage}")
+            
+#             preprocessor.gaussBlurRad = request.POST.get('gaussBlurRad')
+#             preprocessor.isNeedGaussBlur = request.POST.get('isNeedGaussBlur')
+#             preprocessor.isNeedMaximizeIntensity = request.POST.get('isNeedMaxIntensity')
+
+#             preprocessor.PreprocessImage(None, None)
+
+#             print(f"Result: {preprocessor._preprocResult}")
+#             pass2cache('preprocessing', ['preprocessor', 'source_img', 'gaussBlurRad', 'isNeedGaussBlur', 'isNeedMaxIntensity', 'preprocessed_img'], [preprocessor, source_img, request.POST.get('gaussBlurRad'), request.POST.get('isNeedGaussBlur'), request.POST.get('isNeedMaxIntensity'), preprocessor._preprocResult])
+
+#             tiff_image = save_as_tiff(image_raw=preprocessor._preprocResult, is_one_page=False, filename=f"result_preproc.tiff", outtype="uint8")
+#             preproc_show, preproc_save = pil_image_to_byte_stream(pil_image=tiff_image, is_one_page=False)
+#             response_data = {
+#                 'message': 'PSF extracted successfully',
+#                 'preproc_show': preproc_show,
+#                 'preproc_save': preproc_save
+#             }
+
+#             return JsonResponse(response_data)
+#         except Exception as e:
+#             return error_response(400, str(e), 'POST')
+
+#     return error_response(400, 'Invalid request. Please make a POST request with the required parameters.', 'POST')
+
+# @csrf_exempt
+# def cnn_deconv_image(request):
+#     if request.method == 'POST':
+#         try:
+#             deconvolver = CNNDeconvModel()
+#             preprocessed_img = django_cache.get('preprocessing')['preprocessed_img']
+#             print(f"preprocessed_img: {preprocessed_img}")
+            
+#             deconvolver.SetDeconImage(array=preprocessed_img.imArray, voxel=[0.1,0.02,0.05])
+#             print(f"Decon img: {deconvolver._deconImage}")
+            
+#             deconvolver.DeconvolveImage(None, None)
+#             print(f"Result: {deconvolver._deconResult}")
+            
+#             pass2cache('cnn_deconv', ['deconvolver', 'preprocessed_img', 'result'], [deconvolver, preprocessed_img, deconvolver._deconResult])
+
+#             tiff_image = save_as_tiff(image_raw=deconvolver._deconResult, is_one_page=False, filename=f"result_deconv.tiff", outtype="uint8")
+#             deconv_show, deconv_save = pil_image_to_byte_stream(pil_image=tiff_image, is_one_page=False)
+#             response_data = {
+#                 'message': 'PSF extracted successfully',
+#                 'deconv_show': deconv_show,
+#                 'deconv_save': deconv_save
+#             }
+
+#             return JsonResponse(response_data)
+#         except Exception as e:
+#             return error_response(400, str(e), 'POST')
+
+#     return error_response(400, 'Invalid request. Please make a POST request with the required parameters.', 'POST')
 
 def hello_world(request):
     return HttpResponse("Hello, world!")

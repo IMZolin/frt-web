@@ -28,7 +28,7 @@ git clone https://github.com/IMZolin/frt23-3d-interface.git <your project name>
 cd <your project name>
 ./bin/install.sh
 #for Windows
-source .venv/Scripts/activate 
+.venv/Scripts/Activate.ps1
 #for Linux and Macos
 source .venv/bin/activate 
 ```

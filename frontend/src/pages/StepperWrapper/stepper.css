@@ -7,6 +7,24 @@
   flex-direction: column;
   margin-bottom: 5px;
 }
+.header-container{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.btn-stack{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.stepper-box{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 
 .row {
   display: flex;
@@ -48,6 +66,7 @@
 
 .btn-back {
   max-width: 150px;
+  margin-left: 10px;
 }
 
 .btn-run {

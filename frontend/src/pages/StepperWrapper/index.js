@@ -21,30 +21,34 @@ const StepperWrapper = ({ name, stepContent, steps, handleNextStep, handlePrevSt
         </h2>
       ) : (
         <>
-          <h2 variant="h4" align="center">
-            {name}
-          </h2>
-          <div className="stepper">
-            <Button component={Link} to="/" className="btn-back" color="error" variant="outlined">
+          <div className="header-container">
+            <Button component={Link} to="/" className="btn-back" color="error" variant="outlined" style={{ marginLeft: '17px' }}>
               Back to menu
             </Button>
+            <h2 variant="h4" style={{ margin: '0 auto', textAlign: 'center' }}>
+              {name}
+            </h2>
+          </div>
+          <div className="stepper">
             <div className="stepper-container">
+            <div className='stepper-box'>
+                <div className="btn-stack" style={{ marginBottom: '30px' }}>
+                  <Button disabled={activeStep === 0} onClick={handlePrevStep} className="btn-back" variant="outlined">
+                    Back
+                  </Button>
+                  <Button variant="outlined" color="primary" onClick={handleButtonClick} disabled={!isLoad} style={{marginLeft: '5px'}}>
+                    {activeStep === steps.length - 1 ? `Go to ${typeRun}` : 'Next'}
+                  </Button>
+                </div>
+                <Stepper alternativeLabel activeStep={activeStep} className="stepper-steps">
+                  {steps.map((label) => (
+                    <Step key={label}>
+                      <StepLabel>{label}</StepLabel>
+                    </Step>
+                  ))}
+                </Stepper>
+              </div>
               <form>{stepContent(activeStep)}</form>
-              <Stepper alternativeLabel activeStep={activeStep} className="stepper-steps">
-                {steps.map((label) => (
-                  <Step key={label}>
-                    <StepLabel>{label}</StepLabel>
-                  </Step>
-                ))}
-              </Stepper>
-            </div>
-            <div>
-              <Button disabled={activeStep === 0} onClick={handlePrevStep} className="btn-back">
-                Back
-              </Button>
-              <Button variant="contained" color="primary" onClick={handleButtonClick} disabled={!isLoad}>
-                {activeStep === steps.length - 1 ? `Go to ${typeRun}` : 'Next'}
-              </Button>
             </div>
           </div>
         </>
