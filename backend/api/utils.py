@@ -41,7 +41,7 @@ def pil_image_to_byte_stream(pil_image, is_one_page):
         base64_string2 = base64.b64encode(byte_stream2.getvalue()).decode('utf-8')
         return base64_list, base64_string2
 
-def generate_projections(image_raw : ImageRaw, projections_coord = None, projection_type = 'one_img'):
+def generate_projections(image_raw : ImageRaw, projections_coord = None, projection_type = 'triple_img'):
     projection_maker = ImageProjectionsModel()
     projection_maker._image = image_raw
     fig, axes = projection_maker.CreateProjections(projections_coord, projection_type)
