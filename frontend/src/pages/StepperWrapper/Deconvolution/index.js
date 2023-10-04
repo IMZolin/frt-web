@@ -3,6 +3,7 @@ import { Button, TextField } from "@mui/material";
 import StepperWrapper from '..';
 import Dropzone from '../../../components/Dropzone';
 import TifCompare from '../../../components/TifCompare';
+import TifCompare2 from '../../../components/TifCompare2';
 import TifViewer from '../../../components/TifViewer';
 import FileDownloader from '../../../components/FileDownloader';
 import { useStateValues } from "../state";
@@ -259,7 +260,8 @@ const Deconvolution = () => {
               </div>
               <div className="column-2" style={{ zIndex: 1 }}>
                 <div className="images__preview">
-                  <TifCompare img_1={state.sourceImage} img_2={state.resultImage} img_1_projection={state.sourceImageProjection[0]} img_2_projection={state.resultImageProjection[0]} scale={state.scale} state={state} isSameLength={true} type='deconvolution-2' />
+                  {/* <TifCompare img_1={state.sourceImage} img_2={state.resultImage} img_1_projection={state.sourceImageProjection[0]} img_2_projection={state.resultImageProjection[0]} scale={state.scale} state={state} isSameLength={true} type='deconvolution-2' /> */}
+                  <TifCompare2 img_1={state.sourceImage} img_2={state.extractedPSF} img_3={state.resultImage} img_1_projection={null} img_2_projection={state.extractedPSFProjection[0]} img_3_projection={null} scale={state.scale} state={state} isSameLength={state.sourceImage.length === state.extractedPSF.lengt} type='deconvolution-2' />
                 </div>
               </div>
             </div>
