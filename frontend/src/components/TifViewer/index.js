@@ -32,7 +32,7 @@ const TifViewer = ({ img, scale, brightness, imageProjection }) => {
             paginate="bottom"
             buttonColor="#337fd6"
             onClick={handleButtonClick}
-            style={{ objectFit: 'contain' }}
+            style={{ objectFit: 'contain',marginLeft: '120px' }}
           />
         ) : null}
       </div>

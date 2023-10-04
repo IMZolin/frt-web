@@ -258,11 +258,11 @@ const StepperPSF = () => {
                                 <FileDownloader fileList={state.extractedPSFSave} folderName={state.filename} btnName={"Save result"} />
                             </div>
                             <div className="column-2" style={{ zIndex: 1 }}>
-                                <div className="images__preview" style={{ marginTop: '30px', marginRight: '250px' }}>
+                                <div className="images__preview" style={{ marginTop: '-80px', marginRight: '150px' }}>
                                     <TifViewer
                                         img={state.extractedPSF[state.layer2]}
                                         scale={state.scale}
-                                        brightness={state.brightness}
+                                        brightness={state.levelBrightness}
                                         imageProjection={state.extractedPSFProjection[0]}
                                     />
                                 </div>

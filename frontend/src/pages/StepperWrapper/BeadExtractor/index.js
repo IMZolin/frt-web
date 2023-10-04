@@ -85,7 +85,6 @@ const BeadExtractor = () => {
         });
         state.setAverageBead(newAverageBead);
         state.setAverageBeadSave([file]);
-        //!TODO: get img_projection from request
         if (response.img_projection) {
           const newProjection = response.img_projection.map((base64Data, index) => {
             return base64ToTiff(base64Data, 'image/tiff', `avg_bead_xyz_${index}.tiff`);
@@ -340,7 +339,7 @@ const BeadExtractor = () => {
                 <FileDownloader fileList={state.averageBeadSave} folderName={state.filename} btnName={"Save result"} />
               </div>
               <div className="column-2" style={{ zIndex: 1 }}>
-                <div className="images__preview" style={{ marginTop: '30px', marginRight: '250px' }}>
+                <div className="images__preview" style={{ marginRight: '150px', marginTop: '-80px' }}>
                   <TifViewer
                     img={state.averageBead[state.layer2]}
                     scale={state.scale}
