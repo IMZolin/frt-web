@@ -39,7 +39,7 @@ const StepperPSF = () => {
                     state.setVoxelX(response.voxel.X);
                     state.setVoxelY(response.voxel.Y);
                     state.setVoxelZ(response.voxel.Z);
-                }    
+                }
             } else {
                 console.log('No average bead data found in the response.');
                 window.alert('No average bead data found in the response.');
@@ -110,36 +110,42 @@ const StepperPSF = () => {
                         <div className="row">
                             <div className="column-1">
                                 <div className="slider-container">
-                                    <label htmlFor="layer-slider">Layer:</label><br/>
-                                    <input
-                                        id="layer-slider"
-                                        type="range"
-                                        min="0"
-                                        max={state.averageBead.length - 1}
-                                        step="1"
-                                        value={state.layer}
-                                        onChange={(e) => state.handleLayerChange(e, state.averageBead.length - 1)}
-                                    />
-                                    <label htmlFor="scale-slider">Scale:</label><br/>
-                                    <input
-                                        id="scale-slider"
-                                        type="range"
-                                        min="3"
-                                        max="7"
-                                        step="0.1"
-                                        value={state.scale}
-                                        onChange={(e) => state.handleScaleChange(e, 7)}
-                                    />
-                                    <label htmlFor="brightness-slider">Brightness:</label><br/>
-                                    <input
-                                    id="brightness-slider"
-                                    type="range"
-                                    min="1"
-                                    max="3"
-                                    step="0.01"
-                                    value={state.levelBrightness}
-                                    onChange={state.handleSliderBrightnessChange}
-                                    />
+                                    <div>
+                                        <label htmlFor="layer-slider">Layer:</label><br />
+                                        <input
+                                            id="layer-slider"
+                                            type="range"
+                                            min="0"
+                                            max={state.averageBead.length - 1}
+                                            step="1"
+                                            value={state.layer}
+                                            onChange={(e) => state.handleLayerChange(e, state.averageBead.length - 1)}
+                                        />
+                                    </div>
+                                    <div>
+                                        <label htmlFor="scale-slider">Scale:</label><br />
+                                        <input
+                                            id="scale-slider"
+                                            type="range"
+                                            min="3"
+                                            max="7"
+                                            step="0.1"
+                                            value={state.scale}
+                                            onChange={(e) => state.handleScaleChange(e, 7)}
+                                        />
+                                    </div>
+                                    <div>
+                                        <label htmlFor="brightness-slider">Brightness:</label><br />
+                                        <input
+                                            id="brightness-slider"
+                                            type="range"
+                                            min="1"
+                                            max="3"
+                                            step="0.01"
+                                            value={state.levelBrightness}
+                                            onChange={state.handleSliderBrightnessChange}
+                                        />
+                                    </div>
                                 </div>
                                 <div className="box-parameters">
                                     <TextField
@@ -188,8 +194,8 @@ const StepperPSF = () => {
                                 </Button>
                             </div>
                             <div className="column-2">
-                                <div className="images__preview" style={{marginTop: '30px'}}>
-                                    <TifCompare img_1={state.averageBead} img_2={state.extractedPSF} img_1_projection={state.averageBeadProjection[0]} img_2_projection={state.extractedPSFProjection[0]} scale={state.scale} state={state} isSameLength={true} type='psf'/>
+                                <div className="images__preview" style={{ marginTop: '30px' }}>
+                                    <TifCompare img_1={state.averageBead} img_2={state.extractedPSF} img_1_projection={state.averageBeadProjection[0]} img_2_projection={state.extractedPSFProjection[0]} scale={state.scale} state={state} isSameLength={true} type='psf' />
                                 </div>
                             </div>
                         </div>
@@ -201,28 +207,42 @@ const StepperPSF = () => {
                         <div className="row">
                             <div className="column-1" style={{ zIndex: 2 }}>
                                 <div className="slider-container">
-                                    <label htmlFor="scale-slider">Scale:</label><br/>
-                                    <input id="scale-slider" type="range" min="0.5" max="7" step="0.1" value={state.scale} onChange={state.handleScaleChange} />
-                                    <label htmlFor="layer-slider">Layer:</label><br/>
-                                    <input
-                                        id="layer-slider"
-                                        type="range"
-                                        min="0"
-                                        max={state.extractedPSF.length - 1}
-                                        step="1"
-                                        value={state.layer2}
-                                        onChange={(e) => state.handleLayer2Change(e, state.extractedPSF.length - 1)}
-                                    />
-                                    <label htmlFor="brightness-slider">Brightness:</label><br/>
-                                    <input
-                                        id="brightness-slider"
-                                        type="range"
-                                        min="1"
-                                        max="3"
-                                        step="0.01"
-                                        value={state.levelBrightness}
-                                        onChange={state.handleSliderBrightnessChange}
-                                    />
+                                    <div>
+                                        <label htmlFor="layer-slider">Layer:</label><br />
+                                        <input
+                                            id="layer-slider"
+                                            type="range"
+                                            min="0"
+                                            max={state.extractedPSF.length - 1}
+                                            step="1"
+                                            value={state.layer2}
+                                            onChange={(e) => state.handleLayer2Change(e, state.extractedPSF.length - 1)}
+                                        />
+                                    </div>
+                                    <div>
+                                        <label htmlFor="scale-slider">Scale:</label><br />
+                                        <input
+                                            id="scale-slider"
+                                            type="range"
+                                            min="3"
+                                            max="7"
+                                            step="0.1"
+                                            value={state.scale}
+                                            onChange={(e) => state.handleScaleChange(e, 7)}
+                                        />
+                                    </div>
+                                    <div>
+                                        <label htmlFor="brightness-slider">Brightness:</label><br />
+                                        <input
+                                            id="brightness-slider"
+                                            type="range"
+                                            min="1"
+                                            max="3"
+                                            step="0.01"
+                                            value={state.levelBrightness}
+                                            onChange={state.handleSliderBrightnessChange}
+                                        />
+                                    </div>
                                 </div>
                                 <TextField
                                     id="filename"
@@ -238,7 +258,7 @@ const StepperPSF = () => {
                                 <FileDownloader fileList={state.extractedPSFSave} folderName={state.filename} btnName={"Save result"} />
                             </div>
                             <div className="column-2" style={{ zIndex: 1 }}>
-                                <div className="images__preview" style={{marginTop: '30px', marginRight: '250px'}}>
+                                <div className="images__preview" style={{ marginTop: '30px', marginRight: '250px' }}>
                                     <TifViewer
                                         img={state.extractedPSF[state.layer2]}
                                         scale={state.scale}

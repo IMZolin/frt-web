@@ -89,9 +89,9 @@ const BeadExtractor = () => {
         if (response.img_projection) {
           const newProjection = response.img_projection.map((base64Data, index) => {
             return base64ToTiff(base64Data, 'image/tiff', `avg_bead_xyz_${index}.tiff`);
-        });
-        state.setAverageBeadProjection(newProjection);
-        console.log(response.img_projection);
+          });
+          state.setAverageBeadProjection(newProjection);
+          console.log(response.img_projection);
         } else {
           console.log('No average bead projection found in the response.');
           window.alert('No average bead projection found in the response.');
@@ -220,7 +220,7 @@ const BeadExtractor = () => {
             <div className="row">
               <div className="column-1">
                 <div className="slider-container">
-                  {state.extractBeads.length === state.averageBead.length && (
+                  {state.extractBeads.length === state.beads.length && (
                     <>
                       <label htmlFor="layer-slider">Layer:</label><br />
                       <input
@@ -234,27 +234,31 @@ const BeadExtractor = () => {
                       />
                     </>
                   )}<br />
-                  <label htmlFor="scale-slider">Scale:</label><br />
-                  <input
-                    id="scale-slider"
-                    type="range"
-                    min="3"
-                    max="7"
-                    step="0.1"
-                    value={state.scale}
-                    onChange={(e) => state.handleScaleChange(e, 7)}
-                  />
+                  <div>
+                    <label htmlFor="scale-slider">Scale:</label><br />
+                    <input
+                      id="scale-slider"
+                      type="range"
+                      min="3"
+                      max="7"
+                      step="0.1"
+                      value={state.scale}
+                      onChange={(e) => state.handleScaleChange(e, 7)}
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="brightness-slider">Brightness:</label><br />
+                    <input
+                      id="brightness-slider"
+                      type="range"
+                      min="1"
+                      max="3"
+                      step="0.01"
+                      value={state.levelBrightness}
+                      onChange={state.handleSliderBrightnessChange}
+                    />
+                  </div>
                 </div>
-                <label htmlFor="brightness-slider">Brightness:</label>
-                <input
-                  id="brightness-slider"
-                  type="range"
-                  min="1"
-                  max="3"
-                  step="0.01"
-                  value={state.levelBrightness}
-                  onChange={state.handleSliderBrightnessChange}
-                />
                 <ChooseList
                   className="choose-list"
                   name="Blur type"
@@ -285,37 +289,43 @@ const BeadExtractor = () => {
             <div className="row">
               <div className="column-1" style={{ zIndex: 2 }}>
                 <div className="slider-container">
-                  <label htmlFor="scale-slider">Scale:</label><br />
-                  <input
-                    id="scale-slider"
-                    type="range"
-                    min="3"
-                    max="7"
-                    step="0.1"
-                    value={state.scale}
-                    onChange={(e) => state.handleScaleChange(e, 7)}
-                  />
-                  <label htmlFor="layer-slider">Layer:</label><br />
-                  <input
-                    id="layer-slider"
-                    type="range"
-                    min="0"
-                    max={state.averageBead.length - 1}
-                    step="1"
-                    value={state.layer2}
-                    onChange={(e) => state.handleLayer2Change(e, state.averageBead.length - 1)}
-                  />
+                  <div>
+                    <label htmlFor="layer-slider">Layer:</label><br />
+                    <input
+                      id="layer-slider"
+                      type="range"
+                      min="0"
+                      max={state.averageBead.length - 1}
+                      step="1"
+                      value={state.layer2}
+                      onChange={(e) => state.handleLayer2Change(e, state.averageBead.length - 1)}
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="scale-slider">Scale:</label><br />
+                    <input
+                      id="scale-slider"
+                      type="range"
+                      min="3"
+                      max="7"
+                      step="0.1"
+                      value={state.scale}
+                      onChange={(e) => state.handleScaleChange(e, 7)}
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="brightness-slider">Brightness:</label><br />
+                    <input
+                      id="brightness-slider"
+                      type="range"
+                      min="1"
+                      max="3"
+                      step="0.01"
+                      value={state.levelBrightness}
+                      onChange={state.handleSliderBrightnessChange}
+                    />
+                  </div>
                 </div>
-                <label htmlFor="brightness-slider">Brightness:</label><br />
-                <input
-                  id="brightness-slider"
-                  type="range"
-                  min="1"
-                  max="3"
-                  step="0.01"
-                  value={state.levelBrightness}
-                  onChange={state.handleSliderBrightnessChange}
-                />
                 <TextField
                   id="filename"
                   label="Filename"
