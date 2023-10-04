@@ -36,9 +36,6 @@ const TifViewer = ({ img, scale, brightness, imageProjection }) => {
           />
         ) : null}
       </div>
-      {/* <div className="tif-viewer">
-        
-      </div> */}
     </div>
   );
 };

@@ -311,6 +311,7 @@ useEffect(() => {
         handlePrevStep={state.handlePrevStep}
         activeStep={state.activeStep}
         isLoad={state.isLoad}
+        typeRun={null}
       />
     </div>
   );

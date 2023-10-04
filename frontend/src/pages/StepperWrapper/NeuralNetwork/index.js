@@ -311,6 +311,7 @@ const NeuralNetwork = () => {
         handlePrevStep={state.handlePrevStep}
         activeStep={state.activeStep}
         isLoad={state.isLoad}
+        typeRun={null}
       />
     </div>
   );

@@ -5,6 +5,7 @@ import './stepper.css';
 
 const StepperWrapper = ({ name, stepContent, steps, handleNextStep, handlePrevStep, activeStep, isLoad, urlPage, typeRun}) => {
   const navigate = useNavigate();
+  const isNotNextStep = activeStep === steps.length - 1 && typeRun === null;
 
   const handleButtonClick = () => {
     if (activeStep === steps.length - 1) {
@@ -36,9 +37,9 @@ const StepperWrapper = ({ name, stepContent, steps, handleNextStep, handlePrevSt
                   <Button disabled={activeStep === 0} onClick={handlePrevStep} className="btn-back" variant="outlined">
                     Back
                   </Button>
-                  <Button variant="outlined" color="primary" onClick={handleButtonClick} disabled={!isLoad} style={{marginLeft: '3px'}}>
+                  {isNotNextStep ? null : <Button variant="outlined" color="primary" onClick={handleButtonClick} disabled={!isLoad} style={{marginLeft: '3px'}}>
                     {activeStep === steps.length - 1 ? `Go to ${typeRun}` : 'Next'}
-                  </Button>
+                  </Button>}
                 </div>
                 <Stepper alternativeLabel activeStep={activeStep} className="stepper-steps">
                   {steps.map((label) => (
