@@ -171,7 +171,7 @@ const Deconvolution = () => {
               </div>
               <div className="column-2">
                 <div className="images__preview">
-                  <TifCompare img_1={state.sourceImage} img_2={state.extractedPSF} img_1_projection={state.sourceImageProjection[0]} img_2_projection={state.extractedPSFProjection[0]} scale={state.scale} state={state} isSameLength={state.sourceImage.length === state.extractedPSF.length} type='deconvolution' />
+                  <TifCompare img_1={state.sourceImage} img_2={state.extractedPSF} img_1_projection={null} img_2_projection={state.extractedPSFProjection[0]} scale={state.scale} state={state} isSameLength={state.sourceImage.length === state.extractedPSF.length} type='deconvolution' />
                 </div>
               </div>
             </div>
@@ -260,7 +260,6 @@ const Deconvolution = () => {
               </div>
               <div className="column-2" style={{ zIndex: 1 }}>
                 <div className="images__preview">
-                  {/* <TifCompare img_1={state.sourceImage} img_2={state.resultImage} img_1_projection={state.sourceImageProjection[0]} img_2_projection={state.resultImageProjection[0]} scale={state.scale} state={state} isSameLength={true} type='deconvolution-2' /> */}
                   <TifCompare2 img_1={state.sourceImage} img_2={state.extractedPSF} img_3={state.resultImage} img_1_projection={null} img_2_projection={state.extractedPSFProjection[0]} img_3_projection={null} scale={state.scale} state={state} isSameLength={state.sourceImage.length === state.extractedPSF.lengt} type='deconvolution-2' />
                 </div>
               </div>
@@ -329,7 +328,7 @@ const Deconvolution = () => {
                     img={state.resultImage[state.layer2]}
                     scale={state.scale}
                     brightness={state.brightness}
-                    imageProjection={state.resultImageProjection[0]}
+                    imageProjection={null}
                   />
                 </div>
               </div>

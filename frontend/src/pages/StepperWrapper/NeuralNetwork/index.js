@@ -173,7 +173,7 @@ const NeuralNetwork = () => {
             </div>
             <div className="column-2">
               <div className="images__preview">
-                <TifCompare img_1={state.sourceImage} img_2={state.preprocImage} img_1_projection={state.sourceImageProjection[0]} img_2_projection={state.preprocImageProjection[0]} scale={state.scale} state={state} isSameLength={true} type='network' />
+                <TifCompare img_1={state.sourceImage} img_2={state.preprocImage} img_1_projection={null} img_2_projection={null} scale={state.scale} state={state} isSameLength={true} type='network' />
               </div>
             </div>
           </div>
@@ -239,7 +239,7 @@ const NeuralNetwork = () => {
               </div>
               <div className="column-2" style={{ zIndex: 1 }}>
                 <div className="images__preview">
-                  <TifCompare img_1={state.preprocImage} img_2={state.resultImage} img_1_projection={state.preprocImageProjection[0]} img_2_projection={state.resultImageProjection[0]} scale={state.scale} state={state} isSameLength={true} type='network' />
+                  <TifCompare img_1={state.preprocImage} img_2={state.resultImage} img_1_projection={null} img_2_projection={null} scale={state.scale} state={state} isSameLength={true} type='network' />
                 </div>
               </div>
             </div>
