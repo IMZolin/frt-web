@@ -9,12 +9,12 @@ const TifCompare = ({ img_1, img_2, img_1_projection, img_2_projection, scale, s
   const img1Scale = type === 'deconvolution' || type === 'deconvolution-2' ? 0.35 * scale : scale;
   const isImg1Projection = img_1_projection !== null;
   const isImg2Projection = img_2_projection !== null;
-  const img1Scale2 = type === 'deconvolution-2' ? 0.35 * scale : scale;
+  const img1Scale2 = type === 'deconvolution-2' || type === 'deconvolution' && img_2_projection === null ? 0.35 * scale : scale;
   return (
-    <div className="tif-container" style={{marginBottom: `${type==='deconvolution' ? '' : '-100px'}`, marginLeft: '160px'}}>
+    <div className="tif-container" style={{marginBottom: `${type==='deconvolution' ? '' : '-100px'}`, marginLeft: `${type==='deconvolution' ? '320px' : '160px'}`}}>
       <div className="images-container">
         {img_1.length !== 0 ? (
-          <div className="img-container" style={{marginTop:  `${type==='beads' ? '230px' : '10px'}`}}>
+          <div className="img-container" style={{marginTop:  `${type==='beads' ? '223px' : (isImg1Projection ? '-60px' : (type==='deconvolution' ? (isImg2Projection ? '180px': '100px') : '200px'))}`}}>
             <div className={`${shouldApplyStylesForImg1 ? 'img-container-box' : ''}`} style={{marginBottom: '-180px'}}>
               <TifViewer
                 img={img_1[state.layer]}
@@ -25,7 +25,7 @@ const TifCompare = ({ img_1, img_2, img_1_projection, img_2_projection, scale, s
               />
             </div>
             {isSameLength ? null : (
-              <div style={{marginTop: `${type==='deconvolution' ? '130px' : '-80px'}`, marginBottom: '30px'}}>
+              <div style={{marginTop: `${type==='deconvolution' ? '270px' : '-80px'}`, marginBottom: '30px'}}>
                 <label className="viewer-label" htmlFor="layer-slider">
                   Layer:
                 </label>
@@ -45,7 +45,7 @@ const TifCompare = ({ img_1, img_2, img_1_projection, img_2_projection, scale, s
           </div>
         ) : null}
         {img_2.length !== 0 ? (
-          <div className="img-container" style={{marginTop: '10px', marginRight: `${isSameLength ? '250px' : '140px'}`}}>
+          <div className="img-container" style={{marginTop: `${isImg2Projection ? '-60px' : (type==='deconvolution' ? '100px' : '200px')}`, marginRight: `${isSameLength ? (type==='deconvolution'? '420px' : '250px') : '140px'}`}}>
             <div className={`${shouldApplyStylesForImg2 ? 'img-container-box' : ''}`}>
               <TifViewer
                 img={img_2[layerChanged]}
@@ -56,7 +56,7 @@ const TifCompare = ({ img_1, img_2, img_1_projection, img_2_projection, scale, s
               />
             </div>
             {isSameLength ? null : (
-              <div style={{marginTop: '40px', marginBottom: '20px'}}>
+              <div style={{marginTop: '-40px', marginBottom: '20px'}}>
                 <label className="viewer-label" htmlFor="layer-slider">
                   Layer:
                 </label>

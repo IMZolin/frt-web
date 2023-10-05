@@ -173,7 +173,7 @@ const NeuralNetwork = () => {
             </div>
             <div className="column-2">
               <div className="images__preview">
-                <TifCompare img_1={state.sourceImage} img_2={state.preprocImage} img_1_projection={null} img_2_projection={null} scale={state.scale} state={state} isSameLength={true} type='network' />
+                <TifCompare img_1={state.sourceImage} img_2={state.preprocImage} img_1_projection={null} img_2_projection={null} scale={state.scale} state={state} isSameLength={true} type='deconvolution' />
               </div>
             </div>
           </div>
@@ -239,7 +239,7 @@ const NeuralNetwork = () => {
               </div>
               <div className="column-2" style={{ zIndex: 1 }}>
                 <div className="images__preview">
-                  <TifCompare img_1={state.preprocImage} img_2={state.resultImage} img_1_projection={null} img_2_projection={null} scale={state.scale} state={state} isSameLength={true} type='network' />
+                  <TifCompare img_1={state.preprocImage} img_2={state.resultImage} img_1_projection={null} img_2_projection={null} scale={state.scale} state={state} isSameLength={true} type='deconvolution' />
                 </div>
               </div>
             </div>
@@ -302,12 +302,12 @@ const NeuralNetwork = () => {
                 <FileDownloader fileList={state.resultImageSave} folderName={state.filename} btnName={"Save result"} />
               </div>
               <div className="column-2" style={{ zIndex: 1 }}>
-                <div className="images__preview" style={{ marginTop: '30px', marginRight: '250px' }}>
+                <div className="images__preview" style={{ marginTop: '100px', marginRight: '100px' }}>
                   <TifViewer
                     img={state.resultImage[state.layer2]}
-                    scale={state.scale}
+                    scale={0.35 * state.scale}
                     brightness={state.brightness}
-                    imageProjection={state.resultImageProjection[0]}
+                    imageProjection={null}
                   />
                 </div>
               </div>

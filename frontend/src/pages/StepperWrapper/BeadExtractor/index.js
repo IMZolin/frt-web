@@ -339,7 +339,7 @@ const BeadExtractor = () => {
                 <FileDownloader fileList={state.averageBeadSave} folderName={state.filename} btnName={"Save result"} />
               </div>
               <div className="column-2" style={{ zIndex: 1 }}>
-                <div className="images__preview" style={{ marginRight: '150px', marginTop: '-80px' }}>
+                <div className="images__preview" style={{ marginRight: '110px', marginTop: '-60px' }}>
                   <TifViewer
                     img={state.averageBead[state.layer2]}
                     scale={state.scale}
