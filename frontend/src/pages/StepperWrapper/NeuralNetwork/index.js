@@ -225,9 +225,9 @@ const NeuralNetwork = () => {
                 <ChooseList
                   className="choose-list"
                   name="CNN models"
-                  list={Object.keys(state.deconvMethods)}
-                  selected={state.deconvMethod}
-                  onChange={state.handleDeconvMethodChange}
+                  list={Object.keys(state.cnnDeconvModels)}
+                  selected={state.cnnDeconvModel}
+                  onChange={state.handleCnnDeconvMethodChange}
                 />
                 <Button
                   variant="outlined"
