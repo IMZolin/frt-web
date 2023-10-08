@@ -379,6 +379,10 @@ export const useStateValues = () => {
         setLayer3,
         handleLayer3Change,
         beadsSave,
-        setBeadsSave
+        setBeadsSave,
+        cnnDeconvModels,
+        cnnDeconvModel,
+        setCnnDeconvMethod,
+        handleCnnDeconvMethodChange
     };
 };
