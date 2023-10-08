@@ -37,6 +37,7 @@ export const defaultValues = {
     gaussianBlurCount: 3,
     regularization: 0.0001,
     deconvMethod: "Richardson-Lucy",
+    cnnDeconvModel:"model-1.h5",
     marginTop: 0,
 
     sourceImage: [],
@@ -124,6 +125,11 @@ export const useStateValues = () => {
         "Richardson-Lucy TV":"RLTVR"
       };
 
+    const cnnDeconvModels = {
+        "model-1.h5":"m1"
+    };
+    const [cnnDeconvModel, setCnnDeconvMethod] = useState(defaultValues.cnnDeconvModel);
+
     const handleNextStep = () => {
         setActiveStep((prevActiveStep) => prevActiveStep + 1);
     };
@@ -151,6 +157,10 @@ export const useStateValues = () => {
     const handleDeconvMethodChange = (selectedMethod) => {
         console.log(selectedMethod);
         setDeconvMethod(selectedMethod);
+    };
+
+    const handleCnnDeconvMethodChange = (selectedMethod) => {
+        setCnnDeconvMethod(selectedMethod);
     };
 
     const handleBlurTypeChange = (selectedType) => {
@@ -351,5 +361,9 @@ export const useStateValues = () => {
         setSourceImageProjection,
         preprocImageProjection,
         setPreprocImageProjection,
+        cnnDeconvModels,
+        cnnDeconvModel,
+        setCnnDeconvMethod,
+        handleCnnDeconvMethodChange
     };
 };
