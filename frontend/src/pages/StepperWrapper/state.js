@@ -6,6 +6,7 @@ export const defaultValues = {
     extractedPSFSave: [],
     isLoad: false,
     beads: [],
+    beadsSave: [],
     extractBeads: [],
     centerExtractBeads: [],
     averageBead: [],
@@ -21,6 +22,7 @@ export const defaultValues = {
     levelBrightness: 1,
     layer: 0,
     layer2: 0,
+    layer3: 0,
     isDeleted: false,
     isRightClick: false,
     selectSize: 36, //px size
@@ -59,6 +61,7 @@ export const useStateValues = () => {
     const [isLoad, setIsLoad] = useState(defaultValues.isLoad);
     const [layer, setLayer] = useState(defaultValues.layer);
     const [layer2, setLayer2] = useState(defaultValues.layer2);
+    const [layer3, setLayer3] = useState(defaultValues.layer3);
     const [scale, setScale] = useState(defaultValues.scale);
     const [scaleCompare, setScaleCompare] = useState(defaultValues.scaleCompare);
     const [filename, setFilename] = useState(defaultValues.filename);
@@ -68,6 +71,7 @@ export const useStateValues = () => {
     const [marginTop, setMarginTop] = useState(defaultValues.marginTop);
     //Bead extraction
     const [beads, setBeads] = useState(defaultValues.beads);
+    const [beadsSave, setBeadsSave] = useState(defaultValues.beadsSave);
     const [voxelX, setVoxelX] = useState(defaultValues.voxelX);
     const [voxelY, setVoxelY] = useState(defaultValues.voxelY);
     const [voxelZ, setVoxelZ] = useState(defaultValues.voxelZ);
@@ -174,6 +178,12 @@ export const useStateValues = () => {
         setLayer2(newLayer);
     };
     
+    const handleLayer3Change = (e, maxLayer) => {
+        const value = e.target.value;
+        const newLayer = value > maxLayer ? maxLayer : value;
+        setLayer3(newLayer);
+    };
+
     const drawSquare = (x, y, size, canvasRef) => {
         const canvas = canvasRef.current;
         if (!canvas) return;
@@ -351,5 +361,10 @@ export const useStateValues = () => {
         setSourceImageProjection,
         preprocImageProjection,
         setPreprocImageProjection,
+        layer3,
+        setLayer3,
+        handleLayer3Change,
+        beadsSave,
+        setBeadsSave
     };
 };

@@ -142,7 +142,7 @@ const BeadExtractor = () => {
                 </div>
               </div>
               <div className="column-2" style={{ zIndex: 1 }}>
-                <Dropzone files={state.beads} addFiles={state.setBeads} imageType={'beads_image'} state={state} />
+                <Dropzone files={state.beadsSave} addFiles={state.setBeadsSave} imageType={'beads_image'} state={state} />
               </div>
             </div>
           </>
@@ -152,26 +152,30 @@ const BeadExtractor = () => {
           <>
             <div className="row">
               <div className="column-1" style={{ marginTop: '-10px' }}>
-                <label htmlFor="layer-slider">Layer:</label><br />
-                <input
-                  id="layer-slider"
-                  type="range"
-                  min="0"
-                  max={state.beads.length - 1}
-                  step="1"
-                  value={state.layer}
-                  onChange={(e) => state.handleLayerChange(e, state.beads.length - 1)}
-                />
-                <label htmlFor="brightness-slider">Brightness:</label>
-                <input
-                  id="brightness-slider"
-                  type="range"
-                  min="1"
-                  max="3"
-                  step="0.01"
-                  value={state.levelBrightness}
-                  onChange={state.handleSliderBrightnessChange}
-                />
+                <div>
+                  <label htmlFor="layer-slider">Layer:</label><br />
+                  <input
+                    id="layer-slider"
+                    type="range"
+                    min="0"
+                    max={state.beads.length - 1}
+                    step="1"
+                    value={state.layer}
+                    onChange={(e) => state.handleLayerChange(e, state.beads.length - 1)}
+                  />
+                </div>
+                <div>
+                  <label htmlFor="brightness-slider">Brightness:</label>
+                  <input
+                    id="brightness-slider"
+                    type="range"
+                    min="1"
+                    max="3"
+                    step="0.01"
+                    value={state.levelBrightness}
+                    onChange={state.handleSliderBrightnessChange}
+                  />
+                </div>  
                 <label className="subtitle" htmlFor="select-size">Selection Size (px):</label>
                 <TextField
                   id="select-size"
@@ -232,7 +236,7 @@ const BeadExtractor = () => {
                         onChange={(e) => state.handleLayerChange(e, state.beads.length - 1)}
                       />
                     </>
-                  )}<br />
+                  )}
                   <div>
                     <label htmlFor="scale-slider">Scale:</label><br />
                     <input
