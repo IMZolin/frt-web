@@ -45,6 +45,16 @@ const Dropzone = ({ files, addFiles, imageType, state }) => {
         const newData = response.multi_layer_show.map((base64Data, index) => {
             return base64ToTiff(base64Data, 'image/tiff', `${response.image_type}_${index}.tiff`);
         });
+        if (imageType.includes('beads_image')){
+          console.log('Beads Image');
+          state.setBeads(newData);
+          state.setBeadsSave([file]);
+          addFiles(allFiles);
+          const newProjection = response.img_projection.map((base64Data, index) => {
+            return base64ToTiff(base64Data, 'image/tiff', `beads_xyz_${index}.tiff`);
+          });
+          state.setAverageBeadProjection(newProjection);
+        }
         if (imageType.includes('averaged_bead')){
           console.log('Average bead');
           state.setAverageBead(newData);

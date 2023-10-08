@@ -61,7 +61,7 @@ def load_image(request):
                 voxel = np.array([voxelZ, voxelY, voxelX])
                 try:
                     image_data = ImageRaw(fpath=file_list, voxelSizeIn=voxel)
-                    if image_type == 'source_img':
+                    if image_type == 'source_img' or image_type == 'beads_image':
                         tiff_image = save_as_tiff(image_raw=image_data, is_one_page=False, filename=f"{image_type}.tiff", outtype="uint8")
                         muli_layer_show, muli_layer_save = pil_image_to_byte_stream(pil_image=tiff_image, is_one_page=False)
                         img_projection = generate_projections(image_data)
@@ -190,6 +190,7 @@ def bead_average(request):
             bead_extractor = django_cache.get('bead_extractor')['data']
             bead_extractor.BeadsArithmeticMean()
             bead_extractor.BlurAveragedBead(request.POST.get('blur_type'))
+            print("Bead was averaged")
             pass2cache('bead_extractor', ['data', 'beads_image', 'bead_coords', 'extract_beads', 'select_frame_half', 'average_bead', 'blur_type'], [bead_extractor, django_cache.get('bead_extractor')['beads_image'], django_cache.get('bead_extractor')['bead_coords'], django_cache.get('bead_extractor')['extract_beads'], django_cache.get('bead_extractor')['select_frame_half'], bead_extractor._averageBead, request.POST.get('blur_type')])
             avg_bead = django_cache.get('bead_extractor')['average_bead']
             img_projection = generate_projections(avg_bead)
