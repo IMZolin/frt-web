@@ -1,0 +1,101 @@
+version: "3.8"
+
+services:
+  backend:
+    restart: unless-stopped
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: backend
+    volumes:
+      - ./backend/:/usr/src/blog/
+      - ./logs:/app/logs
+    environment:
+      - DEBUG=1
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    ports:
+      - 8000:8000
+    depends_on:
+      - redis
+
+  celery:
+    container_name: celery
+    restart: on-failure
+    build:
+      context: ./backend
+    volumes:
+      - ./backend:/usr/src/blog/
+    command: celery worker --loglevel=info --uid=nobody
+    environment:
+      - DEBUG=1
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - DJANGO_SETTINGS_MODULE=backend.settings
+      - CELERY_APP=backend
+    depends_on:
+      - backend
+      - redis
+
+  flower:
+    container_name: flower
+    restart: unless-stopped
+    build:
+      context: ./backend
+    command: celery flower --broker=redis://redis:6379/0
+    environment:
+      - DEBUG=1
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - DJANGO_SETTINGS_MODULE=backend.settings
+      - CELERY_APP=backend
+    ports:
+      - '5555:5555'
+    depends_on:
+      - backend
+      - redis
+
+  frontend:
+    restart: always
+    build:
+      context: ./frontend/
+      dockerfile: Dockerfile
+    container_name: frontend
+    ports:
+      - 3000:3000
+    volumes:
+      - ./frontend/:/usr/src/frontend/
+
+  nginx:
+    restart: always
+    build: ./nginx
+    container_name: nginx
+    links:
+      - backend
+      - frontend
+      - flower
+    ports:
+      - '80:80'
+
+  redis:
+    restart: unless-stopped
+    image: redis:latest
+    container_name: redis
+    volumes:
+    - ./redis.conf:/usr/local/etc/redis/redis.conf
+    - ./logs:/app/logs
+    command: redis-server /usr/local/etc/redis/redis.conf
+    ports:
+      - '6379:6379'
+  
+  redis-commander:
+    container_name: redis-commander
+    hostname: redis-commander
+    image: ghcr.io/joeferner/redis-commander:latest
+    restart: always
+    environment:
+    - REDIS_HOSTS=local:redis:6379
+    ports:
+    - "8081:8081"
+    depends_on:
+      - redis

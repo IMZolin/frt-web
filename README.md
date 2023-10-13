@@ -1,92 +1,138 @@
-# frt-web
+<<<<<<< README.md
+# PSF interface service
 
-
-
-## Getting started
-
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
-
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
-
-## Add your files
-
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
-
-```
-cd existing_repo
-git remote add origin https://appliedmath.gitlab.yandexcloud.net/lmn/frt-web.git
-git branch -M main
-git push -uf origin main
-```
-
-## Integrate with your tools
-
-- [ ] [Set up project integrations](https://appliedmath.gitlab.yandexcloud.net/lmn/frt-web/-/settings/integrations)
-
-## Collaborate with your team
-
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Automatically merge when pipeline succeeds](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
-
-## Test and Deploy
-
-Use the built-in continuous integration in GitLab.
-
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing(SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
-
-***
-
-# Editing this README
-
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thank you to [makeareadme.com](https://www.makeareadme.com/) for this template.
-
-## Suggestions for a good README
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
-
-## Name
-Choose a self-explaining name for your project.
+- [PSF interface service](#psf-interface-service)
+  - [Description](#description)
+  - [Manual for deploying and configuring the application](#manual-for-deploying-and-configuring-the-application)
+    - [Installation](#installation)
+    - [Depolyment guide](#depolyment-guide)
+      - [Development deployment](#development-deployment)
+      - [Production deployment (now it' not available)](#production-deployment-now-it-not-available)
+    - [Engine(API) update manual](#engineapi-update-manual)
+  - [Project structure](#project-structure)
+  - [Useful materials](#useful-materials)
 
 ## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+`About`: User-friendly interface for interacting with the backend of PSF applications (for processing medical images).
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+`Idea`: To make a website containing steppers as a way to interact with the client side with the server side. Also make it possible to authorize users.
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+`Technologies`: ReactJS, Django, Docker, Redis, Nginx, Celery, Flower
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+## Manual for deploying and configuring the application
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+### Installation
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+```bash
+git clone https://github.com/IMZolin/frt23-3d-interface.git <your project name>
+cd <your project name>
+./bin/install.sh
+sudo chmod +777 ./logs/redis.log # or manually add log file(redis.log) for redis
+#for Windows
+.venv/Scripts/Activate.ps1
+#for Linux and Macos
+source .venv/bin/activate 
+```
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+Instead of `<your project name>`, insert the name of the directory where the project will be stored.
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+`Important`: If you have Windows, you need to change the console to Git Bash to run the command: `./bin/install.sh`
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+### Depolyment guide
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+For more detailed instructions on using Docker, refer to the [Docker Manual].
 
-## License
-For open source projects, say how it is licensed.
+#### Development deployment
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+```bash
+#build and run containers
+docker-compose up -d --build
+#stop containers
+docker-compose stop
+```
+
+```bash
+#build and run containers with separate commands
+docker-compose build
+docker-compose up -d
+#stop containers
+docker-compose stop
+```
+
+#### Production deployment (now it' not available)
+
+```bash
+cd backend
+./install_prod.sh 
+#or 
+./install.sh 
+cd ..
+docker-compose.prod build
+docker-compose.prod up -d
+docker-compose.prod stop
+```
+
+### Engine(API) update manual
+
+url of engine: <https://github.com/gerasimenkoab/simple_psf_extractor>
+
+```bash
+cd backend
+cd engine
+cd engine_lib
+# make some changes
+git add .
+git commit -m"Some updates to engine..."
+git push origin develop
+cd ..
+cd ..
+cd ..
+```
+
+## Project structure
+
+```bash
+├───backend
+│   ├───api
+│   │   ├───migrations # db migrations
+│   │   ├───admin.py # admin settins
+│   │   ├───apps.py # apps config
+│   │   ├───models.py # db models
+│   │   ├───tasks.py # celery async tasks
+│   │   ├───tests.py # tests for requests
+│   │   ├───utils.py # support functions
+│   │   └───views.py # request bodies
+│   ├───backend
+│   │   ├───asgi.py # prod executable file
+│   │   ├───celery.py # main celery config
+│   │   ├───middleware.py # apps config
+│   │   ├───settings.py # server settings
+│   │   ├───urls.py # endpoints
+│   │   └───wsgi.py # local executable file
+│   ├───engine
+│   │   ├───engine_lib # PSF's API (other git repository)
+│   │   └───README.md # doc
+├───frontend 
+│   ├───node_modules # libs
+│   ├───public # assets and configs
+│   └───src # code
+│       ├───app # App.js with Routs and store(axios) - connect with the server
+│       ├───components  # separate indep. parts of pages
+│       ├───dev # to view and work on the components
+│       ├───hooks  # support functions 
+│       ├───pages # parts of app(e.x.: main page)
+│       └───index.js # get results
+├───gunicorn # gunicorn config
+├───logs # logging
+├───nginx # nginx config
+└───systemd # gunicorn config
+```
+
+## Useful materials
+
+1. Notion report(ru): <https://www.notion.so/1d4cb5d37f1743babc89a2bea9fbc829?pvs=4>
+2. Board in Miro(ru): <https://miro.com/app/board/uXjVMFFZCSg=/?share_link_id=999021127197>
+3. Postman: <https://red-meteor-969100.postman.co/workspace/e7cf7956-c97a-4a54-b834-a2929af5ccdd>
+
+[Docker Manual]: <./Docker_manual.md>

@@ -1,0 +1,9 @@
+.env
+*.tiff
+*.tif
+/logs
+/.vscode
+/venv
+/.venv
+*.exe
+/.idea

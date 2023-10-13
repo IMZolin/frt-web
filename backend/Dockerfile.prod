@@ -1,0 +1,17 @@
+FROM python:3.9
+
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
+WORKDIR /app
+
+# Copy models to testing
+COPY ./engine/engine_lib/src/cnn/CNN_Deconvolution/models/3d_gaus_blur.h5 .
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+EXPOSE 8000
+
+CMD ["gunicorn", "-c", "gunicorn.conf.py", "backend.wsgi:application"]

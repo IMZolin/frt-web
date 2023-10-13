@@ -1,0 +1,10 @@
+.tiff-wrapper {
+    width: 1210px;
+    margin: auto;
+}
+
+.tiff-canvas{
+    position: relative;
+    overflow: auto;
+    height: 408px;
+}
