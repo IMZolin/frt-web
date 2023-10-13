@@ -328,7 +328,7 @@ def deconvolve_image(request):
             deconv_show, deconv_save = pil_image_to_byte_stream(pil_image=tiff_image, is_one_page=False)
             img_projection = generate_projections(deconvolver._deconResult)
             response_data = {
-                'message': 'PSF extracted successfully',
+                'message': 'Image was deconvolved successfully',
                 'deconv_show': deconv_show,
                 'deconv_save': deconv_save,
                 'img_projection': img_projection
@@ -365,7 +365,7 @@ def preprocess_image(request):
             tiff_image = save_as_tiff(image_raw=preprocessor._preprocResult, is_one_page=False, filename=f"result_preproc.tiff", outtype="uint8")
             preproc_show, preproc_save = pil_image_to_byte_stream(pil_image=tiff_image, is_one_page=False)
             response_data = {
-                'message': 'PSF extracted successfully',
+                'message': 'Image preprocessed successfully',
                 'preproc_show': preproc_show,
                 'preproc_save': preproc_save,
                 'img_projection': img_projection
@@ -396,7 +396,7 @@ def cnn_deconv_image(request):
             tiff_image = save_as_tiff(image_raw=deconvolver._deconResult, is_one_page=False, filename=f"result_deconv.tiff", outtype="uint8")
             deconv_show, deconv_save = pil_image_to_byte_stream(pil_image=tiff_image, is_one_page=False)
             response_data = {
-                'message': 'PSF extracted successfully',
+                'message': 'Image was CNN deconvolved successfully',
                 'deconv_show': deconv_show,
                 'deconv_save': deconv_save,
                 'img_projection': img_projection
