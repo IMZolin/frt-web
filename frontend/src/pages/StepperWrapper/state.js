@@ -6,10 +6,13 @@ export const defaultValues = {
     extractedPSFSave: [],
     isLoad: false,
     beads: [],
+    beadsSave: [],
     extractBeads: [],
     centerExtractBeads: [],
     averageBead: [],
+    averageBeadProjection: [],
     extractedPSF: [],
+    extractedPSFProjection: [],
     beadSize: 0.2,
     psfFiles: [],
     voxelX: 0.089,
@@ -19,6 +22,7 @@ export const defaultValues = {
     levelBrightness: 1,
     layer: 0,
     layer2: 0,
+    layer3: 0,
     isDeleted: false,
     isRightClick: false,
     selectSize: 36, //px size
@@ -26,21 +30,30 @@ export const defaultValues = {
     blurType: 'gauss',
     resolutionXY: 0.022,
     resolutionZ: 0.100,
-    scale: 1,
+    scale: 5,
     iter: 50,
     activeStep: 0,
     filename: "",
-    maximizeIntensity: false,
-    makeGaussianBlur: false,
+    maximizeIntensity: true,
+    makeGaussianBlur: true,
     gaussianBlurCount: 3,
     regularization: 0.0001,
     deconvMethod: "Richardson-Lucy",
+    cnnDeconvModel:"model-1.h5",
     marginTop: 0,
+
     sourceImage: [],
+    sourceImageProjection: [],
+    preprocImage: [],
+    preprocImageProjection: [],
+    preprocImageSave: [],
     resultImage: [],
+    resultImageProjection: [],
     resultImageSave: [],
     resolution2: [],
-    sourceImageSave: []
+    sourceImageSave: [],
+    model: [],
+    scaleCompare: 5
 };
 
 export const useStateValues = () => {
@@ -49,7 +62,9 @@ export const useStateValues = () => {
     const [isLoad, setIsLoad] = useState(defaultValues.isLoad);
     const [layer, setLayer] = useState(defaultValues.layer);
     const [layer2, setLayer2] = useState(defaultValues.layer2);
+    const [layer3, setLayer3] = useState(defaultValues.layer3);
     const [scale, setScale] = useState(defaultValues.scale);
+    const [scaleCompare, setScaleCompare] = useState(defaultValues.scaleCompare);
     const [filename, setFilename] = useState(defaultValues.filename);
     const [activeStep, setActiveStep] = useState(defaultValues.activeStep);
     const [resolution, setResolution] = useState(defaultValues.resolution);
@@ -57,6 +72,7 @@ export const useStateValues = () => {
     const [marginTop, setMarginTop] = useState(defaultValues.marginTop);
     //Bead extraction
     const [beads, setBeads] = useState(defaultValues.beads);
+    const [beadsSave, setBeadsSave] = useState(defaultValues.beadsSave);
     const [voxelX, setVoxelX] = useState(defaultValues.voxelX);
     const [voxelY, setVoxelY] = useState(defaultValues.voxelY);
     const [voxelZ, setVoxelZ] = useState(defaultValues.voxelZ);
@@ -67,8 +83,10 @@ export const useStateValues = () => {
     const [extractBeads, setExtractBeads] = useState(defaultValues.extractBeads);
     const [centerExtractBeads, setCenterExtractBeads] = useState(defaultValues.centerExtractBeads);
     const [averageBead, setAverageBead] = useState(defaultValues.averageBead);
+    const [averageBeadProjection, setAverageBeadProjection] = useState(defaultValues.averageBeadProjection);
     const [averageBeadSave, setAverageBeadSave] = useState(defaultValues.averageBead);
     const [extractedPSF, setExtractedPSF] = useState(defaultValues.extractedPSF);
+    const [extractedPSFProjection, setExtractedPSFProjection] = useState(defaultValues.extractedPSFProjection);
     const [extractedPSFSave, setExtractedPSFSave] = useState(defaultValues.extractedPSFSave);
     const [tiffType, setTiffType] = useState(defaultValues.tiffType);
     const [blurType, setBlurType] = useState(defaultValues.blurType);
@@ -85,14 +103,21 @@ export const useStateValues = () => {
 
     //Deconvolution
     const [sourceImage, setSourceImage] = useState(defaultValues.sourceImage);
+    const [sourceImageProjection, setSourceImageProjection] = useState(defaultValues.sourceImageProjection);
     const [sourceImageSave, setSourceImageSave] = useState(defaultValues.sourceImageSave);
     const [resultImage, setResultImage] = useState(defaultValues.resultImage);
+    const [resultImageProjection, setResultImageProjection] = useState(defaultValues.resultImageProjection);
     const [resultImageSave, setResultImageSave] = useState(defaultValues.resultImageSave);
     
     //Neural network
-    const [maximizeIntensity, setMaximizeIntensity] = useState(false);
-    const [makeGaussianBlur, setMakeGaussianBlur] = useState(false);
-    const [gaussianBlurCount, setGaussianBlurCount] = useState(3);
+    const [preprocImage, setPreprocImage] = useState(defaultValues.preprocImage);
+    const [preprocImageProjection, setPreprocImageProjection] = useState(defaultValues.preprocImageProjection);
+    const [preprocImageSave, setPreprocImageSave] = useState(defaultValues.preprocImageSave);
+    const [maximizeIntensity, setMaximizeIntensity] = useState(defaultValues.maximizeIntensity);
+    const [makeGaussianBlur, setMakeGaussianBlur] = useState(defaultValues.makeGaussianBlur);
+    const [gaussianBlurCount, setGaussianBlurCount] = useState(defaultValues.gaussianBlurCount);
+    // TODO : Need to delete it later!
+    const [model, setModel] = useState(defaultValues.model);
 
     const tiffTypes = ["8 bit", "16 bit", "32 bit"]
 
@@ -103,6 +128,11 @@ export const useStateValues = () => {
         "Richardson-Lucy TM":"RLTMR",
         "Richardson-Lucy TV":"RLTVR"
       };
+
+    const cnnDeconvModels = {
+        "model-1.h5":"m1"
+    };
+    const [cnnDeconvModel, setCnnDeconvMethod] = useState(defaultValues.cnnDeconvModel);
 
     const handleNextStep = () => {
         setActiveStep((prevActiveStep) => prevActiveStep + 1);
@@ -133,6 +163,10 @@ export const useStateValues = () => {
         setDeconvMethod(selectedMethod);
     };
 
+    const handleCnnDeconvMethodChange = (selectedMethod) => {
+        setCnnDeconvMethod(selectedMethod);
+    };
+
     const handleBlurTypeChange = (selectedType) => {
         setBlurType(selectedType);
         console.log(selectedType);
@@ -154,6 +188,12 @@ export const useStateValues = () => {
         setLayer2(newLayer);
     };
     
+    const handleLayer3Change = (e, maxLayer) => {
+        const value = e.target.value;
+        const newLayer = value > maxLayer ? maxLayer : value;
+        setLayer3(newLayer);
+    };
+
     const drawSquare = (x, y, size, canvasRef) => {
         const canvas = canvasRef.current;
         if (!canvas) return;
@@ -161,6 +201,13 @@ export const useStateValues = () => {
         ctx.strokeStyle = 'green';
         ctx.lineWidth = 2;
         ctx.strokeRect(x - size / 2, y - size / 2, size, size);
+    };
+
+    const handleAllDrawClick = async (canvasRef, x, y, markBead) => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const centerCoords = await markBead(x, y, selectSize);
+        drawSquare(centerCoords.x, centerCoords.y, selectSize, canvasRef);
     };
 
     useEffect(() => {
@@ -207,7 +254,6 @@ export const useStateValues = () => {
         setMarginTop(newMarginTop);
       };
     
-
     return {
         files,
         addFiles,
@@ -306,5 +352,37 @@ export const useStateValues = () => {
         setResolution2,
         sourceImageSave,
         setSourceImageSave,
+        scaleCompare,
+        setScaleCompare,
+        handleAllDrawClick,
+        preprocImageSave,
+        setPreprocImageSave,
+        preprocImage,
+        setPreprocImage,
+        model,
+        setModel,
+        averageBeadProjection,
+        setAverageBeadProjection,
+        extractedPSFProjection,
+        setExtractedPSFProjection,
+        resultImageProjection,
+        setResultImageProjection,
+        sourceImageProjection,
+        setSourceImageProjection,
+        preprocImageProjection,
+        setPreprocImageProjection,
+        cnnDeconvModels,
+        cnnDeconvModel,
+        setCnnDeconvMethod,
+        handleCnnDeconvMethodChange,
+        layer3,
+        setLayer3,
+        handleLayer3Change,
+        beadsSave,
+        setBeadsSave,
+        cnnDeconvModels,
+        cnnDeconvModel,
+        setCnnDeconvMethod,
+        handleCnnDeconvMethodChange
     };
 };

@@ -1,4 +1,4 @@
-FROM python:3.9
+FROM python:3.10
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE 1
@@ -7,11 +7,15 @@ ENV PYTHONUNBUFFERED 1
 # Set working directory
 WORKDIR /app
 
+# Copy models to testing
+COPY ./engine/engine_lib/src/cnn/CNN_Deconvolution/models/3d_gaus_blur.h5 .
+
 # Install system dependencies for Celery (e.g., Redis)
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         redis-server \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && echo "dir /data" >> /etc/redis/redis.conf
 
 # Install Python dependencies
 COPY requirements.txt .
@@ -27,5 +31,4 @@ COPY . .
 # Expose the port (not necessary unless you are using it with 'docker run -p')
 EXPOSE 8000
 
-# Set the command to run Celery worker
-CMD ["celery", "-A", "backend", "worker", "--loglevel=info", "--concurrency=4"]
+CMD ["gunicorn", "-c", "gunicorn.conf.py", "backend.wsgi:application"]
