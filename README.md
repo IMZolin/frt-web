@@ -27,8 +27,9 @@
 git clone https://github.com/IMZolin/frt23-3d-interface.git <your project name>
 cd <your project name>
 ./bin/install.sh
+sudo chmod +777 ./logs/redis.log # or manually add log file(redis.log) for redis
 #for Windows
-source .venv/Scripts/activate 
+.venv/Scripts/Activate.ps1
 #for Linux and Macos
 source .venv/bin/activate 
 ```

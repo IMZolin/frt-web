@@ -6,23 +6,26 @@ import './style.css'
 const MainPage = () => {
   return (
     <div>
-      <h2 variant="h4" align="center" className="menu-header">
+      <h3 align="center">
         Menu
-      </h2>
+      </h3>
       <div style={{ display: 'flex', justifyContent: 'center' }} className="menu-container">
-        <Button variant="outlined" color="warning" className="menu-options" component={Link} to="/bead_extractor" focusVisibleClassName="">
+        <Button variant="outlined" className="menu-options" component={Link} to="/bead_extractor" focusVisibleClassName="">
           Bead extraction
         </Button>
-        <Button variant="outlined" color="secondary" className="menu-options" component={Link} to="/psf" focusVisibleClassName="">
+        <Button variant="outlined" className="menu-options" component={Link} to="/psf" focusVisibleClassName="">
           PSF calculation
         </Button>
-        <Button variant="outlined" className="menu-options" component={Link} to="/deconvolution">
+        <Button variant="outlined" color="success" className="menu-options" component={Link} to="/deconvolution">
           Deconvolution
         </Button>
-        <Button variant="outlined" color="success" className="menu-options" component={Link} to="/network">
-          Neural Networks
+        <Button variant="outlined" className="menu-options" component={Link} to="/network">
+          CNN Training ($)
         </Button>
-        <Button variant="outlined" color="info" className="menu-options" component={Link} to="/authors">
+        <Button variant="outlined" color="success" className="menu-options" component={Link} to="/network">
+          Neural Network
+        </Button>
+        <Button variant="outlined" className="menu-options" component={Link} to="/authors">
           Authors
         </Button>
       </div>

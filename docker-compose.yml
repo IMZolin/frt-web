@@ -9,7 +9,7 @@ services:
     container_name: backend
     volumes:
       - ./backend/:/usr/src/blog/
-      - ./logs:/app/logs  
+      - ./logs:/app/logs
     environment:
       - DEBUG=1
       - CELERY_BROKER_URL=redis://redis:6379/0
@@ -81,5 +81,21 @@ services:
     restart: unless-stopped
     image: redis:latest
     container_name: redis
+    volumes:
+    - ./redis.conf:/usr/local/etc/redis/redis.conf
+    - ./logs:/app/logs
+    command: redis-server /usr/local/etc/redis/redis.conf
     ports:
       - '6379:6379'
+  
+  redis-commander:
+    container_name: redis-commander
+    hostname: redis-commander
+    image: ghcr.io/joeferner/redis-commander:latest
+    restart: always
+    environment:
+    - REDIS_HOSTS=local:redis:6379
+    ports:
+    - "8081:8081"
+    depends_on:
+      - redis
