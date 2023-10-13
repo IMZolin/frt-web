@@ -1,5 +1,4 @@
-# Stage 1: Build the image
-FROM python:3.10 as builder
+FROM python:3.10
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE 1
@@ -17,21 +16,6 @@ RUN apt-get update \
         redis-server \
     && rm -rf /var/lib/apt/lists/* \
     && echo "dir /data" >> /etc/redis/redis.conf
-
-# Run Redis server and clear the cache
-RUN service redis-server start \
-    && redis-cli FLUSHALL \
-    && service redis-server stop
-
-# Stage 2: Create the final image
-FROM python:3.10
-
-# Set environment variables
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
-
-# Set working directory
-WORKDIR /app
 
 # Install Python dependencies
 COPY requirements.txt .
