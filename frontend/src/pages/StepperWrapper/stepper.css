@@ -6,6 +6,7 @@
   display: flex;
   flex-direction: column;
   margin-bottom: 5px;
+  margin-left: 10px;
 }
 .header-container{
   display: flex;
@@ -34,11 +35,23 @@
 .column-1,
 .column-2 {
   flex: 1;
-  padding: 10px;
+  padding: 20px;
 }
 
 .column-1 {
   flex: 0 0 17%; 
+  align-items: flex-start;
+  border: 1px solid #1976d2;
+  border-radius: 2%;
+}
+
+.column-1 label, .column-1 input, .column-1 .subtitle{
+  text-align: left; 
+  flex: 3;
+}
+
+.column-1 .subtitle{
+  max-width: 150px;
 }
 
 .column-2 {
@@ -64,9 +77,38 @@
   margin-bottom: 20px;
 }
 
+.slider-container{
+  width: 100%;
+  display: block;
+  z-index: 1;
+  align-self: stretch;
+}
+
+.slider-container div{
+  width: 100%; 
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+
+.column-1 .slider-container div {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+
+label {
+  flex: 1;
+}
+
+input[type="range"] {
+  flex: 2; 
+}
+
 .btn-back {
   max-width: 150px;
-  margin-left: 10px;
 }
 
 .btn-run {

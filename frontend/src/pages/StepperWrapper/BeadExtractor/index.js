@@ -152,6 +152,7 @@ const BeadExtractor = () => {
           <>
             <div className="row">
               <div className="column-1" style={{ marginTop: '-10px' }}>
+              <div className="slider-container">
                 <div>
                   <label htmlFor="layer-slider">Layer:</label><br />
                   <input
@@ -176,17 +177,20 @@ const BeadExtractor = () => {
                     onChange={state.handleSliderBrightnessChange}
                   />
                 </div>  
-                <label className="subtitle" htmlFor="select-size">Selection Size (px):</label>
-                <TextField
-                  id="select-size"
-                  variant="outlined"
-                  placeholder="Enter a select size"
-                  fullWidth
-                  name="selectSize"
-                  onChange={(e) => state.setSelectSize(e.target.value)}
-                  value={state.selectSize}
-                />
-                <Button variant="outlined" color="info" className="btn-run" onClick={(e) => state.handleUndoMark(e, canvasRef)}>
+                <div>
+                  <label className="subtitle" htmlFor="select-size">Selection Size (px):</label>
+                  <TextField
+                    id="select-size"
+                    variant="outlined"
+                    placeholder="Enter a select size"
+                    fullWidth
+                    name="selectSize"
+                    onChange={(e) => state.setSelectSize(e.target.value)}
+                    value={state.selectSize}
+                  />
+                </div>
+                </div>
+                <Button variant="outlined" color="info" className="btn-run" onClick={(e) => state.handleUndoMark(e, canvasRef)} style={{marginTop: '10px'}}>
                   Undo mark
                 </Button>
                 <Button variant="outlined" color="info" className="btn-run" onClick={(e) => state.handleClearMarks(e, canvasRef)}>
@@ -223,20 +227,22 @@ const BeadExtractor = () => {
             <div className="row">
               <div className="column-1">
                 <div className="slider-container">
-                  {state.extractBeads.length === state.beads.length && (
-                    <>
-                      <label htmlFor="layer-slider">Layer:</label><br />
-                      <input
-                        id="layer-slider"
-                        type="range"
-                        min="0"
-                        max={state.beads.length - 1}
-                        step="1"
-                        value={state.layer}
-                        onChange={(e) => state.handleLayerChange(e, state.beads.length - 1)}
-                      />
-                    </>
-                  )}
+                  <div>
+                    {state.extractBeads.length === state.beads.length && (
+                      <>
+                        <label htmlFor="layer-slider">Layer:</label><br />
+                        <input
+                          id="layer-slider"
+                          type="range"
+                          min="0"
+                          max={state.beads.length - 1}
+                          step="1"
+                          value={state.layer}
+                          onChange={(e) => state.handleLayerChange(e, state.beads.length - 1)}
+                        />
+                      </>
+                    )}
+                  </div>
                   <div>
                     <label htmlFor="scale-slider">Scale:</label><br />
                     <input

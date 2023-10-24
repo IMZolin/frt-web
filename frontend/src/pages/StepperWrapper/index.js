@@ -22,7 +22,7 @@ const StepperWrapper = ({ name, stepContent, steps, handleNextStep, handlePrevSt
         </h2>
       ) : (
         <>
-          <div className="header-container">
+          <div className="header-container" style={{ display: 'flex'}}>
             <Button component={Link} to="/" className="btn-back" color="error" variant="outlined" style={{ marginLeft: '20px' }}>
               Back to menu
             </Button>
@@ -34,10 +34,10 @@ const StepperWrapper = ({ name, stepContent, steps, handleNextStep, handlePrevSt
             <div className="stepper-container">
             <div className='stepper-box'>
                 <div className="btn-stack" style={{ marginBottom: '30px' }}>
-                  <Button disabled={activeStep === 0} onClick={handlePrevStep} className="btn-back" variant="outlined">
+                  <Button disabled={activeStep === 0} onClick={handlePrevStep} className="btn-back" variant="outlined" style={{marginRight: '3px', marginLeft: '-10px'}}>
                     Back
                   </Button>
-                  {isNotNextStep ? null : <Button variant="outlined" color="primary" onClick={handleButtonClick} disabled={!isLoad} style={{marginLeft: '3px'}}>
+                  {isNotNextStep ? null : <Button variant="outlined" color="primary" onClick={handleButtonClick} disabled={!isLoad}>
                     {activeStep === steps.length - 1 ? `Go to ${typeRun}` : 'Next'}
                   </Button>}
                 </div>

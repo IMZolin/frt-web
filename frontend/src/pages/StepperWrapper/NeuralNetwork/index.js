@@ -269,10 +269,10 @@ const NeuralNetwork = () => {
                       id="scale-slider"
                       type="range"
                       min="0.5"
-                      max="10"
+                      max="7"
                       step="0.1"
                       value={state.scale}
-                      onChange={state.handleScaleChange}
+                      onChange={(e) => state.handleScaleChange(e, 7)}
                     />
                   </div>
                   <div>
@@ -302,10 +302,10 @@ const NeuralNetwork = () => {
                 <FileDownloader fileList={state.resultImageSave} folderName={state.filename} btnName={"Save result"} />
               </div>
               <div className="column-2" style={{ zIndex: 1 }}>
-                <div className="images__preview" style={{ marginTop: '100px', marginRight: '100px' }}>
+                <div className="images__preview" style={{ marginTop: '100px', marginRight: '150px' }}>
                   <TifViewer
                     img={state.resultImage[state.layer2]}
-                    scale={0.35 * state.scale}
+                    scale={0.5 * state.scale}
                     brightness={state.brightness}
                     imageProjection={null}
                   />

@@ -6,13 +6,13 @@ const TifCompare2 = ({ img_1, img_2, img_1_projection, img_2_projection, img_3, 
   const shouldApplyStylesForImg1 = state.resolution[1] > 360;
   const shouldApplyStylesForImg2 = state.resolution2[1] > 360;
   const layerChanged = isSameLength ? state.layer : state.layer2;
-  const img1Scale = type === 'deconvolution' || type === 'deconvolution-2' ? 0.35 * scale : scale;
+  const img1Scale = type === 'deconvolution' || type === 'deconvolution-2' ? 0.5 * scale : scale;
   const isImg1Projection = img_1_projection !== null;
   const isImg2Projection = img_2_projection !== null;
   const isImg3Projection = img_3_projection !== null;
   const img1Scale2 = type === 'deconvolution-2' ? 0.35 * scale : scale;
   return (
-    <div className="tif-container" style={{marginBottom: `${type==='deconvolution' ? '' : '-100px'}`, marginLeft: '100px'}}>
+    <div className="tif-container" style={{marginBottom: `${type==='deconvolution' ? '' : '-100px'}`, marginLeft: '120px'}}>
       <div className="images-container">
         {img_1.length !== 0 ? (
           <div className="img-container" style={{marginTop: '240px'}}>
@@ -28,7 +28,7 @@ const TifCompare2 = ({ img_1, img_2, img_1_projection, img_2_projection, img_3, 
           </div>
         ) : null}
         {img_2.length !== 0 ? (
-          <div className="img-container" style={{marginLeft: '150px'}}>
+          <div className="img-container" style={{marginLeft: '130px'}}>
             <div className={`${shouldApplyStylesForImg2 ? 'img-container-box' : ''}`}>
               <TifViewer
                 img={img_2[layerChanged]}
@@ -59,11 +59,11 @@ const TifCompare2 = ({ img_1, img_2, img_1_projection, img_2_projection, img_3, 
           </div>
         ) : null}
         {img_3.length !== 0 ? (
-          <div className="img-container" style={{marginTop: '240px', marginRight: '200px'}}>
+          <div className="img-container" style={{marginTop: '240px', marginRight: '100px'}}>
             <div className={`${shouldApplyStylesForImg2 ? 'img-container-box' : ''}`}>
               <TifViewer
                 img={img_3[state.layer]}
-                scale={img1Scale2}
+                scale={img1Scale}
                 className="tif-single"
                 brightness={state.levelBrightness}
                 imageProjection={isImg3Projection ? img_3_projection : null}
