@@ -10,11 +10,12 @@ import PSF from '../pages/StepperWrapper/PSF';
 import Deconvolution from '../pages/StepperWrapper/Deconvolution';
 import NeuralNetwork from '../pages/StepperWrapper/NeuralNetwork';
 import Authors from '../pages/Authors';
+import './App.css';
 
 
 const App = () => {
     return (
-        <>
+        <div style={{ backgroundColor: 'var(--background-color)' }}>
             <Header />
             <Routes>
                 <Route path="/" element={<MainPage />} />
@@ -27,7 +28,7 @@ const App = () => {
                 <Route path="/network" element={<NeuralNetwork />} />
                 <Route path="/authors" element={<Authors />} />
             </Routes>
-        </>
+        </div>
     );
 };
 

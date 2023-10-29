@@ -1,0 +1,10 @@
+/* App.css */
+:root {
+    --background-color: #003d70; 
+    --color: #f7fff8;
+  }
+  
+  body {
+    background-color: var(--background-color); 
+    color: var(--color);
+  }

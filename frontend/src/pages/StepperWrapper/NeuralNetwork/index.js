@@ -15,7 +15,7 @@ const NeuralNetwork = () => {
   const state = useStateValues();
   const steps = ['Load image', 'Preprocessing', 'Deconvolution', 'Save results'];
   const axiosStore = useAxiosStore();
-
+  const customTextColor = "#f7fff8"; 
   const handlePreprocessing = async () => {
     console.log("Im trying make preprocessing");
     window.alert("Im trying make preprocessing");
@@ -91,7 +91,12 @@ const NeuralNetwork = () => {
       case steps.indexOf('Load image'):
         return (<>
           <div className="row">
-            <Dropzone files={state.sourceImageSave} addFiles={state.setSourceImageSave} imageType={'source_img'} state={state} />
+            <Dropzone 
+              files={state.sourceImageSave} 
+              addFiles={state.setSourceImageSave} 
+              imageType={'source_img'} 
+              state={state} 
+            />
           </div>
         </>);
       case steps.indexOf('Preprocessing'):
@@ -165,6 +170,7 @@ const NeuralNetwork = () => {
                   name="radius"
                   onChange={(e) => state.setGaussianBlurCount(e.target.value)}
                   value={state.gaussianBlurCount}
+                  style={{ color: customTextColor }}
                 />
               </div>
               <Button variant="outlined" color="secondary" className="btn-run" onClick={handlePreprocessing}>
@@ -173,7 +179,16 @@ const NeuralNetwork = () => {
             </div>
             <div className="column-2">
               <div className="images__preview">
-                <TifCompare img_1={state.sourceImage} img_2={state.preprocImage} img_1_projection={null} img_2_projection={null} scale={state.scale} state={state} isSameLength={true} type='deconvolution' />
+                <TifCompare 
+                  img_1={state.sourceImage} 
+                  img_2={state.preprocImage} 
+                  img_1_projection={null} 
+                  img_2_projection={null} 
+                  scale={state.scale} 
+                  state={state} 
+                  isSameLength={true} 
+                  type='deconvolution' 
+                />
               </div>
             </div>
           </div>
@@ -239,7 +254,16 @@ const NeuralNetwork = () => {
               </div>
               <div className="column-2" style={{ zIndex: 1 }}>
                 <div className="images__preview">
-                  <TifCompare img_1={state.preprocImage} img_2={state.resultImage} img_1_projection={null} img_2_projection={null} scale={state.scale} state={state} isSameLength={true} type='deconvolution' />
+                  <TifCompare 
+                    img_1={state.preprocImage} 
+                    img_2={state.resultImage} 
+                    img_1_projection={null} 
+                    img_2_projection={null} 
+                    scale={state.scale} 
+                    state={state} 
+                    isSameLength={true} 
+                    type='deconvolution' 
+                  />
                 </div>
               </div>
             </div>
@@ -298,8 +322,13 @@ const NeuralNetwork = () => {
                   name="filename"
                   onChange={(e) => state.setFilename(e.target.value)}
                   value={state.filename}
+                  style={{ color: customTextColor }}
                 />
-                <FileDownloader fileList={state.resultImageSave} folderName={state.filename} btnName={"Save result"} />
+                <FileDownloader 
+                  fileList={state.resultImageSave} 
+                  folderName={state.filename} 
+                  btnName={"Save result"} 
+                />
               </div>
               <div className="column-2" style={{ zIndex: 1 }}>
                 <div className="images__preview" style={{ marginTop: '100px', marginRight: '150px' }}>

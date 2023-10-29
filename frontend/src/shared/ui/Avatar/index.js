@@ -3,12 +3,13 @@ import './avatar.css';
 import defaultAvatar from '../../assets/svg/user.svg';
 const UserAvatar = (props) => {
   const style = { width: props.width, height: props.height };
+  const textColor = "#f7fff8";
   return (
     <div className="avatar" style={style}>
       {props.avatar ? (
         <img className="img" src={props.avatar} alt="user_avatar" />
       ) : (
-        <defaultAvatar width={props.width} height={props.height} />
+        <defaultAvatar width={props.width} height={props.height} style={{ color: textColor }}/>
       )}
       <img
         className={props.avatar ? 'img' : 'svg'}
