@@ -32,9 +32,17 @@ const StepperWrapper = ({ name, stepContent, steps, handleNextStep, handlePrevSt
                 <Button disabled={activeStep === 0} onClick={handlePrevStep} className="btn-back-2" variant="contained" style={{ marginRight: '1%' }}>
                   Back
                 </Button>
-                {isNotNextStep ? null : <Button variant="contained" color="primary" onClick={handleButtonClick} disabled={!isLoad} className="btn-back-2">
-                  {activeStep === steps.length - 1 ? `Go to ${typeRun}` : 'Next'}
-                </Button>}
+                {isNotNextStep ? null : (
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={handleButtonClick}
+                    disabled={!isLoad}
+                    className={`btn-back-2 ${typeRun === 'Deconvolution' ? 'small-font' : ''}`}
+                  >
+                    {activeStep === steps.length - 1 ? `Go to ${typeRun}` : 'Next'}
+                  </Button>
+                )}
               </div>
             </div>
             <div className="stepper-head">

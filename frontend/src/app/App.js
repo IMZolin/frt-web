@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import MainPage from '../pages/main';
 import PersonalPage from '../pages/Profile';
@@ -14,9 +14,13 @@ import './App.css';
 
 
 const App = () => {
+    const [darkMode, setDarkMode] = useState(false);
+    const handleDarkModeToggle = (isDarkMode) => {
+        setDarkMode(isDarkMode);
+      };
     return (
-        <div style={{ backgroundColor: 'var(--background-color)' }}>
-            <Header />
+        <div className={darkMode ? 'dark-mode' : 'light-mode'}>
+            <Header onDarkModeToggle={handleDarkModeToggle} />
             <Routes>
                 <Route path="/" element={<MainPage />} />
                 <Route path="/login" element={<LoginPage />} />

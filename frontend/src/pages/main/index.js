@@ -3,7 +3,7 @@ import { Link, Outlet } from 'react-router-dom';
 import { Button } from '@mui/material';
 import './style.css';
 
-const customButtonColor = "#277e99"; 
+const customButtonColor = "#64ccc5"; 
 const customButtonColor2 = "#9ad294"; 
 
 const MainPage = () => {

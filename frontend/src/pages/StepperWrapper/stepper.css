@@ -8,6 +8,9 @@
   margin-bottom: 5px;
   margin-left: 10px;
 }
+.small-font {
+  font-size: 14px;
+}
 
 .header-container{
   display: flex;
@@ -22,7 +25,7 @@
   display: block;
   align-items: center;
   padding: 20px;
-  border: 1px solid #9ad294;
+  border: 1px solid #64ccc5;
   border-radius: 3%;
 }
 
@@ -72,7 +75,7 @@
 .column-1 {
   flex: 0 0 17%; 
   align-items: flex-start;
-  border: 1px solid #9ad294;
+  border: 1px solid #277e99;
   border-radius: 2%;
 }
 

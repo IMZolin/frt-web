@@ -52,3 +52,24 @@
   width: 50%;
   cursor: pointer;
 }
+
+:root {
+  --background-dark: #232d3f;
+  --background-light: #dafffb;
+  --text-color-dark: #dafffb;
+  --text-color-light: #04364a;
+  --button-text-color-dark: #dafffb;
+  --button-text-color-light: #04364a;
+  --textfield-text-color-dark: #dafffb;
+  --textfield-text-color-light: #04364a;
+}
+
+.dark-mode {
+  background-color: var(--background-dark);
+  color: var(--text-color-dark);
+}
+
+.light-mode {
+  background-color: var(--background-light);
+  color: var(--text-color-light);
+}
