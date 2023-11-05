@@ -2,11 +2,9 @@ version: "3.8"
 
 services:
   backend:
+    container_name: psf_backend
     restart: unless-stopped
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    container_name: backend
+    image: docker.io/zolin17/psfinterface_backend
     volumes:
       - ./backend/:/usr/src/blog/
       - ./logs:/app/logs
@@ -20,7 +18,8 @@ services:
       - redis
 
   celery:
-    container_name: celery
+    container_name: psf_celery
+    image: docker.io/zolin17/psfinterface_celery
     restart: on-failure
     build:
       context: ./backend
@@ -38,8 +37,9 @@ services:
       - redis
 
   flower:
-    container_name: flower
+    container_name: psf_flower
     restart: unless-stopped
+    image: docker.io/zolin17/psfinterface_flower
     build:
       context: ./backend
     command: celery flower --broker=redis://redis:6379/0
@@ -56,20 +56,19 @@ services:
       - redis
 
   frontend:
+    container_name: psf_frontend
     restart: always
-    build:
-      context: ./frontend/
-      dockerfile: Dockerfile
-    container_name: frontend
+    image: docker.io/zolin17/psfinterface_frontend
     ports:
       - 3000:3000
     volumes:
       - ./frontend/:/usr/src/frontend/
 
   nginx:
+    container_name: psf_nginx
     restart: always
     build: ./nginx
-    container_name: nginx
+    image: docker.io/zolin17/psfinterface_nginx
     links:
       - backend
       - frontend
@@ -78,9 +77,9 @@ services:
       - '80:80'
 
   redis:
+    container_name: psf_redis
     restart: unless-stopped
     image: redis:latest
-    container_name: redis
     volumes:
     - ./redis.conf:/usr/local/etc/redis/redis.conf
     - ./logs:/app/logs
@@ -89,7 +88,7 @@ services:
       - '6379:6379'
   
   redis-commander:
-    container_name: redis-commander
+    container_name: psf_redis-commander
     hostname: redis-commander
     image: ghcr.io/joeferner/redis-commander:latest
     restart: always
