@@ -79,7 +79,7 @@ services:
   redis:
     container_name: psf_redis
     restart: unless-stopped
-    image: redis:latest
+    image: docker.io/zolin17/redis
     volumes:
     - ./redis.conf:/usr/local/etc/redis/redis.conf
     - ./logs:/app/logs
@@ -90,7 +90,7 @@ services:
   redis-commander:
     container_name: psf_redis-commander
     hostname: redis-commander
-    image: ghcr.io/joeferner/redis-commander:latest
+    image: docker.io/zolin17/redis-commander:latest
     restart: always
     environment:
     - REDIS_HOSTS=local:redis:6379
