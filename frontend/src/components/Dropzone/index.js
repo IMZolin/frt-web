@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { DropzoneArea } from 'material-ui-dropzone';
+import { DropzoneAreaBase } from 'material-ui-dropzone';
 import { Box, Button, CircularProgress, Typography } from '@mui/material';
 import useAxiosStore from '../../app/store/axiosStore';
 import { base64ToTiff } from '../../shared/hooks/showImages';
@@ -113,7 +113,7 @@ const Dropzone = ({ files, addFiles, imageType, state }) => {
 
   return (
     <>
-      <DropzoneArea
+      <DropzoneAreaBase
         fileObjects={files}
         showPreviewsInDropzone={true}
         useChipsForPreview
