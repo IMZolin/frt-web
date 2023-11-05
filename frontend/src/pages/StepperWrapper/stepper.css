@@ -106,11 +106,6 @@
   flex-direction: column;
 }
 
-.stepper-steps {
-  width: 100%;
-  margin-bottom: 20px;
-}
-
 .slider-container{
   width: 100%;
   display: block;

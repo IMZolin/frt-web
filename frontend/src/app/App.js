@@ -14,26 +14,28 @@ import './App.css';
 
 
 const App = () => {
-    const [darkMode, setDarkMode] = useState(false);
-    const handleDarkModeToggle = (isDarkMode) => {
-        setDarkMode(isDarkMode);
-      };
-    return (
-        <div className={darkMode ? 'dark-mode' : 'light-mode'}>
-            <Header onDarkModeToggle={handleDarkModeToggle} />
-            <Routes>
-                <Route path="/" element={<MainPage />} />
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/signup" element={<SignupPage />} />
-                <Route path="/profile" element={<PersonalPage />} />
-                <Route path="/bead_extractor" element={<BeadExtractor />} />
-                <Route path="/psf" element={<PSF />} />
-                <Route path="/deconvolution" element={<Deconvolution />} />
-                <Route path="/network" element={<NeuralNetwork />} />
-                <Route path="/authors" element={<Authors />} />
-            </Routes>
-        </div>
-    );
+  const [darkMode, setDarkMode] = useState(false);
+
+  const handleDarkModeToggle = (isDarkMode) => {
+    setDarkMode(isDarkMode);
+  };
+
+  return (
+    <div className={`app ${darkMode ? 'dark-mode' : 'light-mode'}`}>
+      <Header onDarkModeToggle={handleDarkModeToggle} />
+      <Routes>
+        <Route path="/" element={<MainPage darkMode={darkMode} />} />
+        <Route path="/login" element={<LoginPage darkMode={darkMode} />} />
+        <Route path="/signup" element={<SignupPage darkMode={darkMode} />} />
+        <Route path="/profile" element={<PersonalPage darkMode={darkMode} />} />
+        <Route path="/bead_extractor" element={<BeadExtractor darkMode={darkMode} />} />
+        <Route path="/psf" element={<PSF darkMode={darkMode} />} />
+        <Route path="/deconvolution" element={<Deconvolution darkMode={darkMode} />} />
+        <Route path="/network" element={<NeuralNetwork darkMode={darkMode} />} />
+        <Route path="/authors" element={<Authors />} />
+      </Routes>
+    </div>
+  );
 };
 
 export default App;

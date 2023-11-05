@@ -1,12 +1,22 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, Outlet } from 'react-router-dom';
 import { Button } from '@mui/material';
 import './style.css';
 
-const customButtonColor = "#64ccc5"; 
-const customButtonColor2 = "#9ad294"; 
+const MainPage = ({ darkMode }) => {
+  const [customButtonColor, setCustomButtonColor] = useState(getComputedStyle(document.documentElement).getPropertyValue('--button-text-color-light'));
+  const [customButtonColor2, setCustomButtonColor2] = useState(getComputedStyle(document.documentElement).getPropertyValue('--button-text-color-light2'));
 
-const MainPage = () => {
+  useEffect(() => {
+    if (darkMode) {
+      setCustomButtonColor(getComputedStyle(document.documentElement).getPropertyValue('--button-text-color-dark'));
+      setCustomButtonColor2(getComputedStyle(document.documentElement).getPropertyValue('--button-text-color-dark2'));
+    } else {
+      setCustomButtonColor(getComputedStyle(document.documentElement).getPropertyValue('--button-text-color-light'));
+      setCustomButtonColor2(getComputedStyle(document.documentElement).getPropertyValue('--button-text-color-light2'));
+    }
+  }, [darkMode]);
+
   return (
     <div>
       <h3 align="center">

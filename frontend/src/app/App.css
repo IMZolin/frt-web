@@ -3,8 +3,10 @@
   --background-light: #dafffb;
   --text-color-dark: #dafffb;
   --text-color-light: #04364a;
-  --button-text-color-dark: #dafffb;
-  --button-text-color-light: #04364a;
+  --button-text-color-dark: #64ccc5;
+  --button-text-color-dark2: #9ad294;
+  --button-text-color-light: #008170;
+  --button-text-color-light2: #362FD9;
   --textfield-text-color-dark: #dafffb;
   --textfield-text-color-light: #04364a;
 }
@@ -17,4 +19,12 @@
 .light-mode {
   background-color: var(--background-light);
   color: var(--text-color-light);
+}
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: var(--background-color);
+  color: var(--color);
 }

@@ -11,7 +11,7 @@ import ChooseList from '../../../components/ChooseList';
 import FileDownloader from '../../../components/FileDownloader';
 import '../stepper.css';
 
-const NeuralNetwork = () => {
+const NeuralNetwork = ({darkMode}) => {
   const state = useStateValues();
   const steps = ['Load image', 'Preprocessing', 'Deconvolution', 'Save results'];
   const axiosStore = useAxiosStore();
@@ -359,6 +359,7 @@ const NeuralNetwork = () => {
         activeStep={state.activeStep}
         isLoad={state.isLoad}
         typeRun={null}
+        darkMode={darkMode}
       />
     </div>
   );

@@ -13,7 +13,7 @@ import ChooseList from '../../../components/ChooseList';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-const Deconvolution = () => {
+const Deconvolution = ({darkMode}) => {
   const state = useStateValues();
   const steps = ['Load PSF', 'Load image', 'Run Deconvolution', 'Save results'];
   const axiosStore = useAxiosStore();
@@ -351,6 +351,7 @@ const Deconvolution = () => {
         activeStep={state.activeStep}
         isLoad={state.isLoad}
         typeRun={null}
+        darkMode={darkMode}
       />
     </div>
   );

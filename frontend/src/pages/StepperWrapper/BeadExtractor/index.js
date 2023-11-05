@@ -1,5 +1,5 @@
-import React, { useRef, useEffect } from 'react';
-import { Button, TextField } from '@mui/material';
+import React, { useRef, useState, useEffect } from 'react';
+import { Button, TextField, collapseClasses } from '@mui/material';
 import StepperWrapper from '../../StepperWrapper';
 import TifViewer from '../../../components/TifViewer';
 import TifCompare from '../../../components/TifCompare';
@@ -14,12 +14,31 @@ import useAxiosStore from '../../../app/store/axiosStore';
 import './stepper.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-const BeadExtractor = () => {
+const BeadExtractor = ({darkMode}) => {
   const state = useStateValues();
   const steps = ['Load beads', 'Mark beads', 'Average bead', 'Save results'];
   const axiosStore = useAxiosStore();
   const canvasRef = useRef();
   const markBead = useBeadMark();
+  const [customTextColor, setCustomTextColor] = useState(getComputedStyle(document.documentElement).getPropertyValue('--text-color-light'));
+  const [customBorder, setCustomBorder] = useState(getComputedStyle(document.documentElement).getPropertyValue('--button-text-color-light'));
+  
+  useEffect(() => {
+    if (darkMode) {
+      setCustomTextColor(getComputedStyle(document.documentElement).getPropertyValue('--text-color-dark'));
+      setCustomBorder(getComputedStyle(document.documentElement).getPropertyValue('--button-text-color-dark'));
+    } else {
+      setCustomTextColor(getComputedStyle(document.documentElement).getPropertyValue('--text-color-light'));
+      setCustomBorder(getComputedStyle(document.documentElement).getPropertyValue('--button-text-color-light'));
+    }
+  }, [darkMode]);
+  const hexToRgb = (hex) => {
+    hex = hex.replace(/^#/, '');
+    const r = parseInt(hex.substring(0, 2), 16);
+    const g = parseInt(hex.substring(2, 4), 16);
+    const b = parseInt(hex.substring(4, 6), 16);
+    return `${r}, ${g}, ${b}`;
+  };
 
   const handleBeadMark = async () => {
     try {
@@ -110,7 +129,7 @@ const BeadExtractor = () => {
         return (
           <>
             <div className="row">
-              <div className="column-1" style={{ zIndex: 2 }}>
+              <div className="column-1" style={{ zIndex: 2, border: `1px solid ${customBorder}` }}>
                 <div className="subtitle">Voxel size:</div>
                 <div className="voxel-box">
                   <TextField
@@ -127,6 +146,19 @@ const BeadExtractor = () => {
                     }
                     }
                     value={state.voxelX}
+                    sx={{
+                      border: `1px solid rgba(${hexToRgb(customTextColor)}, 0.3)`,
+                      borderRadius: '5px',
+                    }}
+                    InputLabelProps={{
+                      sx: {
+                        color: customTextColor,
+                        textTransform: 'capitalize',
+                      },
+                    }}
+                    inputProps={{
+                      style: { color: customTextColor},
+                    }}
                   />
                   <TextField
                     className="stepper-resolution"
@@ -138,6 +170,19 @@ const BeadExtractor = () => {
                     margin="normal"
                     onChange={(e) => state.setVoxelZ(e.target.value)}
                     value={state.voxelZ}
+                    sx={{
+                      border: `1px solid rgba(${hexToRgb(customTextColor)}, 0.3)`,
+                      borderRadius: '5px',
+                    }}
+                    InputLabelProps={{
+                      sx: {
+                        color: customTextColor,
+                        textTransform: 'capitalize',
+                      },
+                    }}
+                    inputProps={{
+                      style: { color: customTextColor},
+                    }}
                   />
                 </div>
               </div>
@@ -151,7 +196,7 @@ const BeadExtractor = () => {
         return (
           <>
             <div className="row">
-              <div className="column-1" style={{ marginTop: '-10px' }}>
+              <div className="column-1" style={{ marginTop: '-10px', border: `1px solid ${customBorder}` }}>
               <div className="slider-container">
                 <div>
                   <label htmlFor="layer-slider">Layer:</label><br />
@@ -225,7 +270,7 @@ const BeadExtractor = () => {
         return (
           <>
             <div className="row">
-              <div className="column-1">
+              <div className="column-1" style={{ zIndex: 2, border: `1px solid ${customBorder}`}}>
                 <div className="slider-container">
                   <div>
                     {state.extractBeads.length === state.beads.length && (
@@ -296,7 +341,7 @@ const BeadExtractor = () => {
         return (
           <>
             <div className="row">
-              <div className="column-1" style={{ zIndex: 2 }}>
+              <div className="column-1" style={{ zIndex: 2, border: `1px solid ${customBorder}` }}>
                 <div className="slider-container">
                   <div>
                     <label htmlFor="layer-slider">Layer:</label><br />
@@ -378,6 +423,7 @@ const BeadExtractor = () => {
         isLoad={state.isLoad}
         urlPage='/psf'
         typeRun='PSF'
+        darkMode={darkMode}
       />
     </div>
   );

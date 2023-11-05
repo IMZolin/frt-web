@@ -5,10 +5,10 @@ import Tab from '@mui/material/Tab';
 
 const CenteredTabs = () => {
   return (
-    <Box sx={{ width: '100%', bgcolor: 'background.paper' }}>
+    <Box sx={{ width: '100%' }}>
       <>
         <Tab label="Profile" />
-        <Tab label="Favourites" />
+        {/* <Tab label="Favourites" /> */}
       </>
     </Box>
   );

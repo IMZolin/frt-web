@@ -13,7 +13,7 @@ import './stepper.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 
-const StepperPSF = () => {
+const StepperPSF = ({darkMode}) => {
     const state = useStateValues();
     const steps = ['Load average bead', 'Calculate PSF', 'Save results'];
     const axiosStore = useAxiosStore();
@@ -286,6 +286,7 @@ const StepperPSF = () => {
                 isLoad={state.isLoad}
                 urlPage='/deconvolution'
                 typeRun='Deconvolution'
+                darkMode={darkMode}
             />
         </div>
     );
