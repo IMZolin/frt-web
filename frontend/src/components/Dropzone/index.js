@@ -134,7 +134,7 @@ const Dropzone = ({ files, addFiles, imageType, state }) => {
             <Typography>or</Typography>
             <Box mt={1}>
               <Button color="primary" variant="outlined" style={{ width: 125 }}>
-                Select File
+                Select File(s)
               </Button>
             </Box>
             <Box mt={1}>
