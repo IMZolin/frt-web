@@ -1,5 +1,6 @@
 import React from 'react';
 import TifViewer from '../TifViewer';
+import { hexToRgb } from '../../shared/hooks/showImages';
 import './tif_compare.css';
 
 const TifCompare = ({ img_1, img_2, img_1_projection, img_2_projection, scale, state, isSameLength, type}) => {
@@ -27,7 +28,7 @@ const TifCompare = ({ img_1, img_2, img_1_projection, img_2_projection, scale, s
             </div>
             {isSameLength ? null : (
               <div style={{marginTop: `${type==='deconvolution' ? '270px' : (type==='beads' ? '100px' : '')}`, marginBottom: '30px'}}>
-                <label className="viewer-label" htmlFor="layer-slider">
+                <label className="viewer-label" htmlFor="layer-slider" style={{color: customTextColor}}>
                   Layer:
                 </label>
                 <input

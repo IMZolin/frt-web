@@ -31,14 +31,6 @@ const StepperWrapper = ({ name, stepContent, steps, handleNextStep, handlePrevSt
       setCustomBorder(getComputedStyle(document.documentElement).getPropertyValue('--button-text-color-light'));
     }
   }, [darkMode]);
-
-  const hexToRgb = (hex) => {
-    hex = hex.replace(/^#/, '');
-    const r = parseInt(hex.substring(0, 2), 16);
-    const g = parseInt(hex.substring(2, 4), 16);
-    const b = parseInt(hex.substring(4, 6), 16);
-    return `${r}, ${g}, ${b}`;
-  };
   
   const handleButtonClick = () => {
     if (activeStep === steps.length - 1) {

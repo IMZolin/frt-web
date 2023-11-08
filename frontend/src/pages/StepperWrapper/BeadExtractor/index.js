@@ -9,6 +9,7 @@ import Dropzone from '../../../components/Dropzone';
 import FileDownloader from '../../../components/FileDownloader';
 import { useStateValues } from '../state';
 import { base64ToTiff } from '../../../shared/hooks/showImages';
+import { hexToRgb } from '../../../shared/hooks/showImages';
 import ChooseList from '../../../components/ChooseList';
 import useAxiosStore from '../../../app/store/axiosStore';
 import './stepper.css';
@@ -32,13 +33,6 @@ const BeadExtractor = ({darkMode}) => {
       setCustomBorder(getComputedStyle(document.documentElement).getPropertyValue('--button-text-color-light'));
     }
   }, [darkMode]);
-  const hexToRgb = (hex) => {
-    hex = hex.replace(/^#/, '');
-    const r = parseInt(hex.substring(0, 2), 16);
-    const g = parseInt(hex.substring(2, 4), 16);
-    const b = parseInt(hex.substring(4, 6), 16);
-    return `${r}, ${g}, ${b}`;
-  };
 
   const handleBeadMark = async () => {
     try {
@@ -171,7 +165,7 @@ const BeadExtractor = ({darkMode}) => {
                     onChange={(e) => state.setVoxelZ(e.target.value)}
                     value={state.voxelZ}
                     sx={{
-                      border: `1px solid rgba(${hexToRgb(customTextColor)}, 0.3)`,
+                      border: `1px solid rgba(${hexToRgb(customTextColor)}, 0.2)`,
                       borderRadius: '5px',
                     }}
                     InputLabelProps={{
@@ -223,15 +217,29 @@ const BeadExtractor = ({darkMode}) => {
                   />
                 </div>  
                 <div>
-                  <label className="subtitle" htmlFor="select-size">Selection Size (px):</label>
+                  {/* <label className="subtitle" htmlFor="select-size">Selection Size (px):</label> */}
                   <TextField
                     id="select-size"
                     variant="outlined"
                     placeholder="Enter a select size"
                     fullWidth
+                    label="Selection Size (px)"
                     name="selectSize"
                     onChange={(e) => state.setSelectSize(e.target.value)}
                     value={state.selectSize}
+                    sx={{
+                      border: `1px solid rgba(${hexToRgb(customTextColor)}, 0.2)`,
+                      borderRadius: '5px',
+                    }}
+                    InputLabelProps={{
+                      sx: {
+                        color: customTextColor,
+                        textTransform: 'capitalize',
+                      },
+                    }}
+                    inputProps={{
+                      style: { color: customTextColor},
+                    }}
                   />
                 </div>
                 </div>
@@ -260,6 +268,7 @@ const BeadExtractor = ({darkMode}) => {
                     scale={1}
                     state={state}
                     canvasRef={canvasRef}
+                    customBorder={customBorder}
                   />
                 </div>
               </div>
@@ -331,7 +340,7 @@ const BeadExtractor = ({darkMode}) => {
               </div>
               <div className="column-2">
                 <div className="images__preview">
-                  <TifCompare img_1={state.extractBeads} img_2={state.averageBead} img_1_projection={null} img_2_projection={state.averageBeadProjection[0]} scale={state.scale} state={state} isSameLength={state.extractBeads.length === state.beads.length} type='beads' />
+                  <TifCompare img_1={state.extractBeads} img_2={state.averageBead} img_1_projection={null} img_2_projection={state.averageBeadProjection[0]} scale={state.scale} state={state} isSameLength={state.extractBeads.length === state.beads.length} type='beads' customTextColor={customTextColor} />
                 </div>
               </div>
             </div>
@@ -390,6 +399,19 @@ const BeadExtractor = ({darkMode}) => {
                   name="filename"
                   onChange={(e) => state.setFilename(e.target.value)}
                   value={state.filename}
+                  sx={{
+                    border: `1px solid rgba(${hexToRgb(customTextColor)}, 0.3)`,
+                    borderRadius: '5px',
+                  }}
+                  InputLabelProps={{
+                    sx: {
+                      color: customTextColor,
+                      textTransform: 'capitalize',
+                    },
+                  }}
+                  inputProps={{
+                    style: { color: customTextColor},
+                  }}
                 />
                 <FileDownloader fileList={state.averageBeadSave} folderName={state.filename} btnName={"Save result"} />
               </div>

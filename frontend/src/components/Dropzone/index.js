@@ -124,7 +124,7 @@ const Dropzone = ({ files, addFiles, imageType, state }) => {
         filesLimit={Infinity}
         Icon={''}
         dropzoneText={
-          <Box className='custom-dropzone' px={16} py={6} display="flex" flexDirection="column" justifyContent="center" alignItems="center" gridGap={4}>
+          <Box className='custom-dropzone' px={16} py={6} display="flex" flexDirection="column" justifyContent="center" alignItems="center" gridGap={4} sx={{backgroundColor: 'transparent'}}>
             {uploading && (
               <Box className='custom-dropzone-loader' display="flex" flexDirection="column" justifyContent="center" alignItems="center">
                 <CircularProgress size="2rem" />
@@ -134,7 +134,7 @@ const Dropzone = ({ files, addFiles, imageType, state }) => {
             <Typography>or</Typography>
             <Box mt={1}>
               <Button color="primary" variant="outlined" style={{ width: 125 }}>
-                Select File(s)
+                Select File
               </Button>
             </Box>
             <Box mt={1}>
