@@ -38,7 +38,7 @@ const TiffExtractor = ({ img, scale, state, canvasRef, customBorder }) => {
   return (
     <div className="tiff-wrapper"
       style={{
-        border: `1px solid ${customTextColor}`,
+        border: `1px solid ${customBorder}`,
       }}
     >
       <div className="tiff-canvas">

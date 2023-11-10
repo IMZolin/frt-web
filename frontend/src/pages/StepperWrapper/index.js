@@ -62,7 +62,8 @@ const StepperWrapper = ({ name, stepContent, steps, handleNextStep, handlePrevSt
                     color="primary"
                     onClick={handleButtonClick}
                     disabled={!isLoad}
-                    className={`btn-back-2 ${typeRun === 'Deconvolution' ? 'small-font' : ''}`}
+                    className={'btn-back-2'}
+                    style={{fontSize: `${typeRun === 'Deconvolution' ? '10px' : ''}`}}
                   >
                     {activeStep === steps.length - 1 ? `Go to ${typeRun}` : 'Next'}
                   </Button>

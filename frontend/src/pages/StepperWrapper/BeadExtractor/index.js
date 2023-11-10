@@ -167,6 +167,7 @@ const BeadExtractor = ({darkMode}) => {
                     sx={{
                       border: `1px solid rgba(${hexToRgb(customTextColor)}, 0.2)`,
                       borderRadius: '5px',
+                      marginTop: '10px'
                     }}
                     InputLabelProps={{
                       sx: {
@@ -217,19 +218,21 @@ const BeadExtractor = ({darkMode}) => {
                   />
                 </div>  
                 <div>
-                  {/* <label className="subtitle" htmlFor="select-size">Selection Size (px):</label> */}
+                  <label className="subtitle" htmlFor="select-size">Selection Size (px):</label>
                   <TextField
                     id="select-size"
                     variant="outlined"
+                    className="stepper-resolution"
                     placeholder="Enter a select size"
                     fullWidth
-                    label="Selection Size (px)"
                     name="selectSize"
+                    margin="normal"
                     onChange={(e) => state.setSelectSize(e.target.value)}
                     value={state.selectSize}
                     sx={{
                       border: `1px solid rgba(${hexToRgb(customTextColor)}, 0.2)`,
                       borderRadius: '5px',
+                      marginTop: '10px'
                     }}
                     InputLabelProps={{
                       sx: {
@@ -258,6 +261,7 @@ const BeadExtractor = ({darkMode}) => {
                   list={state.tiffTypes}
                   selected={state.tiffType}
                   onChange={state.handleTiffTypeChange}
+                  customTextColor={customTextColor}
                 />
                 <FileDownloader fileList={state.extractBeads} folderName={"extract_beads"} btnName={"Save beads"} />
               </div>

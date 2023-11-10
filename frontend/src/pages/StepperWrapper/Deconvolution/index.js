@@ -260,7 +260,7 @@ const Deconvolution = ({darkMode}) => {
               </div>
               <div className="column-2" style={{ zIndex: 1 }}>
                 <div className="images__preview">
-                  <TifCompare2 img_1={state.sourceImage} img_2={state.extractedPSF} img_3={state.resultImage} img_1_projection={null} img_2_projection={state.extractedPSFProjection[0]} img_3_projection={null} scale={state.scale} state={state} isSameLength={state.sourceImage.length === state.extractedPSF.lengt} type='deconvolution-2' />
+                  <TifCompare2 img_1={state.sourceImage} img_2={null} img_3={state.resultImage} img_1_projection={null} img_2_projection={state.extractedPSFProjection[0]} img_3_projection={null} scale={state.scale} state={state} isSameLength={state.sourceImage.length === state.extractedPSF.lengt} type='deconvolution-2' />
                 </div>
               </div>
             </div>
@@ -327,7 +327,7 @@ const Deconvolution = ({darkMode}) => {
                   <TifViewer
                     img={state.resultImage[state.layer2]}
                     scale={0.5 * state.scale}
-                    brightness={state.brightness}
+                    brightness={state.levelBrightness}
                     imageProjection={null}
                   />
                 </div>

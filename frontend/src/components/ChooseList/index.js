@@ -1,9 +1,9 @@
 import React from "react";
 import { FormControl, InputLabel, Select, MenuItem } from "@mui/material";
 
-const ChooseList = ({ name, list, selected, onChange }) => {
+const ChooseList = ({ name, list, selected, onChange, customTextColor }) => {
   return (
-    <div style={{ marginTop: "20px"}}>
+    <div style={{ marginTop: "20px", color: customTextColor}}>
       <FormControl fullWidth>
         <InputLabel>{name}</InputLabel>
         <Select style={{ marginTop: "5px" }} value={selected} onChange={(e) => onChange(e.target.value)}>
