@@ -7,6 +7,7 @@ import './stepper.css';
 const StepperWrapper = ({ name, stepContent, steps, handleNextStep, handlePrevStep, activeStep, isLoad, urlPage, typeRun, darkMode }) => {
   const navigate = useNavigate();
   const isNotNextStep = activeStep === steps.length - 1 && typeRun === null;
+  const lessFontSize = activeStep === steps.length - 1 && typeRun  === 'Deconvolution';
   const [customTextColor, setCustomTextColor] = useState(getComputedStyle(document.documentElement).getPropertyValue('--text-color-light'));
   const [customStep, setCustomStep] = useState(getComputedStyle(document.documentElement).getPropertyValue('--button-text-color-light'));
   const [customStepCompleted, setCustomStepCompleted] = useState(getComputedStyle(document.documentElement).getPropertyValue('--button-text-color-light2'));
@@ -63,7 +64,7 @@ const StepperWrapper = ({ name, stepContent, steps, handleNextStep, handlePrevSt
                     onClick={handleButtonClick}
                     disabled={!isLoad}
                     className={'btn-back-2'}
-                    style={{fontSize: `${typeRun === 'Deconvolution' ? '10px' : ''}`}}
+                    style={{fontSize: `${lessFontSize ? '10px' : ''}`}}
                   >
                     {activeStep === steps.length - 1 ? `Go to ${typeRun}` : 'Next'}
                   </Button>

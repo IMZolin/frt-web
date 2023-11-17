@@ -2,7 +2,7 @@ import React from 'react';
 import TifViewer from '../TifViewer';
 import '../TifCompare/tif_compare.css';
 
-const TifCompare2 = ({ img_1, img_2, img_1_projection, img_2_projection, img_3, img_3_projection, scale, state, isSameLength, type}) => {
+const TifCompare2 = ({ img_1, img_2, img_1_projection, img_2_projection, img_3, img_3_projection, scale, state, isSameLength, type, layerColor}) => {
   const shouldApplyStylesForImg1 = state.resolution[1] > 360;
   const shouldApplyStylesForImg2 = state.resolution2[1] > 360;
   const layerChanged = isSameLength ? state.layer : state.layer2;
@@ -41,7 +41,7 @@ const TifCompare2 = ({ img_1, img_2, img_1_projection, img_2_projection, img_3, 
             </div>
             {!isImg2 ? null : (
               <div style={{marginTop: '-80px', marginBottom: '20px'}}>
-                <label className="viewer-label" htmlFor="layer-slider">
+                <label className="viewer-label" htmlFor="layer-slider" style={{color: layerColor}}>
                   Layer:
                 </label>
                 <input

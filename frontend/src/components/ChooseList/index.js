@@ -3,12 +3,16 @@ import { FormControl, InputLabel, Select, MenuItem } from "@mui/material";
 
 const ChooseList = ({ name, list, selected, onChange, customTextColor }) => {
   return (
-    <div style={{ marginTop: "20px", color: customTextColor}}>
-      <FormControl fullWidth>
-        <InputLabel>{name}</InputLabel>
-        <Select style={{ marginTop: "5px" }} value={selected} onChange={(e) => onChange(e.target.value)}>
+    <div style={{ marginTop: "20px" }}>
+      <FormControl fullWidth style={{ color: customTextColor }}>
+        <InputLabel style={{ color: customTextColor }}>{name}</InputLabel>
+        <Select
+          style={{ marginTop: "5px", color: customTextColor, backgroundColor: 'transparent' }}
+          value={selected}
+          onChange={(e) => onChange(e.target.value)}
+        >
           {list.map((item) => (
-            <MenuItem key={item} value={item}>
+            <MenuItem key={item} value={item} style={{ backgroundColor: 'transparent' }}>
               {item}
             </MenuItem>
           ))}
@@ -19,6 +23,3 @@ const ChooseList = ({ name, list, selected, onChange, customTextColor }) => {
 };
 
 export default ChooseList;
-
-
-

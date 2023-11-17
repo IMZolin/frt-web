@@ -53,7 +53,10 @@ export const defaultValues = {
     resolution2: [],
     sourceImageSave: [],
     model: [],
-    scaleCompare: 5
+    scaleCompare: 5,
+
+    customTextColor: getComputedStyle(document.documentElement).getPropertyValue('--text-color-light'),
+    customBorder: getComputedStyle(document.documentElement).getPropertyValue('--button-text-color-light')
 };
 
 export const useStateValues = () => {
@@ -118,6 +121,10 @@ export const useStateValues = () => {
     const [gaussianBlurCount, setGaussianBlurCount] = useState(defaultValues.gaussianBlurCount);
     // TODO : Need to delete it later!
     const [model, setModel] = useState(defaultValues.model);
+
+    //General styles
+    const [customTextColor, setCustomTextColor] = useState(defaultValues.customTextColor);
+    const [customBorder, setCustomBorder] = useState(defaultValues.customBorder);
 
     const tiffTypes = ["8 bit", "16 bit", "32 bit"]
 
@@ -383,6 +390,10 @@ export const useStateValues = () => {
         cnnDeconvModels,
         cnnDeconvModel,
         setCnnDeconvMethod,
-        handleCnnDeconvMethodChange
+        handleCnnDeconvMethodChange,
+        customTextColor,
+        setCustomTextColor,
+        customBorder,
+        setCustomBorder
     };
 };

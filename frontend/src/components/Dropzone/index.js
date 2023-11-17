@@ -124,7 +124,7 @@ const Dropzone = ({ files, addFiles, imageType, state }) => {
         filesLimit={Infinity}
         Icon={''}
         dropzoneText={
-          <Box className='custom-dropzone' px={16} py={6} display="flex" flexDirection="column" justifyContent="center" alignItems="center" gridGap={4} sx={{backgroundColor: 'transparent'}}>
+          <Box className='custom-dropzone' px={16} py={6} display="flex" flexDirection="column" justifyContent="center" alignItems="center" gridGap={4} sx={{ backgroundColor: 'transparent' }}>
             {uploading && (
               <Box className='custom-dropzone-loader' display="flex" flexDirection="column" justifyContent="center" alignItems="center">
                 <CircularProgress size="2rem" />
@@ -149,6 +149,7 @@ const Dropzone = ({ files, addFiles, imageType, state }) => {
             </Box>
           </Box>
         }
+        sx={{ backgroundColor: 'transparent' }} // Ensure the DropzoneAreaBase itself has a transparent background
       />
     </>
   );

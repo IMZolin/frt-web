@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, TextField } from "@mui/material";
 import StepperWrapper from '..';
 import Dropzone from '../../../components/Dropzone';
@@ -8,6 +8,7 @@ import TifViewer from '../../../components/TifViewer';
 import FileDownloader from '../../../components/FileDownloader';
 import { useStateValues } from "../state";
 import { base64ToTiff } from '../../../shared/hooks/showImages';
+import { hexToRgb } from '../../../shared/hooks/showImages';
 import useAxiosStore from '../../../app/store/axiosStore';
 import ChooseList from '../../../components/ChooseList';
 
@@ -17,6 +18,16 @@ const Deconvolution = ({darkMode}) => {
   const state = useStateValues();
   const steps = ['Load PSF', 'Load image', 'Run Deconvolution', 'Save results'];
   const axiosStore = useAxiosStore();
+  
+  useEffect(() => {
+    if (darkMode) {
+      state.setCustomTextColor(getComputedStyle(document.documentElement).getPropertyValue('--text-color-dark'));
+      state.setCustomBorder(getComputedStyle(document.documentElement).getPropertyValue('--button-text-color-dark'));
+    } else {
+      state.setCustomTextColor(getComputedStyle(document.documentElement).getPropertyValue('--text-color-light'));
+      state.setCustomBorder(getComputedStyle(document.documentElement).getPropertyValue('--button-text-color-light'));
+    }
+  }, [darkMode]);
 
   const handleGetPSF = async () => {
     try {
@@ -116,17 +127,17 @@ const Deconvolution = ({darkMode}) => {
 
   function getStepContent(step) {
     switch (step) {
-      case 0:
+      case steps.indexOf('Load PSF'):
         return (<>
           <div className="row">
             <Dropzone files={state.extractedPSFSave} addFiles={state.setExtractedPSFSave} imageType={'extracted_psf'} state={state} />
           </div>
         </>);
-      case 1:
+      case steps.indexOf('Load image'):
         return (
           <>
             <div className="row">
-              <div className="column-1">
+              <div className="column-1" style={{ zIndex: 2, border: `1px solid ${state.customBorder}`}}>
                 <div className="slider-container">
                   {state.sourceImage.length === state.extractedPSF.length && (
                     <>
@@ -167,21 +178,36 @@ const Deconvolution = ({darkMode}) => {
                     />
                   </div>
                 </div>
-                <Dropzone files={state.sourceImageSave} addFiles={state.setSourceImageSave} imageType={'source_img'} state={state} />
+                <Dropzone 
+                  files={state.sourceImageSave} 
+                  addFiles={state.setSourceImageSave} 
+                  imageType={'source_img'} 
+                  state={state} 
+                />
               </div>
               <div className="column-2">
                 <div className="images__preview">
-                  <TifCompare img_1={state.sourceImage} img_2={state.extractedPSF} img_1_projection={null} img_2_projection={state.extractedPSFProjection[0]} scale={state.scale} state={state} isSameLength={state.sourceImage.length === state.extractedPSF.length} type='deconvolution' />
+                  <TifCompare 
+                    img_1={state.sourceImage} 
+                    img_2={state.extractedPSF} 
+                    img_1_projection={null} 
+                    img_2_projection={state.extractedPSFProjection[0]} 
+                    scale={state.scale} 
+                    state={state} 
+                    isSameLength={state.sourceImage.length === state.extractedPSF.length} 
+                    type='deconvolution' 
+                    layerColor={state.customTextColor}
+                  />
                 </div>
               </div>
             </div>
           </>
         );
-      case 2:
+      case steps.indexOf('Run Deconvolution'):
         return (
           <>
             <div className="row">
-              <div className="column-1">
+              <div className="column-1" style={{ zIndex: 2, border: `1px solid ${state.customBorder}`}}>
                 <div className="slider-container">
                   <div>
                     <label htmlFor="layer-slider">Layer:</label><br />
@@ -230,6 +256,20 @@ const Deconvolution = ({darkMode}) => {
                   name="iter"
                   onChange={(e) => state.setIter(e.target.value)}
                   value={state.iter}
+                  sx={{
+                    border: `1px solid rgba(${hexToRgb(state.customTextColor)}, 0.2)`,
+                    borderRadius: '5px',
+                    marginTop: '10px'
+                  }}
+                  InputLabelProps={{
+                    sx: {
+                      color: state.customTextColor,
+                      textTransform: 'capitalize',
+                    },
+                  }}
+                  inputProps={{
+                    style: { color: state.customTextColor},
+                  }}
                 />
                 <TextField
                   id="regularization"
@@ -241,6 +281,20 @@ const Deconvolution = ({darkMode}) => {
                   name="regularization"
                   onChange={(e) => state.setRegularization(e.target.value)}
                   value={state.regularization}
+                  sx={{
+                    border: `1px solid rgba(${hexToRgb(state.customTextColor)}, 0.2)`,
+                    borderRadius: '5px',
+                    marginTop: '10px'
+                  }}
+                  InputLabelProps={{
+                    sx: {
+                      color: state.customTextColor,
+                      textTransform: 'capitalize',
+                    },
+                  }}
+                  inputProps={{
+                    style: { color: state.customTextColor},
+                  }}
                 />
                 <ChooseList
                   className="choose-list"
@@ -248,6 +302,7 @@ const Deconvolution = ({darkMode}) => {
                   list={Object.keys(state.deconvMethods)}
                   selected={state.deconvMethod}
                   onChange={state.handleDeconvMethodChange}
+                  customTextColor={state.customTextColor}
                 />
                 <Button
                   variant="outlined"
@@ -260,17 +315,29 @@ const Deconvolution = ({darkMode}) => {
               </div>
               <div className="column-2" style={{ zIndex: 1 }}>
                 <div className="images__preview">
-                  <TifCompare2 img_1={state.sourceImage} img_2={null} img_3={state.resultImage} img_1_projection={null} img_2_projection={state.extractedPSFProjection[0]} img_3_projection={null} scale={state.scale} state={state} isSameLength={state.sourceImage.length === state.extractedPSF.lengt} type='deconvolution-2' />
+                  <TifCompare2 
+                    img_1={state.sourceImage} 
+                    img_2={null} 
+                    img_3={state.resultImage} 
+                    img_1_projection={null} 
+                    img_2_projection={state.extractedPSFProjection[0]} 
+                    img_3_projection={null} 
+                    scale={state.scale} 
+                    state={state} 
+                    isSameLength={state.sourceImage.length === state.extractedPSF.lengt} 
+                    type='deconvolution-2' 
+                    layerColor={state.customTextColor}
+                  />
                 </div>
               </div>
             </div>
           </>
         );
-      case 3:
+      case steps.indexOf('Save results'):
         return (
           <>
             <div className="row">
-              <div className="column-1" style={{ zIndex: 2 }}>
+              <div className="column-1" style={{ zIndex: 2, border: `1px solid ${state.customBorder}`}}>
                 <div className="slider-container">
                   <div>
                     <label htmlFor="layer-slider">Layer:</label><br />
@@ -319,11 +386,29 @@ const Deconvolution = ({darkMode}) => {
                   name="filename"
                   onChange={(e) => state.setFilename(e.target.value)}
                   value={state.filename}
+                  sx={{
+                    border: `1px solid rgba(${hexToRgb(state.customTextColor)}, 0.2)`,
+                    borderRadius: '5px',
+                    marginTop: '10px'
+                  }}
+                  InputLabelProps={{
+                    sx: {
+                      color: state.customTextColor,
+                      textTransform: 'capitalize',
+                    },
+                  }}
+                  inputProps={{
+                    style: { color: state.customTextColor},
+                  }}
                 />
-                <FileDownloader fileList={state.resultImageSave} folderName={state.filename} btnName={"Save result"} />
+                <FileDownloader 
+                  fileList={state.resultImageSave} 
+                  folderName={state.filename} 
+                  btnName={"Save result"} 
+                />
               </div>
               <div className="column-2" style={{ zIndex: 1 }}>
-                <div className="images__preview" style={{ marginTop: '100px', marginRight: '150px' }}>
+                <div className="images__preview" style={{ marginTop: '100px', marginRight: '50px' }}>
                   <TifViewer
                     img={state.resultImage[state.layer2]}
                     scale={0.5 * state.scale}

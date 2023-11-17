@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, TextField } from "@mui/material";
 import StepperWrapper from '../../StepperWrapper';
 import TifViewer from '../../../components/TifViewer';
@@ -8,6 +8,7 @@ import FileDownloader from '../../../components/FileDownloader';
 import Dropzone from '../../../components/Dropzone';
 import { useStateValues } from "../state";
 import { base64ToTiff } from '../../../shared/hooks/showImages';
+import { hexToRgb } from '../../../shared/hooks/showImages';
 import useAxiosStore from '../../../app/store/axiosStore';
 import './stepper.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -17,6 +18,16 @@ const StepperPSF = ({darkMode}) => {
     const state = useStateValues();
     const steps = ['Load average bead', 'Calculate PSF', 'Save results'];
     const axiosStore = useAxiosStore();
+    
+    useEffect(() => {
+      if (darkMode) {
+        state.setCustomTextColor(getComputedStyle(document.documentElement).getPropertyValue('--text-color-dark'));
+        state.setCustomBorder(getComputedStyle(document.documentElement).getPropertyValue('--button-text-color-dark'));
+      } else {
+        state.setCustomTextColor(getComputedStyle(document.documentElement).getPropertyValue('--text-color-light'));
+        state.setCustomBorder(getComputedStyle(document.documentElement).getPropertyValue('--button-text-color-light'));
+      }
+    }, [darkMode]);
 
     const handleGetAverageBead = async () => {
         try {
@@ -97,18 +108,23 @@ const StepperPSF = ({darkMode}) => {
 
     function getStepContent(step) {
         switch (step) {
-            case 0:
+            case steps.indexOf('Load average bead'):
                 return (
                     <>
                         <div className="row">
-                            <Dropzone files={state.averageBeadSave} addFiles={state.setAverageBeadSave} imageType={'averaged_bead'} state={state} />
+                            <Dropzone 
+                                files={state.averageBeadSave} 
+                                addFiles={state.setAverageBeadSave} 
+                                imageType={'averaged_bead'} 
+                                state={state} 
+                            />
                         </div>
                     </>);
-            case 1:
+            case steps.indexOf('Calculate PSF'):
                 return (
                     <>
                         <div className="row">
-                            <div className="column-1">
+                            <div className="column-1" style={{ zIndex: 2, border: `1px solid ${state.customBorder}`}}>
                                 <div className="slider-container">
                                     <div>
                                         <label htmlFor="layer-slider">Layer:</label><br />
@@ -158,6 +174,19 @@ const StepperPSF = ({darkMode}) => {
                                         name="beadSize"
                                         onChange={(e) => state.setBeadSize(e.target.value)}
                                         value={state.beadSize}
+                                        sx={{
+                                            border: `1px solid rgba(${hexToRgb(state.customTextColor)}, 0.3)`,
+                                            borderRadius: '5px',
+                                          }}
+                                          InputLabelProps={{
+                                            sx: {
+                                              color: state.customTextColor,
+                                              textTransform: 'capitalize',
+                                            },
+                                          }}
+                                          inputProps={{
+                                            style: { color: state.customTextColor},
+                                          }}
                                     />
                                     <TextField
                                         id="iter"
@@ -169,6 +198,19 @@ const StepperPSF = ({darkMode}) => {
                                         name="iter"
                                         onChange={(e) => state.setIter(e.target.value)}
                                         value={state.iter}
+                                        sx={{
+                                            border: `1px solid rgba(${hexToRgb(state.customTextColor)}, 0.3)`,
+                                            borderRadius: '5px',
+                                          }}
+                                          InputLabelProps={{
+                                            sx: {
+                                              color: state.customTextColor,
+                                              textTransform: 'capitalize',
+                                            },
+                                          }}
+                                          inputProps={{
+                                            style: { color: state.customTextColor},
+                                          }}
                                     />
                                     <TextField
                                         id="regularization"
@@ -180,6 +222,19 @@ const StepperPSF = ({darkMode}) => {
                                         name="regularization"
                                         onChange={(e) => state.setRegularization(e.target.value)}
                                         value={state.regularization}
+                                        sx={{
+                                            border: `1px solid rgba(${hexToRgb(state.customTextColor)}, 0.3)`,
+                                            borderRadius: '5px',
+                                          }}
+                                          InputLabelProps={{
+                                            sx: {
+                                              color: state.customTextColor,
+                                              textTransform: 'capitalize',
+                                            },
+                                          }}
+                                          inputProps={{
+                                            style: { color: state.customTextColor},
+                                          }}
                                     />
                                     <ChooseList
                                         className="choose-list"
@@ -187,6 +242,7 @@ const StepperPSF = ({darkMode}) => {
                                         list={Object.keys(state.deconvMethods)}
                                         selected={state.deconvMethod}
                                         onChange={state.handleDeconvMethodChange}
+                                        customTextColor={state.customTextColor}
                                     />
                                 </div>
                                 <Button variant="outlined" color="secondary" className="btn-run" onClick={handlePSFExtract}>
@@ -195,17 +251,27 @@ const StepperPSF = ({darkMode}) => {
                             </div>
                             <div className="column-2">
                                 <div className="images__preview" style={{ marginTop: '30px' }}>
-                                    <TifCompare img_1={state.averageBead} img_2={state.extractedPSF} img_1_projection={state.averageBeadProjection[0]} img_2_projection={state.extractedPSFProjection[0]} scale={state.scale} state={state} isSameLength={true} type='psf' />
+                                    <TifCompare 
+                                        img_1={state.averageBead} 
+                                        img_2={state.extractedPSF} 
+                                        img_1_projection={state.averageBeadProjection[0]} 
+                                        img_2_projection={state.extractedPSFProjection[0]} 
+                                        scale={state.scale} 
+                                        state={state} 
+                                        isSameLength={true} 
+                                        type='psf' 
+                                        layerColor={state.customTextColor}
+                                    />
                                 </div>
                             </div>
                         </div>
                     </>
                 );
-            case 2:
+            case steps.indexOf('Save results'):
                 return (
                     <>
                         <div className="row">
-                            <div className="column-1" style={{ zIndex: 2 }}>
+                            <div className="column-1" style={{ zIndex: 2, border: `1px solid ${state.customBorder}`}}>
                                 <div className="slider-container">
                                     <div>
                                         <label htmlFor="layer-slider">Layer:</label><br />
@@ -254,11 +320,29 @@ const StepperPSF = ({darkMode}) => {
                                     name="filename"
                                     onChange={(e) => state.setFilename(e.target.value)}
                                     value={state.filename}
+                                    sx={{
+                                        border: `1px solid rgba(${hexToRgb(state.customTextColor)}, 0.2)`,
+                                        borderRadius: '5px',
+                                        marginTop: '10px'
+                                      }}
+                                      InputLabelProps={{
+                                        sx: {
+                                          color: state.customTextColor,
+                                          textTransform: 'capitalize',
+                                        },
+                                      }}
+                                      inputProps={{
+                                        style: { color: state.customTextColor},
+                                      }}
                                 />
-                                <FileDownloader fileList={state.extractedPSFSave} folderName={state.filename} btnName={"Save result"} />
+                                <FileDownloader 
+                                    fileList={state.extractedPSFSave} 
+                                    folderName={state.filename} 
+                                    btnName={"Save result"} 
+                                />
                             </div>
                             <div className="column-2" style={{ zIndex: 1 }}>
-                                <div className="images__preview" style={{ marginTop: '-60px', marginRight: '110px' }}>
+                                <div className="images__preview" style={{ marginTop: '-60px' }}>
                                     <TifViewer
                                         img={state.extractedPSF[state.layer2]}
                                         scale={state.scale}
