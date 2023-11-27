@@ -20,7 +20,7 @@ services:
   celery:
     container_name: psf_celery
     image: docker.io/zolin17/psfinterface_celery
-    restart: on-failure
+    restart: always
     build:
       context: ./backend
     volumes:
@@ -58,7 +58,7 @@ services:
   frontend:
     container_name: psf_frontend
     restart: always
-    image: docker.io/zolin17/psfinterface_frontend
+    image: docker.io/zolin17/psfinterface_frontend:lmn
     ports:
       - 3000:3000
     volumes:
