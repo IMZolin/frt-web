@@ -57,7 +57,12 @@ MIDDLEWARE = [
 
 CORS_ALLOW_ALL_ORIGINS = True  
 CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOWED_ORIGINS = "*"
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",  
+    "http://localhost:8000",
+    "http://192.168.1.43:3000",
+    "http://192.168.1.43:8000",
+]
 
 ROOT_URLCONF = 'backend.urls'
 
@@ -194,7 +199,7 @@ STATICFILES_DIRS = [
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
