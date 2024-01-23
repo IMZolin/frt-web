@@ -4,7 +4,7 @@ services:
   backend:
     container_name: psf_backend
     restart: unless-stopped
-    image: docker.io/zolin17/psfinterface_backend
+    image: docker.io/zolin17/psfinterface_backend:lmn
     volumes:
       - ./backend/:/usr/src/blog/
       - ./logs:/app/logs
