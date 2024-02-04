@@ -4,8 +4,10 @@ import axios from 'axios';
 axios.defaults.withCredentials = true;
 
 const useAxiosStore = create((set, get) => {
-  const BASE_URL = 'http://192.168.1.43:8000';
-  
+  const isLocalhost = window.location.hostname === 'localhost';
+  const BASE_URL = isLocalhost ? 'http://localhost:8000' : 'http://192.168.1.43:8000';
+
+
   const axiosInstance = axios.create({
     baseURL: BASE_URL,
     headers: {
@@ -19,15 +21,15 @@ const useAxiosStore = create((set, get) => {
 
     postData: async (params) => {
       const { file, image_type, resolution, voxelX, voxelY, voxelZ} = params;
-    
+
       let formData = new FormData();
-    
+
       file.forEach((fileItem) => {
         formData.append('file', fileItem);
       });
       formData.append('image_type', image_type);
       formData.append('resolution', resolution);
-    
+
       if (voxelX && voxelY && voxelZ) {
         formData.append('voxelX', voxelX);
         formData.append('voxelY', voxelY);
@@ -45,13 +47,13 @@ const useAxiosStore = create((set, get) => {
 
     convertImage: async (params) => {
       const { file, output_prefix} = params;
-    
+
       let formData = new FormData();
       file.forEach((fileItem) => {
         formData.append('file', fileItem);
       });
       formData.append('output_prefix', output_prefix);
-    
+
       try {
         const response = await axiosInstance.post('/api/convert_image/', params);
         return response.data;
