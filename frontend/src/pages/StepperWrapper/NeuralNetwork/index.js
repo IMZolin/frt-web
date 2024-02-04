@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, TextField } from '@mui/material';
 import StepperWrapper from '..';
 import TifCompare from '../../../components/TifCompare';
@@ -7,15 +7,25 @@ import Dropzone from '../../../components/Dropzone';
 import { useStateValues } from "../state";
 import useAxiosStore from '../../../app/store/axiosStore';
 import { base64ToTiff } from '../../../shared/hooks/showImages';
+import { hexToRgb } from '../../../shared/hooks/showImages';
 import ChooseList from '../../../components/ChooseList';
 import FileDownloader from '../../../components/FileDownloader';
 import '../stepper.css';
 
-const NeuralNetwork = () => {
+const NeuralNetwork = ({darkMode}) => {
   const state = useStateValues();
   const steps = ['Load image', 'Preprocessing', 'Deconvolution', 'Save results'];
   const axiosStore = useAxiosStore();
-
+  
+  useEffect(() => {
+    if (darkMode) {
+      state.setCustomTextColor(getComputedStyle(document.documentElement).getPropertyValue('--text-color-dark'));
+      state.setCustomBorder(getComputedStyle(document.documentElement).getPropertyValue('--button-text-color-dark'));
+    } else {
+      state.setCustomTextColor(getComputedStyle(document.documentElement).getPropertyValue('--text-color-light'));
+      state.setCustomBorder(getComputedStyle(document.documentElement).getPropertyValue('--button-text-color-light'));
+    }
+  }, [darkMode]);
   const handlePreprocessing = async () => {
     console.log("Im trying make preprocessing");
     window.alert("Im trying make preprocessing");
@@ -91,13 +101,18 @@ const NeuralNetwork = () => {
       case steps.indexOf('Load image'):
         return (<>
           <div className="row">
-            <Dropzone files={state.sourceImageSave} addFiles={state.setSourceImageSave} imageType={'source_img'} state={state} />
+            <Dropzone 
+              files={state.sourceImageSave} 
+              addFiles={state.setSourceImageSave} 
+              imageType={'source_img'} 
+              state={state} 
+            />
           </div>
         </>);
       case steps.indexOf('Preprocessing'):
         return (<>
           <div className="row">
-            <div className="column-1">
+            <div className="column-1" style={{ zIndex: 2, border: `1px solid ${state.customBorder}`}}>
               <div className="slider-container">
                 <div>
                   <label htmlFor="layer-slider">Layer:</label><br />
@@ -165,6 +180,21 @@ const NeuralNetwork = () => {
                   name="radius"
                   onChange={(e) => state.setGaussianBlurCount(e.target.value)}
                   value={state.gaussianBlurCount}
+                  style={{ color: state.customTextColor }}
+                  sx={{
+                    border: `1px solid rgba(${hexToRgb(state.customTextColor)}, 0.2)`,
+                    borderRadius: '5px',
+                    marginTop: '10px'
+                  }}
+                  InputLabelProps={{
+                    sx: {
+                      color: state.customTextColor,
+                      textTransform: 'capitalize',
+                    },
+                  }}
+                  inputProps={{
+                    style: { color: state.customTextColor},
+                  }}
                 />
               </div>
               <Button variant="outlined" color="secondary" className="btn-run" onClick={handlePreprocessing}>
@@ -173,7 +203,17 @@ const NeuralNetwork = () => {
             </div>
             <div className="column-2">
               <div className="images__preview">
-                <TifCompare img_1={state.sourceImage} img_2={state.preprocImage} img_1_projection={null} img_2_projection={null} scale={state.scale} state={state} isSameLength={true} type='deconvolution' />
+                <TifCompare 
+                  img_1={state.sourceImage} 
+                  img_2={state.preprocImage} 
+                  img_1_projection={null} 
+                  img_2_projection={null} 
+                  scale={state.scale} 
+                  state={state} 
+                  isSameLength={true} 
+                  type='deconvolution' 
+                  layerColor={state.customTextColor}
+                />
               </div>
             </div>
           </div>
@@ -183,7 +223,7 @@ const NeuralNetwork = () => {
         return (
           <>
             <div className="row">
-              <div className="column-1">
+              <div className="column-1" style={{ zIndex: 2, border: `1px solid ${state.customBorder}`}}>
                 <div className="slider-container">
                   <div>
                     <label htmlFor="layer-slider">Layer:</label><br />
@@ -228,6 +268,7 @@ const NeuralNetwork = () => {
                   list={Object.keys(state.cnnDeconvModels)}
                   selected={state.cnnDeconvModel}
                   onChange={state.handleCnnDeconvMethodChange}
+                  customTextColor={state.customTextColor}
                 />
                 <Button
                   variant="outlined"
@@ -239,7 +280,17 @@ const NeuralNetwork = () => {
               </div>
               <div className="column-2" style={{ zIndex: 1 }}>
                 <div className="images__preview">
-                  <TifCompare img_1={state.preprocImage} img_2={state.resultImage} img_1_projection={null} img_2_projection={null} scale={state.scale} state={state} isSameLength={true} type='deconvolution' />
+                  <TifCompare 
+                    img_1={state.preprocImage} 
+                    img_2={state.resultImage} 
+                    img_1_projection={null} 
+                    img_2_projection={null} 
+                    scale={state.scale} 
+                    state={state} 
+                    isSameLength={true} 
+                    type='deconvolution' 
+                    layerColor={state.customTextColor}
+                  />
                 </div>
               </div>
             </div>
@@ -298,11 +349,30 @@ const NeuralNetwork = () => {
                   name="filename"
                   onChange={(e) => state.setFilename(e.target.value)}
                   value={state.filename}
+                  style={{ color: state.customTextColor }}
+                  sx={{
+                    border: `1px solid rgba(${hexToRgb(state.customTextColor)}, 0.2)`,
+                    borderRadius: '5px',
+                    marginTop: '10px'
+                  }}
+                  InputLabelProps={{
+                    sx: {
+                      color: state.customTextColor,
+                      textTransform: 'capitalize',
+                    },
+                  }}
+                  inputProps={{
+                    style: { color: state.customTextColor},
+                  }}
                 />
-                <FileDownloader fileList={state.resultImageSave} folderName={state.filename} btnName={"Save result"} />
+                <FileDownloader 
+                  fileList={state.resultImageSave} 
+                  folderName={state.filename} 
+                  btnName={"Save result"} 
+                />
               </div>
               <div className="column-2" style={{ zIndex: 1 }}>
-                <div className="images__preview" style={{ marginTop: '100px', marginRight: '150px' }}>
+                <div className="images__preview" style={{ marginTop: '100px', marginRight: '50px' }}>
                   <TifViewer
                     img={state.resultImage[state.layer2]}
                     scale={0.5 * state.scale}
@@ -330,6 +400,7 @@ const NeuralNetwork = () => {
         activeStep={state.activeStep}
         isLoad={state.isLoad}
         typeRun={null}
+        darkMode={darkMode}
       />
     </div>
   );

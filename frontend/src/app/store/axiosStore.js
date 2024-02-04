@@ -4,7 +4,7 @@ import axios from 'axios';
 axios.defaults.withCredentials = true;
 
 const useAxiosStore = create((set, get) => {
-  const BASE_URL = 'http://localhost:8000';
+  const BASE_URL = 'http://192.168.1.43:8000';
   
   const axiosInstance = axios.create({
     baseURL: BASE_URL,

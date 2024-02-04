@@ -10,34 +10,38 @@ const TifViewer = ({ img, scale, brightness, imageProjection }) => {
     e.preventDefault();
   };
 
-  if (!img) {
+  if (!img && !imageProjection) {
     return null;
   }
-
-  return (
-    <div className="tif-viewer-container">
-      <div className="tif-viewer">
-        <TIFFViewer
-          key={img.id}
-          tiff={img.data}
-          paginate="bottom"
-          buttonColor="#337fd6"
-          onClick={handleButtonClick}
-          style={{ transform: `scale(${scale})`, objectFit: 'contain', filter: `brightness(${brightness})` }}
-        />
-        {isExistsXYZ ? (
+  else{
+    return (
+      <div className="tif-viewer-container">
+        <div className="tif-viewer">
+        {img ? (
           <TIFFViewer
-            key={imageProjection.id}
-            tiff={imageProjection.data}
+            key={img.id}
+            tiff={img.data}
             paginate="bottom"
             buttonColor="#337fd6"
             onClick={handleButtonClick}
-            style={{ objectFit: 'contain',marginLeft: '120px' }}
+            style={{ transform: `scale(${scale})`, objectFit: 'contain', filter: `brightness(${brightness})` }}
           />
-        ) : null}
+          ) : null}
+          {imageProjection ? (
+            <TIFFViewer
+              key={imageProjection.id}
+              tiff={imageProjection.data}
+              paginate="bottom"
+              buttonColor="#337fd6"
+              onClick={handleButtonClick}
+              style={{ objectFit: 'contain',marginLeft: '120px' }}
+            />
+          ) : null}
+        </div>
       </div>
-    </div>
-  );
+    );
+  }
+  
 };
 
 export default TifViewer;

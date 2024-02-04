@@ -1,11 +1,12 @@
 import React, { useEffect } from 'react';
 import TifViewer from '../TifViewer';
+import { hexToRgb } from '../../shared/hooks/showImages';
 import useBeadMark from './hook'; 
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import './tiff_extractor.css';
 
-const TiffExtractor = ({ img, scale, state, canvasRef }) => {
+const TiffExtractor = ({ img, scale, state, canvasRef, customBorder }) => {
   const markBead = useBeadMark(); 
 
   useEffect(() => {
@@ -35,7 +36,11 @@ const TiffExtractor = ({ img, scale, state, canvasRef }) => {
   };
 
   return (
-    <div className="tiff-wrapper" style={{marginLeft: '-10px'}}>
+    <div className="tiff-wrapper"
+      style={{
+        border: `1px solid ${customBorder}`,
+      }}
+    >
       <div className="tiff-canvas">
         <canvas
           ref={canvasRef}
