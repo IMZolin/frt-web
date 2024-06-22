@@ -4,7 +4,7 @@ services:
   backend:
     container_name: psf_backend
     restart: unless-stopped
-    image: docker.io/zolin17/psfinterface_backend:lmn
+    image: docker.io/zolin17/psfinterface_backend:dev
     volumes:
       - ./backend/:/usr/src/blog/
       - ./logs:/app/logs
@@ -81,20 +81,20 @@ services:
     restart: unless-stopped
     image: docker.io/zolin17/redis
     volumes:
-    - ./redis.conf:/usr/local/etc/redis/redis.conf
-    - ./logs:/app/logs
+      - ./redis.conf:/usr/local/etc/redis/redis.conf
+      - ./logs:/app/logs
     command: redis-server /usr/local/etc/redis/redis.conf
     ports:
       - '6379:6379'
-  
+
   redis-commander:
     container_name: psf_redis-commander
     hostname: redis-commander
     image: docker.io/zolin17/redis-commander:latest
     restart: always
     environment:
-    - REDIS_HOSTS=local:redis:6379
+      - REDIS_HOSTS=local:redis:6379
     ports:
-    - "8081:8081"
+      - "8081:8081"
     depends_on:
       - redis

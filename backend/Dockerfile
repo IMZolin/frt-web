@@ -14,16 +14,19 @@ COPY ./engine/engine_lib/src/cnn/CNN_Deconvolution/models/3d_gaus_blur.h5 .
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         redis-server \
-    && rm -rf /var/lib/apt/lists/* \
-    && echo "dir /data" >> /etc/redis/redis.conf
+    && rm -rf /var/lib/apt/lists/*
+
+# Create the 'logs' directory in the container and the redis.log file
+RUN mkdir -p /app/logs \
+    && touch /app/logs/redis.log \
+    && chmod -R 777 /app/logs
+
+## Copy Redis configuration file
+#COPY redis.conf /usr/local/etc/redis/redis.conf
 
 # Install Python dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
-
-# Create the 'logs' directory in the container
-RUN mkdir /app/logs
-RUN chmod -R 777 /app/logs
 
 # Copy the whole application code
 COPY . .
