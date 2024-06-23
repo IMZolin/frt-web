@@ -6,7 +6,7 @@ After=network.target
 User=www
 Group=www-data
 WorkingDirectory=/app/backend
-ExecStart=/app/env/bin/gunicorn --workers 3 --bind unix:/app/gunicorn/gunicorn.sock backend.wsgi:application --access-logfile /app/gunicorn/access.log --error-logfile /app/gunicorn/error.log
+ExecStart=/app/env/bin/gunicorn --workers 4 --worker-class gevent --bind unix:/app/gunicorn/gunicorn.sock backend.wsgi:application --max-requests 1000 --max-requests-jitter 50 --access-logfile /app/gunicorn/access.log --error-logfile /app/gunicorn/error.log
 Restart=on-failure
 
 [Install]

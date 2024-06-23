@@ -8,6 +8,10 @@ services:
     volumes:
       - ./backend/:/usr/src/blog/
       - ./logs:/app/logs
+    deploy:
+      resources:
+        limits:
+          memory: 2g
     environment:
       - DEBUG=1
       - CELERY_BROKER_URL=redis://redis:6379/0

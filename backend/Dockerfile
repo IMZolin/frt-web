@@ -21,9 +21,6 @@ RUN mkdir -p /app/logs \
     && touch /app/logs/redis.log \
     && chmod -R 777 /app/logs
 
-## Copy Redis configuration file
-#COPY redis.conf /usr/local/etc/redis/redis.conf
-
 # Install Python dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
@@ -34,4 +31,5 @@ COPY . .
 # Expose the port (not necessary unless you are using it with 'docker run -p')
 EXPOSE 8000
 
+# Set the command to run Gunicorn with the specified options
 CMD ["gunicorn", "-c", "gunicorn.conf.py", "backend.wsgi:application"]

@@ -11,12 +11,14 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
-from django_redis import get_redis_connection
 import os
+import logging
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Set TensorFlow logging level to avoid INFO and WARNING messages
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
@@ -28,7 +30,6 @@ SECRET_KEY = 'django-insecure-4t(z5^=)w7r&qg9d8&ow!99x#780y(ynjj()67g%%^snu7aubz
 DEBUG = True
 
 ALLOWED_HOSTS = ["127.0.0.1", "0.0.0.0", "localhost", "192.168.1.43"]
-
 
 # Application definition
 
@@ -55,10 +56,10 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware'
 ]
 
-CORS_ALLOW_ALL_ORIGINS = True  
+CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",  
+    "http://localhost:3000",
     "http://localhost:8000",
     "http://192.168.1.43:3000",
     "http://192.168.1.43:8000",
@@ -118,6 +119,11 @@ LOGGING = {
     'loggers': {
         'matplotlib': {
             'level': 'WARNING',
+        },
+        'tensorflow': {
+            'handlers': ['console', 'file'],
+            'level': 'ERROR',
+            'propagate': False,
         },
     }
 }

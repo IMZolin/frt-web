@@ -6,7 +6,6 @@ from django.core.cache import cache as django_cache
 import os
 import numpy as np
 import logging
-import tifffile
 from celery.result import AsyncResult
 
 from engine.engine_lib.src.model.ImageRaw_class import ImageRaw
@@ -20,6 +19,7 @@ from .tasks import load_and_cache_image
 
 logger = logging.getLogger(__name__)
 
+
 def error_response(error_code, message_error, type_request):
     error_response = {
             'error': message_error
@@ -29,6 +29,7 @@ def error_response(error_code, message_error, type_request):
     response["Access-Control-Allow-Methods"] = type_request
     logger.info('Error response: %s', error_response['error'])
     return response
+
 
 @csrf_exempt
 def load_image(request):
