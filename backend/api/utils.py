@@ -26,26 +26,28 @@ def save_as_tiff(image_raw, is_one_page, filename="img", outtype="uint8"):
         raise IOError(f"Cannot save file {filename}: {e}")
 
 
-def pil_image_to_byte_stream(pil_image, is_one_page):
+def pil_image_to_byte_stream(pil_image, is_one_page, is_save=False):
     byte_stream = io.BytesIO()
     base64_list = []
 
     try:
         if is_one_page:
-            pil_image.save(byte_stream, format='TIFF')
+            pil_image.save(byte_stream, format='WEBP')
             base64_string = base64.b64encode(byte_stream.getvalue()).decode('utf-8')
             return base64_string, None
         else:
             for page in pil_image:
                 byte_stream = io.BytesIO()  # Reset byte stream for each page
-                page.save(byte_stream, format='TIFF')
+                page.save(byte_stream, format='WEBP')
                 base64_string = base64.b64encode(byte_stream.getvalue()).decode('utf-8')
                 base64_list.append(base64_string)
-
-            byte_stream2 = io.BytesIO()
-            pil_image[0].save(byte_stream2, format='TIFF', save_all=True, append_images=pil_image[1:])
-            base64_string2 = base64.b64encode(byte_stream2.getvalue()).decode('utf-8')
-            return base64_list, base64_string2
+            if is_save:
+                byte_stream2 = io.BytesIO()
+                pil_image[0].save(byte_stream2, format='TIFF', save_all=True, append_images=pil_image[1:])
+                base64_string2 = base64.b64encode(byte_stream2.getvalue()).decode('utf-8')
+                return base64_list, base64_string2
+            else:
+                return base64_list, None
     except Exception as e:
         raise IOError(f"Cannot convert PIL image to byte stream: {e}")
 

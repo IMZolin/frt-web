@@ -12,6 +12,8 @@ services:
       resources:
         limits:
           memory: 2g
+        reservations:
+          memory: 512M
     environment:
       - DEBUG=1
       - CELERY_BROKER_URL=redis://redis:6379/0

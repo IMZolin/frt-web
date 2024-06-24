@@ -15,20 +15,13 @@ from engine.engine_lib.src.model.decon_image_model import DeconImageModel
 from engine.engine_lib.src.model.preproces_image_model import PreprocessImageModel
 from engine.engine_lib.src.model.cnn_deconv_model import CNNDeconvModel
 from .utils import save_as_tiff, pil_image_to_byte_stream, pass2cache, generate_projections
-from .tasks import load_and_cache_image
+from .tasks import process_image_task
 
 logger = logging.getLogger(__name__)
 
 
-def error_response(error_code, message_error, type_request):
-    error_response = {
-            'error': message_error
-        }
-    response = JsonResponse(error_response, status=error_code)
-    response["Access-Control-Allow-Origin"] = "*"
-    response["Access-Control-Allow-Methods"] = type_request
-    logger.info('Error response: %s', error_response['error'])
-    return response
+def error_response(status, message, method):
+    return JsonResponse({'error': message, 'method': method}, status=status)
 
 
 @csrf_exempt
@@ -37,45 +30,28 @@ def load_image(request):
         file_list = request.FILES.getlist('file')
         image_type = str(request.POST.get('image_type'))
         logger.info('Image type is %s', image_type)
-        multi_layer_show, multi_layer_save, img_projection = None, None, None
-        if request.POST.get('voxelX') and request.POST.get('voxelY') and request.POST.get('voxelZ'):
-            voxel = np.array([float(request.POST.get('voxelZ')), float(request.POST.get('voxelY')),
-                              float(request.POST.get('voxelX'))])
-            try:
-                image_data = ImageRaw(fpath=file_list, voxelSizeIn=voxel)
-                tiff_image = save_as_tiff(image_raw=image_data, is_one_page=False, filename=f"{image_type}.tiff",
-                                          outtype="uint8")
-                multi_layer_show, multi_layer_save = pil_image_to_byte_stream(pil_image=tiff_image, is_one_page=False)
-                pass2cache(image_type, ['imArray', 'voxel'], [image_data.imArray, image_data.voxel])
 
-                response_data = {
-                    'message': f'Image {image_type} with voxel loaded successfully',
-                    'img_projection': img_projection,
-                    'multi_layer_show': multi_layer_show,
-                    'multi_layer_save': multi_layer_save
-                }
-                return JsonResponse(response_data)
-            except ValueError as ve:
-                return error_response(400, str(ve), 'POST')
-        else:
-            try:
-                image_data = ImageRaw(fpath=file_list)
-                pass2cache(image_type, ['imArray', 'voxel'], [image_data.imArray, image_data.voxel])
-                if image_type == 'averaged_bead' or image_type == 'extracted_psf':
-                    tiff_image = save_as_tiff(image_raw=image_data, is_one_page=False, filename=f"{image_type}.tiff",
-                                              outtype="uint8")
-                    multi_layer_show, multi_layer_save = pil_image_to_byte_stream(pil_image=tiff_image,
-                                                                                  is_one_page=False)
-                    img_projection = generate_projections(tiff_image)
-                response_data = {
-                    'message': f'Image {image_type} loaded successfully',
-                    'img_projection': img_projection,
-                    'multi_layer_show': multi_layer_show,
-                    'multi_layer_save': multi_layer_save
-                }
-                return JsonResponse(response_data)
-            except ValueError as ve:
-                return error_response(400, str(ve), 'POST')
+        # Extract voxel parameters if present
+        voxel_params = {
+            'voxelX': request.POST.get('voxelX'),
+            'voxelY': request.POST.get('voxelY'),
+            'voxelZ': request.POST.get('voxelZ')
+        }
+
+        # Schedule the image processing task
+        task = process_image_task.delay(
+            [f.name for f in file_list],  # Send file names for processing
+            image_type,
+            voxel_params['voxelX'],
+            voxel_params['voxelY'],
+            voxel_params['voxelZ']
+        )
+
+        response_data = {
+            'message': 'Image processing has started',
+            'task_id': task.id
+        }
+        return JsonResponse(response_data)
     else:
         if request.method != 'POST':
             return error_response(400, 'Invalid request method. Please make a POST request.', 'POST')
@@ -84,7 +60,8 @@ def load_image(request):
         elif not request.POST.get('image_type'):
             return error_response(400, 'No image type specified.', 'POST')
         else:
-            return error_response(400, 'Invalid request. Please make a POST request with the required parameters.', 'POST')
+            return error_response(400, 'Invalid request. Please make a POST request with the required parameters.',
+                                  'POST')
 
 
 @csrf_exempt
