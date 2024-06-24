@@ -10,7 +10,6 @@ if [ ! -d .venv ]; then
     echo "Creating .venv directory..."
     python -m venv .venv
 fi
-cd
 
 touch logs/redis.log
 chmod 777 logs/redis.log
@@ -18,3 +17,6 @@ chmod 777 logs/redis.log
 # Clone the engine library
 cd backend/engine/engine_lib
 git clone -b MVC-implementation https://github.com/IMZolin/simple_psf_extractor.git .
+
+cd ../../../frontend
+npm install --force

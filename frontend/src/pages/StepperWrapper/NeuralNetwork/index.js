@@ -392,7 +392,7 @@ const NeuralNetwork = ({darkMode}) => {
   return (
     <div>
       <StepperWrapper
-        name="Neural network"
+        name="CNN deconvolution"
         stepContent={getStepContent}
         steps={steps}
         handleNextStep={state.handleNextStep}

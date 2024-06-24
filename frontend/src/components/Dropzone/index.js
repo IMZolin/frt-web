@@ -54,10 +54,6 @@ const Dropzone = ({ files, addFiles, imageType, state }) => {
           state.setBeads(newData);
           state.setBeadsSave([file]);
           addFiles(allFiles);
-          const newProjection = response.img_projection.map((base64Data, index) => {
-            return base64ToTiff(base64Data, 'image/tiff', `beads_xyz_${index}.tiff`);
-          });
-          state.setAverageBeadProjection(newProjection);
         }
         if (imageType.includes('averaged_bead')) {
           console.log('Average bead');
@@ -85,17 +81,7 @@ const Dropzone = ({ files, addFiles, imageType, state }) => {
           console.log(state.sourceImage);
           state.setSourceImageSave([file]);
           addFiles(allFiles);
-          const newProjection = response.img_projection.map((base64Data, index) => {
-            return base64ToTiff(base64Data, 'image/tiff', `source_image_xyz_${index}.tiff`);
-          });
-          state.setSourceImageProjection(newProjection);
         }
-      }
-      if (response && response.resolution && Array.isArray(response.resolution)) {
-        state.setResolution(response.resolution);
-      } else {
-        console.log('Invalid resolution data in the response:', response);
-        window.alert('Invalid resolution data in the response:', response);
       }
     } catch (error) {
       console.error('Error posting data:', error);

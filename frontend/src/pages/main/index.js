@@ -48,7 +48,7 @@ const MainPage = ({ darkMode }) => {
           component={Link}
           to="/deconvolution"
         >
-          Deconvolution
+          RL deconvolution
         </Button>
         <Button 
           variant="outlined"
@@ -57,7 +57,7 @@ const MainPage = ({ darkMode }) => {
           component={Link}
           to="/network"
         >
-          CNN Training ($)
+          CNN training ($)
         </Button>
         <Button
           variant="outlined"
@@ -66,7 +66,7 @@ const MainPage = ({ darkMode }) => {
           component={Link}
           to="/network"
         >
-          Neural Network
+          CNN deconvolution
         </Button>
         <Button 
           variant="outlined"

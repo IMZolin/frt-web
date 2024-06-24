@@ -428,7 +428,7 @@ const Deconvolution = ({darkMode}) => {
   return (
     <div>
       <StepperWrapper
-        name="Deconvolution"
+        name="Richardson–Lucy deconvolution"
         stepContent={getStepContent}
         steps={steps}
         handleNextStep={state.handleNextStep}

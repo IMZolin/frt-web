@@ -127,7 +127,7 @@ const BeadExtractor = ({darkMode}) => {
                   <TextField
                     className="stepper-resolution"
                     id="resolution-x"
-                    label="Resolution-XY (micron/pxl)"
+                    label="Resolution-XY (micron)"
                     variant="outlined"
                     placeholder="Enter the resolution in X and Y direction"
                     fullWidth
@@ -155,7 +155,7 @@ const BeadExtractor = ({darkMode}) => {
                   <TextField
                     className="stepper-resolution"
                     id="resolution-z"
-                    label="Resolution-Z (micron/pxl)"
+                    label="Resolution-Z (micron)"
                     variant="outlined"
                     placeholder="Enter the resolution in Z direction"
                     fullWidth
@@ -190,7 +190,7 @@ const BeadExtractor = ({darkMode}) => {
             </div>
           </>
         );
-      case steps.indexOf('Mark beads'):
+      case steps.indexOf('Segment & Average beads'):
         return (
           <>
             <div className="row">
@@ -273,6 +273,14 @@ const BeadExtractor = ({darkMode}) => {
                   onClick={handleBeadExtract}
                 >
                   Extract beads
+                </Button>
+                <Button
+                  variant="outlined"
+                  color="secondary"
+                  className="btn-run"
+                  onClick={handleBeadAverage}
+                >
+                  Average Bead
                 </Button>
                 <ChooseList
                   className="choose-list"
