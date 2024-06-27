@@ -1,106 +1,22 @@
-version: "3.8"
+version: "3"
 
 services:
   backend:
-    container_name: psf_backend
-    restart: unless-stopped
-    image: docker.io/zolin17/psfinterface_backend:dev
-    volumes:
-      - ./backend/:/usr/src/blog/
-      - ./logs:/app/logs
-    deploy:
-      resources:
-        limits:
-          memory: 2g
-        reservations:
-          memory: 512M
-    environment:
-      - DEBUG=1
-      - CELERY_BROKER_URL=redis://redis:6379/0
-      - CELERY_RESULT_BACKEND=redis://redis:6379/0
-    ports:
-      - 8000:8000
-    depends_on:
-      - redis
-
-  celery:
-    container_name: psf_celery
-    image: docker.io/zolin17/psfinterface_celery
+    container_name: frt_backend
     restart: always
-    build:
-      context: ./backend
-    volumes:
-      - ./backend:/usr/src/blog/
-    command: celery worker --loglevel=info --uid=nobody
-    environment:
-      - DEBUG=1
-      - CELERY_BROKER_URL=redis://redis:6379/0
-      - CELERY_RESULT_BACKEND=redis://redis:6379/0
-      - DJANGO_SETTINGS_MODULE=backend.settings
-      - CELERY_APP=backend
-    depends_on:
-      - backend
-      - redis
-
-  flower:
-    container_name: psf_flower
-    restart: unless-stopped
-    image: docker.io/zolin17/psfinterface_flower
-    build:
-      context: ./backend
-    command: celery flower --broker=redis://redis:6379/0
-    environment:
-      - DEBUG=1
-      - CELERY_BROKER_URL=redis://redis:6379/0
-      - CELERY_RESULT_BACKEND=redis://redis:6379/0
-      - DJANGO_SETTINGS_MODULE=backend.settings
-      - CELERY_APP=backend
+    image: frt-web:dev
+    command: sh -c "python main.py"
     ports:
-      - '5555:5555'
-    depends_on:
-      - backend
-      - redis
-
+      - "8000:8000"
+    env_file:
+      - .env
   frontend:
-    container_name: psf_frontend
+    container_name: frt_frontend
     restart: always
-    image: docker.io/zolin17/psfinterface_frontend:lmn
+    image: frt-web:dev
+    working_dir: /app/web/frontend
+    command: sh -c "npm start"
     ports:
-      - 3000:3000
-    volumes:
-      - ./frontend/:/usr/src/frontend/
-
-  nginx:
-    container_name: psf_nginx
-    restart: always
-    build: ./nginx
-    image: docker.io/zolin17/psfinterface_nginx
-    links:
-      - backend
-      - frontend
-      - flower
-    ports:
-      - '80:80'
-
-  redis:
-    container_name: psf_redis
-    restart: unless-stopped
-    image: docker.io/zolin17/redis
-    volumes:
-      - ./redis.conf:/usr/local/etc/redis/redis.conf
-      - ./logs:/app/logs
-    command: redis-server /usr/local/etc/redis/redis.conf
-    ports:
-      - '6379:6379'
-
-  redis-commander:
-    container_name: psf_redis-commander
-    hostname: redis-commander
-    image: docker.io/zolin17/redis-commander:latest
-    restart: always
-    environment:
-      - REDIS_HOSTS=local:redis:6379
-    ports:
-      - "8081:8081"
-    depends_on:
-      - redis
+      - "3000:3000"
+    env_file:
+      - .env
