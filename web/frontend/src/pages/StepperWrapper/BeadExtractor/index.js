@@ -180,11 +180,15 @@ const BeadExtractor = ({darkMode}) => {
               </div>
               <div className="column-2" style={{ zIndex: 1 }}>
                 <Dropzone 
-                  files={state.beads}
-                  addFiles={state.setBeads}
+                  files={state.files}
+                  addFiles={state.addFiles}
+                  setFiles={state.setBeads}
+                  addMultiFile={null}
+                  addProjections={null}
                   imageType={'beads_image'} 
                   state={state}
-                  saveImage={false}
+                  isSaveImage={false}
+                  isProjections={false}
                 />
               </div>
             </div>

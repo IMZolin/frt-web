@@ -20,19 +20,19 @@ const useAxiosStore = create((set, get) => {
     axiosInstance,
 
     postData: async (params) => {
-      const { file, image_type, resolution, voxelX, voxelY, voxelZ} = params;
+      const { files, image_type, voxelXY, voxelZ, saveImage, isProjections} = params;
 
       let formData = new FormData();
 
-      file.forEach((fileItem) => {
-        formData.append('file', fileItem);
+      files.forEach((fileItem) => {
+        formData.append('files', fileItem);
       });
       formData.append('image_type', image_type);
-      formData.append('resolution', resolution);
+      formData.append('save_image', saveImage);
+      formData.append('is_projections', isProjections);
 
-      if (voxelX && voxelY && voxelZ) {
-        formData.append('voxelX', voxelX);
-        formData.append('voxelY', voxelY);
+      if (voxelXY && voxelZ) {
+        formData.append('voxel_xy', voxelXY);
         formData.append('voxelZ', voxelZ);
       }
 

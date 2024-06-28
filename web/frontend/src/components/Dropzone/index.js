@@ -5,7 +5,7 @@ import useAxiosStore from '../../app/store/axiosStore';
 import { base64ToTiff } from '../../shared/hooks/showImages';
 import './dropzone.css';
 
-const Dropzone = ({ files, addFiles, imageType, state, saveImage = false }) => {
+const Dropzone = ({ files = [], addFiles, setFiles, addMultiFile, addProjections, imageType, state, saveImage = false, isProjections = false }) => {
   const axiosStore = useAxiosStore();
   const [uploading, setUploading] = useState(false);
 
@@ -23,12 +23,16 @@ const Dropzone = ({ files, addFiles, imageType, state, saveImage = false }) => {
       let formData = new FormData();
       const fileObjects = allFiles.map((file) => file.file);
 
-      fileObjects.forEach((file) => {
-        formData.append('files', file);
-      });
+      console.log(fileObjects.length);
+      if (fileObjects && fileObjects.length > 0) {
+        fileObjects.forEach((file) => {
+          formData.append('files', file);
+        });
+      }
 
       formData.append('image_type', imageType);
       formData.append('save_image', saveImage);
+      formData.append('is_projections', isProjections);
 
       if (imageType.includes('beads_image') || imageType.includes('source_img') || imageType.includes('averaged_bead') || imageType.includes('extracted_psf')) {
         formData.append('voxel_xy', state.voxelXY);
@@ -43,40 +47,17 @@ const Dropzone = ({ files, addFiles, imageType, state, saveImage = false }) => {
         const newData = response.image_show.map((base64Data, index) => {
           return base64ToTiff(base64Data, 'image/tiff', `${response.image_type}_${index}.tiff`);
         });
+        setFiles(newData);
 
-
-        if (imageType.includes('beads_image')) {
-          console.log('Beads Image');
-          state.setBeads(newData);
-          addFiles(allFiles);
-        }
-        if (imageType.includes('averaged_bead')) {
-          console.log('Average bead');
-
+        if (saveImage) {
           const file = base64ToTiff(response.image_save, 'image/tiff', `${response.image_type}.tiff`);
-          state.setAverageBead(newData);
-          state.setAverageBeadSave([file]);
-          addFiles(allFiles);
-          const newProjection = response.img_projection.map((base64Data, index) => {
-            return base64ToTiff(base64Data, 'image/tiff', `${response.image_type}_${index}.tiff`);
-          });
-          state.setAverageBeadProjection(newProjection);
+          addMultiFile([file]);
         }
-        if (imageType.includes('extracted_psf')) {
-          console.log('Extracted psf');
-          const file = base64ToTiff(response.image_save, 'image/tiff', `${response.image_type}.tiff`);
-          state.setExtractedPSF(newData);
-          state.setExtractedPSFSave([file]);
-          addFiles(allFiles);
-          const newProjection = response.img_projection.map((base64Data, index) => {
-            return base64ToTiff(base64Data, 'image/tiff', `${response.image_type}_${index}.tiff`);
+        if (isProjections) {
+          const projection = response.projections.map((base64Data, index) => {
+            return base64ToTiff(base64Data, 'image/png', `${response.image_type}_${index}.png`);
           });
-          state.setExtractedPSFProjection(newProjection);
-        }
-        if (imageType.includes('source_img')) {
-          console.log('Source image');
-          state.setSourceImage(newData);
-          addFiles(allFiles);
+          addProjections(projection);
         }
       }
     } catch (error) {

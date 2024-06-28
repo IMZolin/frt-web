@@ -7,7 +7,7 @@ from fastapi.responses import JSONResponse
 from fastapi import APIRouter
 
 from web.backend.engine.src.common.ImageRaw_class import ImageRaw
-from web.backend.utils import tiff2base64
+from web.backend.utils import tiff2base64, generate_projections
 
 router = APIRouter()
 
@@ -18,7 +18,8 @@ async def load_image(
         image_type: str = Form(...),
         voxel_xy: Optional[float] = Form(None),
         voxel_z: Optional[float] = Form(None),
-        save_image: bool = Form(False)
+        save_image: bool = Form(False),
+        is_projections: bool = Form(False)
 ):
     temp_dir = tempfile.TemporaryDirectory()
     try:
@@ -41,6 +42,9 @@ async def load_image(
         response_content = {'message': f'Image {image_type} loaded successfully', 'image_show': images_show}
         if save_image:
             response_content['image_save'] = images_save
+        if is_projections:
+            projections = generate_projections(image_data)
+            response_content['projections'] = projections
         return JSONResponse(content=response_content)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))

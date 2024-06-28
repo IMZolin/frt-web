@@ -1,6 +1,10 @@
 import base64
 import io
 
+import numpy as np
+
+from web.backend.engine.src.common.AuxTkPlot_class import AuxCanvasPlot
+
 
 def tiff2base64(image, compress_quality=50, is_save=False):
     base64_list = []
@@ -18,3 +22,14 @@ def tiff2base64(image, compress_quality=50, is_save=False):
         return base64_list, base64_string2
     else:
         return base64_list, None
+
+
+def generate_projections(image_raw):
+    img_buf = io.BytesIO()
+    projections = AuxCanvasPlot.FigurePILImagekFrom3DArray(image_raw.GetIntensities())
+    if projections is None:
+        return None
+    projections.save(img_buf, format='PNG')
+    img_buf.seek(0)
+    base64_string = base64.b64encode(img_buf.getvalue()).decode('utf-8')
+    return [base64_string]
