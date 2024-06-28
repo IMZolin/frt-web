@@ -18,28 +18,17 @@ const Dropzone = ({ files = [], addFiles, setFiles, addMultiFile, addProjections
     addFiles(allFiles);
     state.setIsLoad(true);
     setUploading(true);
-
+    
     try {
-      let formData = new FormData();
       const fileObjects = allFiles.map((file) => file.file);
-
-      console.log(fileObjects.length);
-      if (fileObjects && fileObjects.length > 0) {
-        fileObjects.forEach((file) => {
-          formData.append('files', file);
-        });
-      }
-
-      formData.append('image_type', imageType);
-      formData.append('save_image', saveImage);
-      formData.append('is_projections', isProjections);
-
-      if (imageType.includes('beads_image') || imageType.includes('source_img') || imageType.includes('averaged_bead') || imageType.includes('extracted_psf')) {
-        formData.append('voxel_xy', state.voxelXY);
-        formData.append('voxel_z', state.voxelZ);
-      }
-
-      const response = await axiosStore.postData(formData);
+      const response = await axiosStore.postData({
+        files: fileObjects,
+        image_type: imageType,
+        saveImage: saveImage,
+        isProjections: isProjections,
+        voxelXY: state.voxelXY,
+        voxelZ: state.voxelZ
+      });
       console.log('Response:', response);
       window.alert('Files uploaded successfully');
 

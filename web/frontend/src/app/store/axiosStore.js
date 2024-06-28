@@ -23,21 +23,22 @@ const useAxiosStore = create((set, get) => {
       const { files, image_type, voxelXY, voxelZ, saveImage, isProjections} = params;
 
       let formData = new FormData();
-
+      console.log(params);
       files.forEach((fileItem) => {
         formData.append('files', fileItem);
       });
+
       formData.append('image_type', image_type);
       formData.append('save_image', saveImage);
       formData.append('is_projections', isProjections);
-
-      if (voxelXY && voxelZ) {
-        formData.append('voxel_xy', voxelXY);
-        formData.append('voxelZ', voxelZ);
+      if (voxelXY !== null && voxelZ !== null) {
+        formData.append('voxel_xy', parseFloat(voxelXY));
+        formData.append('voxel_z', parseFloat(voxelZ));
       }
-
+      console.log(voxelXY, voxelZ);
       try {
         const response = await axiosInstance.post('/api/load_image/', formData);
+        console.log("Log 3");
         return response.data;
       } catch (error) {
         console.error('Error posting data:', error);

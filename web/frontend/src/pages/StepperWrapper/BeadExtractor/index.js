@@ -132,10 +132,7 @@ const BeadExtractor = ({darkMode}) => {
                     placeholder="Enter the resolution in X and Y direction"
                     fullWidth
                     margin="normal"
-                    onChange={(e) => {
-                      state.setVoxelXY(e.target.value);
-                    }
-                    }
+                    onChange={(e) => state.setVoxelXY(e.target.value)}
                     value={state.voxelXY}
                     sx={{
                       border: `1px solid rgba(${hexToRgb(state.customTextColor)}, 0.3)`,

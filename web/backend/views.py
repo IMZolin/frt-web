@@ -23,6 +23,7 @@ async def load_image(
 ):
     temp_dir = tempfile.TemporaryDirectory()
     try:
+        print(voxel_xy, voxel_z)
         file_paths = []
         for file in files:
             temp_file = os.path.join(temp_dir.name, file.filename)
