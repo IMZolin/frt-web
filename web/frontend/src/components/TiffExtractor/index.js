@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 import TifViewer from '../TifViewer';
-import { hexToRgb } from '../../shared/hooks/showImages';
-import useBeadMark from './hook'; 
+import useBeadMark from './hook';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import './tiff_extractor.css';

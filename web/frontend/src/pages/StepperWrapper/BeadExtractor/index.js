@@ -196,114 +196,104 @@ const BeadExtractor = ({darkMode}) => {
           <>
             <div className="row">
               <div className="column-1" style={{ marginTop: '-10px', border: `1px solid ${state.customBorder}` }}>
-              <div className="slider-container">
-                <div>
-                  <label htmlFor="layer-slider">Layer:</label><br />
-                  <input
-                    id="layer-slider"
-                    type="range"
-                    min="0"
-                    max={state.beads.length - 1}
-                    step="1"
-                    value={state.layer}
-                    onChange={(e) => state.handleLayerChange(e, state.beads.length - 1)}
-                  />
+                <div className="slider-container">
+                  <div>
+                    <label htmlFor="layer-slider">Layer:</label><br />
+                    <input
+                      id="layer-slider"
+                      type="range"
+                      min="0"
+                      max={state.beads.length - 1}
+                      step="1"
+                      value={state.layer}
+                      onChange={(e) => state.handleLayerChange(e, state.beads.length - 1)}
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="brightness-slider">Brightness:</label>
+                    <input
+                      id="brightness-slider"
+                      type="range"
+                      min="1"
+                      max="3"
+                      step="0.01"
+                      value={state.levelBrightness}
+                      onChange={state.handleSliderBrightnessChange}
+                    />
+                  </div>
+                  <div>
+                    <label className="subtitle" htmlFor="select-size">Selection Size (px):</label>
+                    <TextField
+                      id="select-size"
+                      variant="outlined"
+                      className="stepper-resolution"
+                      placeholder="Enter a select size"
+                      fullWidth
+                      name="selectSize"
+                      margin="normal"
+                      onChange={(e) => state.setSelectSize(e.target.value)}
+                      value={state.selectSize}
+                      sx={{
+                        border: `1px solid rgba(${hexToRgb(state.customTextColor)}, 0.2)`,
+                        borderRadius: '5px',
+                        marginTop: '10px'
+                      }}
+                      InputLabelProps={{
+                        sx: {
+                          color: state.customTextColor,
+                          textTransform: 'capitalize',
+                        },
+                      }}
+                      inputProps={{
+                        style: { color: state.customTextColor },
+                      }}
+                    />
+                  </div>
                 </div>
-                <div>
-                  <label htmlFor="brightness-slider">Brightness:</label>
-                  <input
-                    id="brightness-slider"
-                    type="range"
-                    min="1"
-                    max="3"
-                    step="0.01"
-                    value={state.levelBrightness}
-                    onChange={state.handleSliderBrightnessChange}
-                  />
-                </div>  
-                <div>
-                  <label className="subtitle" htmlFor="select-size">Selection Size (px):</label>
-                  <TextField
-                    id="select-size"
+                <div className="button-row" style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginTop: '10px' }}>
+                  <Button
                     variant="outlined"
-                    className="stepper-resolution"
-                    placeholder="Enter a select size"
-                    fullWidth
-                    name="selectSize"
-                    margin="normal"
-                    onChange={(e) => state.setSelectSize(e.target.value)}
-                    value={state.selectSize}
-                    sx={{
-                      border: `1px solid rgba(${hexToRgb(state.customTextColor)}, 0.2)`,
-                      borderRadius: '5px',
-                      marginTop: '10px'
-                    }}
-                    InputLabelProps={{
-                      sx: {
-                        color: state.customTextColor,
-                        textTransform: 'capitalize',
-                      },
-                    }}
-                    inputProps={{
-                      style: { color: state.customTextColor},
-                    }}
-                  />
+                    color="secondary"
+                    className="btn-run"
+                    onClick={(e) => state.handleUndoMark(e, canvasRef)}
+                  >
+                    Undo mark
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    color="secondary"
+                    className="btn-run"
+                    onClick={(e) => state.handleClearMarks(e, canvasRef)}
+                  >
+                    Clear all marks
+                  </Button>
                 </div>
+                  <Button
+                    variant="outlined"
+                    color="secondary"
+                    className="btn-run"
+                    onClick={handleBeadAverage}
+                  >
+                    Autosegment beads
+                  </Button>
+                <div className="button-row" style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginTop: '10px' }}>
+                  <Button
+                    variant="outlined"
+                    color="secondary"
+                    className="btn-run"
+                    onClick={handleBeadExtract}
+                  >
+                    Extract beads
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    color="secondary"
+                    className="btn-run"
+                    onClick={handleBeadAverage}
+                  >
+                    Average Bead
+                  </Button>
                 </div>
-                <Button 
-                  variant="outlined" 
-                  color="info" 
-                  className="btn-run" 
-                  onClick={(e) => state.handleUndoMark(e, canvasRef)} 
-                  style={{marginTop: '10px'}}
-                >
-                  Undo mark
-                </Button>
-                <Button 
-                  variant="outlined" 
-                  color="info" 
-                  className="btn-run" 
-                  onClick={(e) => state.handleClearMarks(e, canvasRef)}
-                >
-                  Clear all marks
-                </Button>
-                <Button
-                  variant="outlined"
-                  color="secondary"
-                  className="btn-run"
-                  onClick={handleBeadAverage}
-                >
-                  Autosegment beads
-                </Button>
-                <Button 
-                  variant="outlined" 
-                  color="secondary" 
-                  className="btn-run" 
-                  onClick={handleBeadExtract}
-                >
-                  Extract beads
-                </Button>
-                <Button
-                  variant="outlined"
-                  color="secondary"
-                  className="btn-run"
-                  onClick={handleBeadAverage}
-                >
-                  Average Bead
-                </Button>
-                <ChooseList
-                  className="choose-list"
-                  name="Tiff type"
-                  list={state.tiffTypes}
-                  selected={state.tiffType}
-                  onChange={state.handleTiffTypeChange}
-                  customTextColor={state.customTextColor}
-                />
-                <FileDownloader 
-                  fileList={state.extractBeads} 
-                  folderName={"extract_beads"} 
-                  btnName={"Save beads"} 
-                />
               </div>
               <div className="column-2" style={{ zIndex: 1, marginLeft: '20px', marginTop: '-10px' }}>
                 <div className="images__preview">
@@ -313,17 +303,6 @@ const BeadExtractor = ({darkMode}) => {
                     state={state}
                     canvasRef={canvasRef}
                     customBorder={state.customBorder}
-                  />
-                  <TifCompare
-                    img_1={state.extractBeads}
-                    img_2={state.averageBead}
-                    img_1_projection={null}
-                    img_2_projection={state.averageBeadProjection[0]}
-                    scale={state.scale} state={state}
-                    isSameLength={state.extractBeads.length === state.beads.length}
-                    type='beads'
-                    customTextColor={state.customTextColor}
-                    layerColor={state.customTextColor}
                   />
                 </div>
               </div>

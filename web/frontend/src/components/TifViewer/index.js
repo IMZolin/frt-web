@@ -3,9 +3,6 @@ import { TIFFViewer } from "react-tiff";
 import "./tif_viewer.css";
 
 const TifViewer = ({ img, scale, brightness, imageProjection }) => {
-  console.log(imageProjection);
-  const isExistsXYZ = imageProjection !== null;
-
   const handleButtonClick = (e) => {
     e.preventDefault();
   };
@@ -34,7 +31,7 @@ const TifViewer = ({ img, scale, brightness, imageProjection }) => {
               paginate="bottom"
               buttonColor="#337fd6"
               onClick={handleButtonClick}
-              style={{ objectFit: 'contain',marginLeft: '120px' }}
+              style={{ transform: `scale(${0.7})`, objectFit: 'contain',marginLeft: '120px' }}
             />
           ) : null}
         </div>
