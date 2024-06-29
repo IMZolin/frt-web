@@ -20,3 +20,8 @@ services:
       - "3000:3000"
     env_file:
       - .env
+  redis:
+    image: "redis:alpine"
+    container_name: frt_redis
+    ports:
+      - "6379:6379"

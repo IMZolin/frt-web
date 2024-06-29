@@ -7,7 +7,7 @@ from fastapi.responses import JSONResponse
 from fastapi import APIRouter
 
 from web.backend.engine.src.common.ImageRaw_class import ImageRaw
-from web.backend.utils import tiff2base64, generate_projections
+from web.backend.utils import tiff2base64, generate_projections, pass2cache, redis_client
 
 router = APIRouter()
 
@@ -23,7 +23,6 @@ async def load_image(
 ):
     temp_dir = tempfile.TemporaryDirectory()
     try:
-        print(voxel_xy, voxel_z)
         file_paths = []
         for file in files:
             temp_file = os.path.join(temp_dir.name, file.filename)
@@ -40,12 +39,41 @@ async def load_image(
             image_data = ImageRaw(fpath=file_paths)
         image_tiff = image_data.SaveAsTiff()
         images_show, images_save = tiff2base64(image=image_tiff, is_save=save_image)
-        response_content = {'message': f'Image {image_type} loaded successfully', 'image_show': images_show}
+        response_content = {'image_show': images_show}
         if save_image:
             response_content['image_save'] = images_save
         if is_projections:
             projections = generate_projections(image_data)
             response_content['projections'] = projections
+        pass2cache(image_type, response_content)
         return JSONResponse(content=response_content)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.get("/api/get_image/")
+async def get_image(image_type: str = Form(...)):
+    try:
+        cache_data = redis_client.hgetall(f"{image_type}")
+        if cache_data:
+            return JSONResponse(content=cache_data)
+        else:
+            raise HTTPException(status_code=404, detail="Cache not found")
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.post("/api/bead_extractor/mark/")
+async def mark_bead():
+    pass
+
+
+@router.post("/api/bead_extractor/autosegment/")
+async def autosegment_bead():
+    pass
+
+
+@router.post("/api/bead_extractor/extract/")
+async def extract_beads():
+    pass
+

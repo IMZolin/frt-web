@@ -35,10 +35,8 @@ const useAxiosStore = create((set, get) => {
         formData.append('voxel_xy', parseFloat(voxelXY));
         formData.append('voxel_z', parseFloat(voxelZ));
       }
-      console.log(voxelXY, voxelZ);
       try {
         const response = await axiosInstance.post('/api/load_image/', formData);
-        console.log("Log 3");
         return response.data;
       } catch (error) {
         console.error('Error posting data:', error);
@@ -46,20 +44,13 @@ const useAxiosStore = create((set, get) => {
       }
     },
 
-    convertImage: async (params) => {
-      const { file, output_prefix} = params;
-
-      let formData = new FormData();
-      file.forEach((fileItem) => {
-        formData.append('file', fileItem);
-      });
-      formData.append('output_prefix', output_prefix);
-
-      try {
-        const response = await axiosInstance.post('/api/convert_image/', params);
+    getData: async (image_type) => {
+      try{
+        let formData = new FormData();
+        formData.append('image_type', image_type);
+        const response = await axiosInstance.get('/api/get_image/', formData);
         return response.data;
-      } catch (error) {
-        console.error('Error converting image:', error);
+      } catch(error){
         throw error;
       }
     },

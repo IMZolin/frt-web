@@ -17,7 +17,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 const BeadExtractor = ({darkMode}) => {
   const state = useStateValues();
-  const steps = ['Load beads', 'Mark beads', 'Average bead', 'Save results'];
+  const steps = ['Load beads', 'Segment & average beads', 'Save results'];
   const axiosStore = useAxiosStore();
   const canvasRef = useRef();
   const markBead = useBeadMark();
@@ -191,7 +191,7 @@ const BeadExtractor = ({darkMode}) => {
             </div>
           </>
         );
-      case steps.indexOf('Segment & Average beads'):
+      case steps.indexOf('Segment & average beads'):
         return (
           <>
             <div className="row">
@@ -267,6 +267,14 @@ const BeadExtractor = ({darkMode}) => {
                 >
                   Clear all marks
                 </Button>
+                <Button
+                  variant="outlined"
+                  color="secondary"
+                  className="btn-run"
+                  onClick={handleBeadAverage}
+                >
+                  Autosegment beads
+                </Button>
                 <Button 
                   variant="outlined" 
                   color="secondary" 
@@ -306,86 +314,15 @@ const BeadExtractor = ({darkMode}) => {
                     canvasRef={canvasRef}
                     customBorder={state.customBorder}
                   />
-                </div>
-              </div>
-            </div>
-          </>
-        );
-      case steps.indexOf('Average bead'):
-        return (
-          <>
-            <div className="row">
-              <div className="column-1" style={{ zIndex: 2, border: `1px solid ${state.customBorder}`}}>
-                <div className="slider-container">
-                  <div>
-                    {state.extractBeads.length === state.beads.length && (
-                      <>
-                        <label htmlFor="layer-slider">Layer:</label><br />
-                        <input
-                          id="layer-slider"
-                          type="range"
-                          min="0"
-                          max={state.beads.length - 1}
-                          step="1"
-                          value={state.layer}
-                          onChange={(e) => state.handleLayerChange(e, state.beads.length - 1)}
-                        />
-                      </>
-                    )}
-                  </div>
-                  <div>
-                    <label htmlFor="scale-slider">Scale:</label><br />
-                    <input
-                      id="scale-slider"
-                      type="range"
-                      min="3"
-                      max="7"
-                      step="0.1"
-                      value={state.scale}
-                      onChange={(e) => state.handleScaleChange(e, 7)}
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="brightness-slider">Brightness:</label><br />
-                    <input
-                      id="brightness-slider"
-                      type="range"
-                      min="1"
-                      max="3"
-                      step="0.01"
-                      value={state.levelBrightness}
-                      onChange={state.handleSliderBrightnessChange}
-                    />
-                  </div>
-                </div>
-                <ChooseList
-                  className="choose-list"
-                  name="Blur type"
-                  list={state.blurTypes}
-                  selected={state.blurType}
-                  onChange={state.handleBlurTypeChange}
-                  customTextColor={state.customTextColor}
-                />
-                <Button
-                  variant="outlined"
-                  color="secondary"
-                  className="btn-run"
-                  onClick={handleBeadAverage}
-                >
-                  Average Bead
-                </Button>
-              </div>
-              <div className="column-2">
-                <div className="images__preview">
-                  <TifCompare 
-                    img_1={state.extractBeads} 
-                    img_2={state.averageBead} 
-                    img_1_projection={null} 
-                    img_2_projection={state.averageBeadProjection[0]} 
-                    scale={state.scale} state={state} 
-                    isSameLength={state.extractBeads.length === state.beads.length} 
-                    type='beads' 
-                    customTextColor={state.customTextColor} 
+                  <TifCompare
+                    img_1={state.extractBeads}
+                    img_2={state.averageBead}
+                    img_1_projection={null}
+                    img_2_projection={state.averageBeadProjection[0]}
+                    scale={state.scale} state={state}
+                    isSameLength={state.extractBeads.length === state.beads.length}
+                    type='beads'
+                    customTextColor={state.customTextColor}
                     layerColor={state.customTextColor}
                   />
                 </div>

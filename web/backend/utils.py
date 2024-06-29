@@ -1,9 +1,11 @@
 import base64
 import io
-
-import numpy as np
+import redis
 
 from web.backend.engine.src.common.AuxTkPlot_class import AuxCanvasPlot
+
+redis_client = redis.Redis(host='redis', port=6379, decode_responses=True)
+TIMEOUT = 600
 
 
 def tiff2base64(image, compress_quality=50, is_save=False):
@@ -33,3 +35,9 @@ def generate_projections(image_raw):
     img_buf.seek(0)
     base64_string = base64.b64encode(img_buf.getvalue()).decode('utf-8')
     return [base64_string]
+
+
+def pass2cache(cache_key, data):
+    cache_dict = {key: str(value) for key, value in data.items()}
+    redis_client.hset(cache_key, mapping=cache_dict)
+    redis_client.expire(cache_key, TIMEOUT)
