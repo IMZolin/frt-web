@@ -49,7 +49,7 @@ async def load_image(
         if is_projections:
             projections = generate_projections(image_data)
             response_content['projections'] = projections
-        response_content['image_intensities'] = image_data.GetIntensities()
+        response_content['image_intensities'] = image_data.GetIntensities().tolist()
         response_content['voxel'] = image_data.GetVoxel()
         pass2cache(image_type, response_content)
         return JSONResponse(content=response_content)
@@ -87,7 +87,8 @@ async def init_bead_extractor():
         beads_cache = await get_data("beads_image")
         if beads_cache is not None:
             bead_extractor = ExtractorModel()
-            bead_extractor.SetMainImage("beads_image.tiff", beads_cache["image_intensities"], beads_cache["voxel"])
+            print(json.loads(beads_cache["voxel"]))
+            bead_extractor.SetMainImage(array=np.array(json.loads(beads_cache["image_intensities"])), voxel=json.loads(beads_cache["voxel"]))
             if bead_extractor is None:
                 raise Exception("Bead extractor initialization failed")
             bead_coords = await get_data('bead_coords')
