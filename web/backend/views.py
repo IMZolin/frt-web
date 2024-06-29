@@ -42,13 +42,15 @@ async def load_image(
         else:
             image_data = ImageRaw(fpath=file_paths)
         image_tiff = image_data.SaveAsTiff()
-        images_show, images_save = tiff2base64(image=image_tiff, is_save=save_image)
-        response_content = {'image_show': images_show, 'image_data': json.dumps(np.array(image_data).tolist())}
+        images_show, images_save = await tiff2base64(image=image_tiff, convert_type='both' if save_image else 'compress')
+        response_content = {'image_show': images_show}
         if save_image:
             response_content['image_save'] = images_save
         if is_projections:
             projections = generate_projections(image_data)
             response_content['projections'] = projections
+        response_content['image_intensities'] = image_data.GetIntensities()
+        response_content['voxel'] = image_data.GetVoxel()
         pass2cache(image_type, response_content)
         return JSONResponse(content=response_content)
     except Exception as e:
@@ -57,9 +59,9 @@ async def load_image(
         temp_dir.cleanup()
 
 
-async def get_image(image_type: str):
+async def get_data(data_type: str):
     try:
-        cache_data = redis_client.hgetall(f"{image_type}")
+        cache_data = redis_client.hgetall(f"{data_type}")
         if cache_data:
             return cache_data
         else:
@@ -71,7 +73,7 @@ async def get_image(image_type: str):
 @router.get("/api/get_image/")
 async def get_image_request(image_type: str = Form(...)):
     try:
-        cache_data = await get_image(image_type=image_type)
+        cache_data = await get_data(data_type=image_type)
         if cache_data:
             return JSONResponse(content=cache_data)
         else:
@@ -82,10 +84,17 @@ async def get_image_request(image_type: str = Form(...)):
 
 async def init_bead_extractor():
     try:
-        beads_cache = await get_image("beads_image")
+        beads_cache = await get_data("beads_image")
         if beads_cache is not None:
-            beads_image = Image.fromarray(np.array(json.loads(beads_cache['image_data']), dtype='uint8'))
-            bead_extractor = ExtractorModel(beads_image)
+            bead_extractor = ExtractorModel()
+            bead_extractor.SetMainImage("beads_image.tiff", beads_cache["image_intensities"], beads_cache["voxel"])
+            if bead_extractor is None:
+                raise Exception("Bead extractor initialization failed")
+            bead_coords = await get_data('bead_coords')
+            if bead_coords is not None and len(bead_coords) > 0:
+                bead_extractor.beadCoords = bead_coords
+            else:
+                bead_extractor.beadCoords = []
             return bead_extractor
         else:
             return None
@@ -93,34 +102,41 @@ async def init_bead_extractor():
         raise Exception(f"Error in initialization of BeadExtractor: {e}")
 
 
-@router.post("/api/autosegment_beads/")
-async def autosegment_bead(max_area: int = Form(...)):
+@router.get("/api/autosegment_beads/")
+async def autosegment_beads(max_area: int = Form(...)):
     try:
-        bead_extractor = init_bead_extractor()
+        bead_extractor = await init_bead_extractor()
         bead_extractor.maxArea = max_area
         bead_extractor.AutoSegmentBeads()
+        return JSONResponse(content={'bead_coords', bead_extractor.beadCoords})
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 
 # @router.post("/api/extract_beads/")
-# async def extract_beads(new_coords, box_size):
+# async def extract_beads(marked_coords: list = Form(...), delete_coords: list = Form(...), box_size: int = Form(...)):
 #     try:
-#         beads_image = redis_client.hgetall("beads_image")['image_data']
-#         old_coords = redis_client.hgetall("bead_coords")['image_data']
-#         bead_extractor = ExtractorModel(beads_image)
+#         bead_extractor = await setter_extractor()
+#         if bead_extractor is None:
+#             raise HTTPException(status_code=400, detail="Bead extractor initialization failed")
 #         if bead_extractor.beadCoords is not None and len(bead_extractor.beadCoords) > 0:
 #     except Exception as e:
 #         raise HTTPException(status_code=400, detail=str(e))
 
 
 @router.post("/api/average_beads/")
-async def average_bead():
+async def average_bead(denoise_type: str = Form(...)):
     try:
-        beads_image = redis_client.hgetall("beads_image")['image_data']
-        extracted_beads = redis_client.hgetall("extracted_beads")
-        bead_extractor = ExtractorModel(beads_image)
-        bead_extractor.extractedBeads = extracted_beads
+        bead_extractor = await init_bead_extractor()
+        if bead_extractor is None:
+            raise HTTPException(status_code=400, detail="Bead extractor initialization failed")
+        if bead_extractor.beadCoords is not None and len(bead_extractor.beadCoords) > 0:
+            for coord in bead_extractor.beadCoords:
+                bead_extractor.MarkedBeadExtract(coord)
+            bead_extractor.BeadsArithmeticMean()
+            bead_extractor.BlurAveragedBead(denoise_type)
+        else:
+            raise HTTPException(status_code=400, detail="Bead coordinates not defined")
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
