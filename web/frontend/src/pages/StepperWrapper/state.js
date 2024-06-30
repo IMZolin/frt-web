@@ -135,7 +135,7 @@ export const useStateValues = () => {
     const tiffTypes = ["8 bit", "16 bit", "32 bit"]
 
     const blurTypes = ["gauss", "none", "median"]
-    const denoiseTypes = ["Gaussian", "Median", "Wiener", "Totaial Vartion", "Non-Local Means", "Bilateral", "Wavelet"]
+    const denoiseTypes = ["Gaussian", "Median", "Wiener", "Totaial Vartion", "Non-Local Means", "Bilateral", "Wavelet", "none"]
 
     const deconvMethods = {
         "Richardson-Lucy":"RL",
