@@ -10,6 +10,7 @@ from fastapi.responses import JSONResponse
 from fastapi import APIRouter
 
 from web.backend.engine.src.common.ImageRaw_class import ImageRaw
+from web.backend.engine.src.deconvolutor.decon_psf_model import DeconPsfModel
 from web.backend.engine.src.extractor.extractor_model import ExtractorModel
 from web.backend.utils import tiff2base64, generate_projections, pass2cache, redis_client
 
@@ -42,7 +43,8 @@ async def load_image(
         else:
             image_data = ImageRaw(fpath=file_paths)
         image_tiff = image_data.SaveAsTiff()
-        images_show, images_save = await tiff2base64(image=image_tiff, convert_type='both' if save_image else 'compress')
+        images_show, images_save = await tiff2base64(image=image_tiff,
+                                                     convert_type='both' if save_image else 'compress')
         response_content = {'image_show': images_show}
         if save_image:
             response_content['image_save'] = images_save
@@ -84,11 +86,12 @@ async def get_image_request(image_type: str = Form(...)):
 
 async def init_bead_extractor():
     try:
-        beads_cache = await get_data("beads_image")
+        beads_cache = await get_data('beads_image')
         if beads_cache is not None:
             bead_extractor = ExtractorModel()
             print(json.loads(beads_cache["voxel"]))
-            bead_extractor.SetMainImage(array=np.array(json.loads(beads_cache["image_intensities"])), voxel=json.loads(beads_cache["voxel"]))
+            bead_extractor.SetMainImage(array=np.array(json.loads(beads_cache["image_intensities"])),
+                                        voxel=json.loads(beads_cache["voxel"]))
             if bead_extractor is None:
                 raise Exception("Bead extractor initialization failed")
             bead_coords = await get_data('bead_coords')
@@ -109,6 +112,7 @@ async def autosegment_beads(max_area: int = Form(...)):
         bead_extractor = await init_bead_extractor()
         bead_extractor.maxArea = max_area
         bead_extractor.AutoSegmentBeads()
+        print(len(bead_extractor.beadCoords), type(bead_extractor.beadCoords))
         return JSONResponse(content={'bead_coords', bead_extractor.beadCoords})
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -136,6 +140,14 @@ async def average_bead(denoise_type: str = Form(...)):
                 bead_extractor.MarkedBeadExtract(coord)
             bead_extractor.BeadsArithmeticMean()
             bead_extractor.BlurAveragedBead(denoise_type)
+            avg_bead = bead_extractor.averageBead
+            image_tiff = avg_bead.SaveAsTiff()
+            images_show, images_save = await tiff2base64(image=image_tiff, convert_type='both')
+            response_content = {'image_show': images_show, 'image_save': images_save,
+                                'projections': generate_projections(avg_bead),
+                                'image_intensities': avg_bead.GetIntensities().tolist(), 'voxel': avg_bead.GetVoxel()}
+            pass2cache('avg_bead', response_content)
+            return JSONResponse(content=response_content)
         else:
             raise HTTPException(status_code=400, detail="Bead coordinates not defined")
     except Exception as e:
@@ -143,13 +155,28 @@ async def average_bead(denoise_type: str = Form(...)):
 
 
 @router.post("/api/calculate_psf/")
-async def calculate_psf():
-    pass
+async def calculate_psf(
+        bead_size: int = Form(...),
+        iterations: int = Form(...),
+        regularization: float = Form(...),
+        zoom_factor: Optional[float] = Form(),
+        decon_method: str = Form(...)
+):
+    psf_calculator = DeconPsfModel()
+    avg_bead_cache = await get_data('avg_bead')
+    psf_calculator.SetPSFImage(array=np.array(json.loads(avg_bead_cache["image_intensities"])), voxel=json.loads(avg_bead_cache["voxel"]))
+    psf_calculator.beadDiameter = int(bead_size)
+    psf_calculator.iterationNumber = int(iterations)
+    psf_calculator.regularizationParameter = float(regularization)
+    if zoom_factor is not None:
+        psf_calculator.zoomFactor = float(zoom_factor)
+    psf_calculator.CalculatePSF(deconMethodIn=decon_method, progBarIn=None)
 
 
 @router.post("/api/rl_decon_image/")
 async def rl_decon_image():
     pass
+
 
 @router.post("/api/preprocess_image/")
 async def preprocess_image():

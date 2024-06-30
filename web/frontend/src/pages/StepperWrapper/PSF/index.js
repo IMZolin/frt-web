@@ -31,26 +31,21 @@ const StepperPSF = ({darkMode}) => {
 
     const handleGetAverageBead = async () => {
         try {
-            const response = await axiosStore.getAverageBead();
+            const response = await axiosStore.getData('avg_bead');
             console.log('Response:', response);
 
-            if (response.average_bead_show && response.average_bead_save && response.img_projection) {
-                const file = base64ToTiff(response.average_bead_save, 'image/tiff', `average_bead.tiff`);
-                const newAverageBead = response.average_bead_show.map((base64Data, index) => {
-                    return base64ToTiff(base64Data, 'image/tiff', `average_bead_${index}.tiff`);
+            if (response.image_show && response.image_save && response.projections) {
+                const file = base64ToTiff(response.image_save, 'image/tiff', `average_bead.tiff`);
+                const newAverageBead = response.image_show.map((base64Data, index) => {
+                    return base64ToTiff(base64Data, 'image/tiff', `avg_bead_${index}.tiff`);
                 });
-                const newProjection = response.img_projection.map((base64Data, index) => {
+                const newProjection = response.projections.map((base64Data, index) => {
                     return base64ToTiff(base64Data, 'image/tiff', `avg_bead_xyz_${index}.tiff`);
                 });
                 state.setAverageBeadProjection(newProjection);
                 state.setAverageBead(newAverageBead);
                 state.setAverageBeadSave([file]);
                 state.setIsLoad(true);
-                if (response.voxel) {
-                    state.setVoxelX(response.voxel.X);
-                    state.setVoxelY(response.voxel.Y);
-                    state.setVoxelZ(response.voxel.Z);
-                }
             } else {
                 console.log('No average bead data found in the response.');
                 window.alert('No average bead data found in the response.');
@@ -73,7 +68,6 @@ const StepperPSF = ({darkMode}) => {
 
     const handlePSFExtract = async () => {
         console.log("Im tryin make psf extraction");
-        window.alert("Im trying make psf extraction");
         try {
             const requestData = {
                 beadSize: state.beadSize,
@@ -112,11 +106,16 @@ const StepperPSF = ({darkMode}) => {
                 return (
                     <>
                         <div className="row">
-                            <Dropzone 
-                                files={state.averageBeadSave} 
-                                addFiles={state.setAverageBeadSave} 
-                                imageType={'averaged_bead'} 
-                                state={state} 
+                            <Dropzone
+                                files={state.files}
+                                addFiles={state.addFiles}
+                                setFiles={state.setAverageBead}
+                                addMultiFile={state.averageBeadSave}
+                                addProjections={state.setAverageBeadSave}
+                                imageType={'avg_bead'}
+                                state={state}
+                                isSaveImage={true}
+                                isProjections={true}
                             />
                         </div>
                     </>);
@@ -245,7 +244,7 @@ const StepperPSF = ({darkMode}) => {
                                         customTextColor={state.customTextColor}
                                     />
                                 </div>
-                                <Button variant="outlined" color="secondary" className="btn-run" onClick={handlePSFExtract}>
+                                <Button variant="contained" color="success" className="btn-run" onClick={handlePSFExtract}>
                                     Calculate PSF
                                 </Button>
                             </div>

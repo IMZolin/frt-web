@@ -42,6 +42,8 @@ export const defaultValues = {
     deconvMethod: "Richardson-Lucy",
     cnnDeconvModel:"model-1.h5",
     marginTop: 0,
+    maxArea: 500,
+    denoiseType: 'Gaussian',
 
     sourceImage: [],
     sourceImageProjection: [],
@@ -95,6 +97,8 @@ export const useStateValues = () => {
     const [extractedPSFSave, setExtractedPSFSave] = useState(defaultValues.extractedPSFSave);
     const [tiffType, setTiffType] = useState(defaultValues.tiffType);
     const [blurType, setBlurType] = useState(defaultValues.blurType);
+    const [maxArea, setMaxArea] = useState(defaultValues.maxArea);
+    const [denoiseType, setDenoiseType] = useState(defaultValues.denoiseType);
 
     const [resolutionXY, setResolutionXY] = useState(defaultValues.resolutionXY);
     const [resolutionZ, setResolutionZ] = useState(defaultValues.resolutionZ);
@@ -131,6 +135,7 @@ export const useStateValues = () => {
     const tiffTypes = ["8 bit", "16 bit", "32 bit"]
 
     const blurTypes = ["gauss", "none", "median"]
+    const denoiseTypes = ["Gaussian", "Median", "Wiener", "Totaial Vartion", "Non-Local Means", "Bilateral", "Wavelet"]
 
     const deconvMethods = {
         "Richardson-Lucy":"RL",
@@ -178,6 +183,11 @@ export const useStateValues = () => {
 
     const handleBlurTypeChange = (selectedType) => {
         setBlurType(selectedType);
+        console.log(selectedType);
+    };
+
+    const handleDenoiseTypeChange = (selectedType) => {
+        setDenoiseType(selectedType);
         console.log(selectedType);
     };
 
@@ -394,6 +404,12 @@ export const useStateValues = () => {
         customTextColor,
         setCustomTextColor,
         customBorder,
-        setCustomBorder
+        setCustomBorder,
+        maxArea,
+        setMaxArea,
+        denoiseTypes,
+        denoiseType,
+        setDenoiseType,
+        handleDenoiseTypeChange
     };
 };
