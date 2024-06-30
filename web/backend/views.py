@@ -4,6 +4,7 @@ import tempfile
 from typing import List, Optional
 
 import numpy as np
+from PIL import Image
 from fastapi import UploadFile, File, Form, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi import APIRouter
@@ -65,6 +66,19 @@ async def get_image_request(image_type: str = Form(...)):
         raise HTTPException(status_code=400, detail=str(e))
 
 
+@router.get("/api/get_voxel/")
+async def get_voxel():
+    try:
+        psf_cache = await get_data(data_type='psf')
+        if psf_cache is None:
+            raise HTTPException(status_code=404, detail="The PSF not found in the cache. Maybe the time is up. "
+                                                        "Download it again.")
+        return JSONResponse(content={'voxel': json.loads(psf_cache["voxel"])})
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+
 @router.get("/api/autosegment_beads/")
 async def autosegment_beads(max_area: int = Form(...)):
     try:
@@ -74,7 +88,7 @@ async def autosegment_beads(max_area: int = Form(...)):
         bead_extractor.maxArea = max_area
         bead_extractor.AutoSegmentBeads()
         print(len(bead_extractor.beadCoords), type(bead_extractor.beadCoords))
-        response_content = {'bead_coords', bead_extractor.beadCoords}
+        response_content = {'bead_coords': json.dumps(bead_extractor.beadCoords)}
         pass2cache("bead_extractor", response_content)
         return JSONResponse(content=response_content)
     except Exception as e:
@@ -173,16 +187,19 @@ async def rl_decon_image(
 @router.post("/api/preprocess_image/")
 async def preprocess_image(denoise_type: str = Form(...)):
     try:
-        if denoise_type not in ["Gaussian", "Median", "Wiener", "Totaial Vartion", "Non-Local Means", "Bilateral", "Wavelet", "none"]:
+        if denoise_type not in ["Gaussian", "Median", "Wiener", "Totaial Vartion", "Non-Local Means", "Bilateral",
+                                "Wavelet", "none"]:
             raise HTTPException(status_code=404, detail="Incorrect denoise type not found in the cache.")
         noisy_cache = await get_data('source_img')
         if noisy_cache is None:
             raise HTTPException(status_code=404, detail="The source image not found in the cache. Maybe the time is "
                                                         "up. Upload it again.")
         noisy_image = np.array(json.loads(noisy_cache["image_intensities"]))
-        noisy_image = noisy_image.astype(np.uint8)
         denoiser = ImageDenoiser()
         denoised_image = denoiser.denoise(noisy_image)
+        if denoised_image is None:
+            raise HTTPException(status_code=400, detail="Denoising failed")
+        denoised_image = ImageRaw(intensitiesIn=denoised_image, voxelSizeIn=json.loads(noisy_cache["voxel"]))
         response_content = await save_result(image=denoised_image, image_type='denoised_img', convert_type='both',
                                              is_projections=False)
         return JSONResponse(content=response_content)
@@ -201,7 +218,7 @@ async def cnn_decon_image():
         cnn_deconvolver.SetDeconImage(array=np.array(json.loads(source_cache["image_intensities"])),
                                       voxel=json.loads(source_cache["voxel"]))
         cnn_deconvolver.DeconvolveImage()
-        decon_img = cnn_deconvolver.deconResult
+        decon_img = cnn_deconvolver.deconResult.mainImageRaw
         response_content = await save_result(image=decon_img, image_type='cnn_decon_img', convert_type='both',
                                              is_projections=False)
         return JSONResponse(content=response_content)

@@ -84,17 +84,22 @@ def pass2cache(cache_key, data):
         raise Exception(f"Error in pass2cache: {e}")
 
 
-async def save_result(image: Image, image_type: str, convert_type: str, is_projections: bool):
-    image_tiff = image.SaveAsTiff()
-    images_show, images_save = await tiff2base64(image=image_tiff, convert_type=convert_type)
-    response_content = {'image_show': images_show, 'image_intensities': image.GetIntensities().tolist(),
-                        'voxel': image.GetVoxel()}
-    if images_save:
-        response_content['image_save'] = images_save
-    if is_projections:
-        response_content['projections'] = generate_projections(image)
-    pass2cache(image_type, response_content)
-    return response_content
+async def save_result(image: ImageRaw, image_type: str, convert_type: str, is_projections: bool):
+    try:
+        if image is None:
+            raise Exception("Image is None")
+        image_tiff = image.SaveAsTiff()
+        images_show, images_save = await tiff2base64(image=image_tiff, convert_type=convert_type)
+        response_content = {'image_show': images_show, 'image_intensities': image.GetIntensities().tolist(),
+                            'voxel': image.GetVoxel()}
+        if images_save:
+            response_content['image_save'] = images_save
+        if is_projections:
+            response_content['projections'] = generate_projections(image)
+        pass2cache(image_type, response_content)
+        return response_content
+    except Exception as e:
+        raise Exception(f"Error in save_result: {e}")
 
 
 async def get_data(data_type: str):
@@ -118,9 +123,10 @@ async def init_bead_extractor():
                                         voxel=json.loads(beads_cache["voxel"]))
             if bead_extractor is None:
                 raise Exception("Bead extractor initialization failed")
-            bead_coords = await get_data('bead_coords')
+            bead_extractor = await get_data('bead_extractor')
+            bead_coords = bead_extractor['bead_coords']
             if bead_coords is not None and len(bead_coords) > 0:
-                bead_extractor.beadCoords = bead_coords
+                bead_extractor.beadCoords = eval(bead_coords)
             else:
                 bead_extractor.beadCoords = []
             return bead_extractor
@@ -139,7 +145,7 @@ async def rl_deconvolution(model: Union[DeconPsfModel, DeconImageModel], iterati
         return model.resultImage
     else:
         model.DeconvolveImage(deconMethodIn=decon_method, progBarIn=None)
-        return model.deconResult
+        return model.deconResult.mainImageRaw
 
 
 async def get_source_img():
