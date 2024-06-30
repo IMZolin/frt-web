@@ -13,7 +13,7 @@ from web.backend.engine.src.common.DenoiseImage_class import ImageDenoiser
 from web.backend.engine.src.common.ImageRaw_class import ImageRaw
 from web.backend.engine.src.deconvolutor.decon_image_model import DeconImageModel
 from web.backend.engine.src.deconvolutor.decon_psf_model import DeconPsfModel
-from web.backend.utils import save_result, get_data, init_bead_extractor, rl_deconvolution, get_source_img
+from web.backend.utils import save_result, get_data, init_bead_extractor, rl_deconvolution, get_source_img, pass2cache
 
 router = APIRouter()
 
@@ -43,8 +43,9 @@ async def load_image(
             image_data = ImageRaw(fpath=file_paths, voxelSizeIn=[voxel_z, voxel_xy, voxel_xy])
         else:
             image_data = ImageRaw(fpath=file_paths)
-        response_content = save_result(image=image_data, image_type=image_type,
-                                       convert_type='both' if save_image else 'compress', is_projections=is_projections)
+        response_content = await save_result(image=image_data, image_type=image_type,
+                                             convert_type='both' if save_image else 'compress',
+                                             is_projections=is_projections)
         return JSONResponse(content=response_content)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -73,7 +74,9 @@ async def autosegment_beads(max_area: int = Form(...)):
         bead_extractor.maxArea = max_area
         bead_extractor.AutoSegmentBeads()
         print(len(bead_extractor.beadCoords), type(bead_extractor.beadCoords))
-        return JSONResponse(content={'bead_coords', bead_extractor.beadCoords})
+        response_content = {'bead_coords', bead_extractor.beadCoords}
+        pass2cache("bead_extractor", response_content)
+        return JSONResponse(content=response_content)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -96,8 +99,8 @@ async def average_beads(denoise_type: str = Form(...)):
         bead_extractor.BeadsArithmeticMean()
         bead_extractor.BlurAveragedBead(denoise_type)
         avg_bead = bead_extractor.averageBead
-        response_content = save_result(image=avg_bead, image_type='avg_bead', convert_type='both',
-                                       is_projections=True)
+        response_content = await save_result(image=avg_bead, image_type='avg_bead', convert_type='both',
+                                             is_projections=True)
         return JSONResponse(content=response_content)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -112,9 +115,10 @@ async def calculate_psf(
         decon_method: str = Form(...)
 ):
     try:
-        if (bead_size is None or bead_size < 0 or iterations is None or iterations <= 0 or regularization is None or
-                regularization < 0):
+        if bead_size < 0 or iterations <= 0 or regularization < 0:
             raise HTTPException(status_code=422, detail="Incorrect PSF calculation params")
+        if decon_method is None or decon_method not in ["RL", "RLTMR", "RLTVR"]:
+            raise HTTPException(status_code=404, detail="Incorrect decon type not found in the cache.")
         psf_calculator = DeconPsfModel()
         avg_bead_cache = await get_data('avg_bead')
         if avg_bead_cache is None:
@@ -122,9 +126,9 @@ async def calculate_psf(
                                                         "is up. Upload it again.")
         psf_calculator.SetPSFImage(array=np.array(json.loads(avg_bead_cache["image_intensities"])),
                                    voxel=json.loads(avg_bead_cache["voxel"]))
-        psf_calculator.beadDiameter = float(bead_size)
+        psf_calculator.beadDiameter = bead_size
         if zoom_factor is not None:
-            psf_calculator.zoomFactor = float(zoom_factor)
+            psf_calculator.zoomFactor = zoom_factor
         psf = await rl_deconvolution(model=psf_calculator, iterations=iterations, regularization=regularization,
                                      decon_method=decon_method)
         response_content = await save_result(image=psf, image_type='psf', convert_type='both', is_projections=False)
@@ -140,8 +144,10 @@ async def rl_decon_image(
         decon_method: str = Form(...)
 ):
     try:
-        if iterations is None or iterations <= 0 or regularization is None or regularization < 0:
+        if iterations <= 0 or regularization < 0:
             raise HTTPException(status_code=422, detail="Incorrect RL deconvolution params")
+        if decon_method is None or decon_method not in ["RL", "RLTMR", "RLTVR"]:
+            raise HTTPException(status_code=404, detail="Incorrect decon type not found in the cache.")
         source_cache = await get_source_img()
         if source_cache is None:
             raise HTTPException(status_code=404, detail="The source image not found in the cache. Maybe the time is "
@@ -167,8 +173,7 @@ async def rl_decon_image(
 @router.post("/api/preprocess_image/")
 async def preprocess_image(denoise_type: str = Form(...)):
     try:
-        if denoise_type is None or denoise_type not in ["Gaussian", "Median", "Wiener", "Totaial Vartion",
-                                                        "Non-Local Means", "Bilateral", "Wavelet", "none"]:
+        if denoise_type not in ["Gaussian", "Median", "Wiener", "Totaial Vartion", "Non-Local Means", "Bilateral", "Wavelet", "none"]:
             raise HTTPException(status_code=404, detail="Incorrect denoise type not found in the cache.")
         noisy_cache = await get_data('source_img')
         if noisy_cache is None:
@@ -194,7 +199,7 @@ async def cnn_decon_image():
                                                         "up. Upload it again.")
         cnn_deconvolver = CNNDeconvModel()
         cnn_deconvolver.SetDeconImage(array=np.array(json.loads(source_cache["image_intensities"])),
-                                     voxel=json.loads(source_cache["voxel"]))
+                                      voxel=json.loads(source_cache["voxel"]))
         cnn_deconvolver.DeconvolveImage()
         decon_img = cnn_deconvolver.deconResult
         response_content = await save_result(image=decon_img, image_type='cnn_decon_img', convert_type='both',

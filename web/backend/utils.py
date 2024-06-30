@@ -133,7 +133,7 @@ async def init_bead_extractor():
 async def rl_deconvolution(model: Union[DeconPsfModel, DeconImageModel], iterations: int,
                            regularization: float, decon_method: str) -> ImageRaw:
     model.iterationNumber = int(iterations)
-    model.regularization = float(regularization)
+    model.regularizationParameter = float(regularization)
     if isinstance(model, DeconPsfModel):
         model.CalculatePSF(deconMethodIn=decon_method, progBarIn=None)
         return model.resultImage
