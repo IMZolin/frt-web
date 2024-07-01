@@ -4,7 +4,6 @@ import tempfile
 from typing import List, Optional
 
 import numpy as np
-from PIL import Image
 from fastapi import UploadFile, File, Form, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi import APIRouter
@@ -85,8 +84,7 @@ async def autosegment_beads(max_area: int = Form(...)):
             raise HTTPException(status_code=400, detail="Bead extractor initialization failed")
         bead_extractor.maxArea = max_area
         bead_extractor.AutoSegmentBeads()
-        print(len(bead_extractor.beadCoords), type(bead_extractor.beadCoords))
-        response_content = {'bead_coords': json.dumps(bead_extractor.beadCoords)}
+        response_content = {'bead_coords': json.loads(bead_extractor.beadCoords)}
         pass2cache("bead_extractor", response_content)
         return JSONResponse(content=response_content)
     except Exception as e:
@@ -175,6 +173,7 @@ async def rl_decon_image(
                                      voxel=json.loads(source_cache["voxel"]))
         rl_img = await rl_deconvolution(model=rl_deconvolver, iterations=iterations, regularization=regularization,
                                         decon_method=decon_method)
+        print(rl_img)
         response_content = await save_result(image=rl_img, image_type='rl_decon_img', convert_type='both',
                                              is_projections=False)
         return JSONResponse(content=response_content)

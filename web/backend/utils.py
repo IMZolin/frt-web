@@ -125,7 +125,7 @@ async def init_bead_extractor():
             if bead_extractor is None:
                 raise Exception("Bead extractor initialization failed")
             extractor_cache = await get_data('bead_extractor')
-            if bead_extractor is not None:
+            if extractor_cache is not None:
                 bead_coords = extractor_cache['bead_coords']
                 if bead_coords is not None and len(bead_coords) > 0:
                     bead_extractor.beadCoords = eval(bead_coords)
@@ -143,10 +143,12 @@ async def rl_deconvolution(model: Union[DeconPsfModel, DeconImageModel], iterati
     model.iterationNumber = int(iterations)
     model.regularizationParameter = float(regularization)
     if isinstance(model, DeconPsfModel):
-        model.CalculatePSF(deconMethodIn=decon_method, progBarIn=None)
+        model.CalculatePSF(deconMethodIn=decon_method)
+        print(model)
+        print(model.resultImage)
         res = model.resultImage
     else:
-        model.DeconvolveImage(deconMethodIn=decon_method, progBarIn=None)
+        model.DeconvolveImage(deconMethodIn=decon_method)
         res = model.deconResult.mainImageRaw
     return res
 
