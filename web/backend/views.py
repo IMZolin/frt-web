@@ -30,14 +30,12 @@ async def load_image(
 ):
     temp_dir = tempfile.TemporaryDirectory()
     try:
-        file_paths = []
-        for file in files:
-            temp_file = os.path.join(temp_dir.name, file.filename)
-            with open(temp_file, "wb") as f:
-                f.write(await file.read())
-            file_paths.append(temp_file)
+        file_paths = [os.path.join(temp_dir.name, file.filename) for file in files]
         if not file_paths:
             raise HTTPException(status_code=422, detail="No file uploaded")
+        for file, path in zip(files, file_paths):
+            with open(path, "wb") as f:
+                f.write(await file.read())
         if not image_type:
             raise HTTPException(status_code=422, detail="Image type not provided")
         if voxel_xy is not None and voxel_z is not None:
@@ -196,6 +194,7 @@ async def preprocess_image(denoise_type: str = Form(...)):
                                                         "up. Upload it again.")
         noisy_image = np.array(json.loads(noisy_cache["image_intensities"]))
         denoiser = ImageDenoiser()
+        denoiser.setDenoiseMethod(denoise_type)
         denoised_image = denoiser.denoise(noisy_image)
         if denoised_image is None:
             raise HTTPException(status_code=400, detail="Denoising failed")

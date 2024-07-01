@@ -117,16 +117,18 @@ async def init_bead_extractor():
     try:
         beads_cache = await get_data('beads_image')
         if beads_cache is not None:
+            print("Beads cache found:")
             bead_extractor = ExtractorModel()
             print(json.loads(beads_cache["voxel"]))
             bead_extractor.SetMainImage(array=np.array(json.loads(beads_cache["image_intensities"])),
                                         voxel=json.loads(beads_cache["voxel"]))
             if bead_extractor is None:
                 raise Exception("Bead extractor initialization failed")
-            bead_extractor = await get_data('bead_extractor')
-            bead_coords = bead_extractor['bead_coords']
-            if bead_coords is not None and len(bead_coords) > 0:
-                bead_extractor.beadCoords = eval(bead_coords)
+            extractor_cache = await get_data('bead_extractor')
+            if bead_extractor is not None:
+                bead_coords = extractor_cache['bead_coords']
+                if bead_coords is not None and len(bead_coords) > 0:
+                    bead_extractor.beadCoords = eval(bead_coords)
             else:
                 bead_extractor.beadCoords = []
             return bead_extractor
@@ -142,10 +144,11 @@ async def rl_deconvolution(model: Union[DeconPsfModel, DeconImageModel], iterati
     model.regularizationParameter = float(regularization)
     if isinstance(model, DeconPsfModel):
         model.CalculatePSF(deconMethodIn=decon_method, progBarIn=None)
-        return model.resultImage
+        res = model.resultImage
     else:
         model.DeconvolveImage(deconMethodIn=decon_method, progBarIn=None)
-        return model.deconResult.mainImageRaw
+        res = model.deconResult.mainImageRaw
+    return res
 
 
 async def get_source_img():

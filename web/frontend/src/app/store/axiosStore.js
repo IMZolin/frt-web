@@ -77,98 +77,63 @@ const useAxiosStore = create((set, get) => {
       }
     },
 
-    postBeadExtract: async (params) => {
-      try {
-        const response = await axiosInstance.post('/api/bead_extractor/extract/', params);
+    calcPSF: async(params) =>{
+      try{
+        const { bead_size, iterations, regularization, zoom_factor, decon_method} = params;
+        let formData = new FormData();
+        formData.append('bead_size', bead_size);
+        formData.append('iterations', iterations);
+        formData.append('regularization', regularization);
+        formData.append('zoom_factor', zoom_factor);
+        formData.append('decon_method', decon_method);
+        const response = await axiosInstance.post('/api/calculate_psf/', formData);
         return response.data;
-      } catch (error) {
+      }catch (error) {
         throw error;
       }
     },
 
-    postBeadMark: async (params) => {
-      try {
-        const response = await axiosInstance.post('/api/bead_extractor/mark/', params);
+    deconImage: async(params) =>{
+      try{
+        const { iterations, regularization, decon_method} = params;
+        let formData = new FormData();
+        formData.append('iterations', iterations);
+        formData.append('regularization', regularization);
+        formData.append('decon_method', decon_method);
+        const response = await axiosInstance.post('/api/rl_decon_image/', formData);
         return response.data;
-      } catch (error) {
+      }catch (error) {
         throw error;
       }
     },
 
-    postPSFExtract: async (params) => {
-      try {
-        const response = await axiosInstance.post('/api/psf_extractor/extract/', params);
+    preprocessImage: async(denoise_type) =>{
+      try{
+        let formData = new FormData();
+        formData.append('denoise_type', denoise_type);
+        const response = await axiosInstance.post('/api/preprocess_image/', formData);
         return response.data;
-      } catch (error) {
+      }catch (error) {
         throw error;
       }
     },
 
-    getPSF: async () => {
-      try {
-        const response = await axiosInstance.get('/api/deconvolution/psf/');
+    cnnDeconImage: async() =>{
+      try{
+        const response = await axiosInstance.post('/api/cnn_decon_image/');
         return response.data;
-      } catch (error) {
+      }catch (error) {
         throw error;
       }
     },
 
     getVoxel: async () => {
       try {
-        const response = await axiosInstance.get('/api/deconvolution/voxel/');
+        const response = await axiosInstance.get('/api/get_voxel/');
         return response.data;
       } catch (error) {
         throw error;
       }
-    },
-
-    postDeconvolution: async (params) => {
-      try {
-        const response = await axiosInstance.post('/api/deconvolution/run/', params);
-        return response.data;
-      } catch (error) {
-        throw error;
-      }
-    },
-
-    postPreprocessing: async (params) => {
-      try {
-        const response = await axiosInstance.post('api/cnn_deconv/preprocessing/', params);
-        return response.data;
-      } catch (error) {
-        throw error;
-      }
-    },
-
-    postCNNDeconvolution: async (params) => {
-      try {
-        const response = await axiosInstance.post('api/cnn_deconv/deconv/', params);
-        return response.data;
-      } catch (error) {
-        throw error;
-      }
-    },
-
-    setAxiosToken: (newToken) => {
-      const instance = get().axiosInstance;
-      if (newToken != null) {
-        instance.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
-      } else {
-        delete instance.defaults.headers.common['Authorization'];
-      }
-      set({ axiosInstance: instance });
-    },
-
-    isAuthorized: () => {
-      const instance = get().axiosInstance;
-      console.log(instance.defaults.headers.common);
-      return instance.defaults.headers.common['Authorization'] !== undefined;
-    },
-
-    isRegistered: () => {
-      const instance = get().axiosInstance;
-      console.log(instance.defaults.headers.common);
-      return instance.defaults.headers.common['Registration'] !== undefined;
     },
   };
 });
