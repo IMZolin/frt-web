@@ -22,14 +22,16 @@ const BeadExtractor = ({darkMode}) => {
     const canvasRef = useRef();
     const markBead = useBeadMark();
 
-    useEffect(() => {
-        if (darkMode) {
-            state.setCustomTextColor(getComputedStyle(document.documentElement).getPropertyValue('--text-color-dark'));
-            state.setCustomBorder(getComputedStyle(document.documentElement).getPropertyValue('--button-text-color-dark'));
-        } else {
-            state.setCustomTextColor(getComputedStyle(document.documentElement).getPropertyValue('--text-color-light'));
-            state.setCustomBorder(getComputedStyle(document.documentElement).getPropertyValue('--button-text-color-light'));
-        }
+  useEffect(() => {
+    if (darkMode) {
+        state.setCustomTextColor(getComputedStyle(document.documentElement).getPropertyValue('--text-color-dark'));
+        state.setCustomBorder(getComputedStyle(document.documentElement).getPropertyValue('--button-text-color-dark'));
+        state.setCustomBorder2(getComputedStyle(document.documentElement).getPropertyValue('--button-text-color-dark2'));
+    } else {
+        state.setCustomTextColor(getComputedStyle(document.documentElement).getPropertyValue('--text-color-light'));
+        state.setCustomBorder(getComputedStyle(document.documentElement).getPropertyValue('--button-text-color-light'));
+        state.setCustomBorder2(getComputedStyle(document.documentElement).getPropertyValue('--button-text-color-light2'));
+    }
     }, [darkMode]);
 
     const handleBeadMark = async () => {
@@ -90,12 +92,12 @@ const BeadExtractor = ({darkMode}) => {
             const response = await axiosStore.calcAverageBead(requestData);
             console.log('Response:', response);
             if (response.image_show) {
-                const file = base64ToTiff(response.image_save, 'image/tiff', `average_bead.tiff`);
+                // const file = base64ToTiff(response.image_save, 'image/tiff', `avg_bead.tiff`);
                 const newAverageBead = response.image_show.map((base64Data, index) => {
-                    return base64ToTiff(base64Data, 'image/tiff', `average_bead_${index}.tiff`);
+                    return base64ToTiff(base64Data, 'image/tiff', `avg_bead_${index}.tiff`);
                 });
                 state.setAverageBead(newAverageBead);
-                state.setAverageBeadSave([file]);
+                // state.setAverageBeadSave([file]);
                 if (response.projections) {
                     const newProjection = response.projections.map((base64Data, index) => {
                         return base64ToTiff(base64Data, 'image/tiff', `avg_bead_xyz_${index}.tiff`);
@@ -147,7 +149,7 @@ const BeadExtractor = ({darkMode}) => {
                                     <TextField
                                         className="stepper-resolution"
                                         id="resolution-x"
-                                        label="Resolution-XY (micron)"
+                                        label="Voxel-XY (micron)"
                                         variant="outlined"
                                         placeholder="Enter the resolution in X and Y direction"
                                         fullWidth
@@ -171,7 +173,7 @@ const BeadExtractor = ({darkMode}) => {
                                     <TextField
                                         className="stepper-resolution"
                                         id="resolution-z"
-                                        label="Resolution-Z (micron)"
+                                        label="Voxel-Z (micron)"
                                         variant="outlined"
                                         placeholder="Enter the resolution in Z direction"
                                         fullWidth
@@ -200,12 +202,9 @@ const BeadExtractor = ({darkMode}) => {
                                     files={state.files}
                                     addFiles={state.addFiles}
                                     setFiles={state.setBeads}
-                                    addMultiFile={null}
                                     addProjections={null}
-                                    imageType={'beads_image'}
+                                    imageType={'beads_img'}
                                     state={state}
-                                    isSaveImage={false}
-                                    isProjections={false}
                                 />
                             </div>
                         </div>
@@ -216,7 +215,7 @@ const BeadExtractor = ({darkMode}) => {
                     <>
                         <div className="row">
                             <div className="column-1"
-                                 style={{marginTop: '-10px', border: `1px solid ${state.customBorder}`}}>
+                                 style={{marginTop: '10px', border: `1px solid ${state.customBorder}`, height: '420px'}}>
                                 <div className="slider-container">
                                     <div>
                                         <label htmlFor="layer-slider">Layer:</label><br/>
@@ -242,11 +241,11 @@ const BeadExtractor = ({darkMode}) => {
                                             onChange={state.handleSliderBrightnessChange}
                                         />
                                     </div>
-                                    <div>
-                                        <label className="subtitle" htmlFor="select-size">Selection Size (px):</label>
+                                    <div style={{marginTop: '10px'}}>
                                         <TextField
                                             id="select-size"
                                             variant="outlined"
+                                            label="Selection Size (px)"
                                             className="stepper-resolution"
                                             placeholder="Enter a select size"
                                             fullWidth
@@ -271,19 +270,26 @@ const BeadExtractor = ({darkMode}) => {
                                         />
                                     </div>
                                 </div>
-                                <div className="button-row"
-                                     style={{display: 'flex', flexWrap: 'wrap', gap: '10px', marginTop: '10px'}}>
+                                <div className="btn-stack-buttons">
                                     <Button
-                                        variant="outlined"
-                                        color="secondary"
+                                        variant="contained"
+                                        style={{
+                                            backgroundColor: state.customBorder,
+                                            padding: "18px 18px",
+                                            fontSize: "10px"
+                                        }}
                                         className="btn-run"
                                         onClick={(e) => state.handleUndoMark(e, canvasRef)}
                                     >
                                         Undo mark
                                     </Button>
                                     <Button
-                                        variant="outlined"
-                                        color="secondary"
+                                        variant="contained"
+                                        style={{
+                                            backgroundColor: state.customBorder,
+                                            padding: "10px 10px",
+                                            fontSize: "10px"
+                                        }}
                                         className="btn-run"
                                         onClick={(e) => state.handleClearMarks(e, canvasRef)}
                                     >
@@ -292,7 +298,11 @@ const BeadExtractor = ({darkMode}) => {
                                 </div>
                                 <Button
                                     variant="contained"
-                                    color="success"
+                                    style={{
+                                            backgroundColor: state.customBorder2,
+                                            padding: "12px 12px",
+                                            fontSize: "14px"
+                                        }}
                                     className="btn-run"
                                     onClick={handleBeadAutosegment}
                                 >
@@ -307,8 +317,12 @@ const BeadExtractor = ({darkMode}) => {
                                     customTextColor={state.customTextColor}
                                 />
                                 <Button
-                                    variant="outlined"
-                                    color="secondary"
+                                    variant="contained"
+                                    style={{
+                                            backgroundColor: state.customBorder,
+                                            padding: "12px 12px",
+                                            fontSize: "14px"
+                                        }}
                                     className="btn-run"
                                     onClick={handleBeadAverage}
                                 >

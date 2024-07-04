@@ -16,7 +16,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 const Deconvolution = ({darkMode}) => {
   const state = useStateValues();
-  const steps = ['Load PSF', 'Load image', 'Run Deconvolution', 'Save results'];
+  const steps = ['Load PSF', 'Load image', 'Preprocessing', 'Run Deconvolution', 'Save results'];
   const axiosStore = useAxiosStore();
   
   useEffect(() => {
@@ -31,34 +31,29 @@ const Deconvolution = ({darkMode}) => {
 
   const handleGetPSF = async () => {
     try {
-      const response = await axiosStore.getPSF();
+      const response = await axiosStore.getData('psf');
       console.log('Response:', response);
 
-      if (response.psf_show && response.psf_save && response.img_projection) {
-        const file = base64ToTiff(response.psf_save, 'image/tiff', `extracted_psf.tiff`);
+      if (response.image_show) {
+        // const file = base64ToTiff(response.psf_save, 'image/tiff', `extracted_psf.tiff`);
         const newExtractPSF = response.psf_show.map((base64Data, index) => {
-          return base64ToTiff(base64Data, 'image/tiff', `extracted_psf_${index}.tiff`);
+          return base64ToTiff(base64Data, 'image/tiff', `psf_${index}.tiff`);
         });
         const newProjection = response.img_projection.map((base64Data, index) => {
           return base64ToTiff(base64Data, 'image/tiff', `psf_xyz_${index}.tiff`);
         });
         state.setExtractedPSFProjection(newProjection);
         state.setExtractedPSF(newExtractPSF);
-        state.setExtractedPSFSave([file]);
+        // state.setExtractedPSFSave([file]);
         state.setIsLoad(true);
-        state.setResolution2(response.resolution);
-        if (response.voxel) {
-          state.setVoxelX(response.voxel.X);
-          state.setVoxelY(response.voxel.Y);
-          state.setVoxelZ(response.voxel.Z);
-        }
+        // state.setResolution2(response.resolution);
       } else {
         console.log('No psf data found in the response.');
         window.alert('No psf data found in the response.');
       }
     } catch (error) {
-      console.error('Error fetching average bead:', error);
-      window.alert('Error fetching average bead:', error);
+      console.error('Error fetching psf:', error);
+      window.alert('Error fetching psf:', error);
     }
   };
 
@@ -68,9 +63,8 @@ const Deconvolution = ({darkMode}) => {
       console.log('Response:', response);
 
       if (response.voxel) {
-        state.setVoxelX(response.voxel.X);
-        state.setVoxelY(response.voxel.Y);
-        state.setVoxelZ(response.voxel.Z);
+        state.setVoxelZ(response.voxel[0]);
+        state.setVoxelXY(response.voxel[1]);
       } else {
         console.log('No voxel data found in the response.');
         window.alert('No voxel data found in the response.');
@@ -92,29 +86,29 @@ const Deconvolution = ({darkMode}) => {
 
   const handleDeconvolve = async () => {
     console.log("Im trying make deconvolve");
-    window.alert("Im trying make deconvolve");
+    // window.alert("Im trying make deconvolve");
     try {
       const requestData = {
-        iter: state.iter,
+        iterations: state.iter,
         regularization: state.regularization,
-        deconvMethod: state.deconvMethods[state.deconvMethod]
+        decon_method: state.deconvMethods[state.deconvMethod]
       };
 
-      const response = await axiosStore.postDeconvolution(requestData);
+      const response = await axiosStore.rlDeconImage(requestData);
       console.log('Response:', response);
 
-      if (response.deconv_show && response.deconv_save && response.img_projection) {
-        const file = base64ToTiff(response.deconv_save, 'image/tiff', `result_deconv.tiff`);
+      if (response.image_show) {
+        // const file = base64ToTiff(response.deconv_save, 'image/tiff', `result_deconv.tiff`);
         const newResult = response.deconv_show.map((base64Data, index) => {
-          return base64ToTiff(base64Data, 'image/tiff', `result_deconv_${index}.tiff`);
+          return base64ToTiff(base64Data, 'image/tiff', `rl_decon_img_${index}.tiff`);
         });
-        const newProjection = response.img_projection.map((base64Data, index) => {
-          return base64ToTiff(base64Data, 'image/tiff', `result_deconv_xyz_${index}.tiff`);
-        });
-        state.setResultImageProjection(newProjection);
+        // const newProjection = response.img_projection.map((base64Data, index) => {
+        //   return base64ToTiff(base64Data, 'image/tiff', `result_deconv_xyz_${index}.tiff`);
+        // });
+        // state.setResultImageProjection(newProjection);
         state.setResultImage(newResult);
         console.log(newResult);
-        state.setResultImageSave([file]);
+        // state.setResultImageSave([file]);
       } else {
         console.log('No deconvolution result found in the response.');
         window.alert('No deconvolution result found in the response.');
@@ -130,7 +124,14 @@ const Deconvolution = ({darkMode}) => {
       case steps.indexOf('Load PSF'):
         return (<>
           <div className="row">
-            <Dropzone files={state.extractedPSFSave} addFiles={state.setExtractedPSFSave} imageType={'extracted_psf'} state={state} />
+            <Dropzone
+                files={state.files}
+                addFiles={state.addFiles}
+                setFiles={state.extractedPSF}
+                addProjections={state.extractedPSFProjection}
+                imageType={'psf'}
+                state={state}
+            />
           </div>
         </>);
       case steps.indexOf('Load image'):

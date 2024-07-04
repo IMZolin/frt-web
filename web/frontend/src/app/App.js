@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import { Routes, Route } from 'react-router-dom';
 import MainPage from '../pages/main';
 import PersonalPage from '../pages/Profile';
@@ -11,14 +11,17 @@ import Deconvolution from '../pages/StepperWrapper/Deconvolution';
 import NeuralNetwork from '../pages/StepperWrapper/NeuralNetwork';
 import Authors from '../pages/Authors';
 import './App.css';
+import {useStateValues} from "../pages/StepperWrapper/state";
 
 
 const App = () => {
+  const state = useStateValues();
   const [darkMode, setDarkMode] = useState(false);
 
   const handleDarkModeToggle = (isDarkMode) => {
     setDarkMode(isDarkMode);
   };
+
 
   return (
     <div className={`app ${darkMode ? 'dark-mode' : 'light-mode'}`}>

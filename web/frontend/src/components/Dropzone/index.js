@@ -5,7 +5,7 @@ import useAxiosStore from '../../app/store/axiosStore';
 import { base64ToTiff } from '../../shared/hooks/showImages';
 import './dropzone.css';
 
-const Dropzone = ({ files = [], addFiles, setFiles, addMultiFile, addProjections, imageType, state, saveImage = false, isProjections = false }) => {
+const Dropzone = ({ files = [], addFiles, setFiles, addProjections, imageType, state}) => {
   const axiosStore = useAxiosStore();
   const [uploading, setUploading] = useState(false);
 
@@ -21,30 +21,28 @@ const Dropzone = ({ files = [], addFiles, setFiles, addMultiFile, addProjections
     
     try {
       const fileObjects = allFiles.map((file) => file.file);
-      const response = await axiosStore.postData({
+      const requestData = {
         files: fileObjects,
         image_type: imageType,
-        saveImage: saveImage,
         isProjections: isProjections,
-        voxelXY: state.voxelXY,
-        voxelZ: state.voxelZ
-      });
+      };
+      if (imageType !== 'avg_bead' || imageType !== 'psf'){
+          requestData.voxelXY = state.voxelXY;
+          requestData.voxelZ = state.voxelZ;
+      }
+      const response = await axiosStore.postData(requestData);
       console.log('Response:', response);
       window.alert('Files uploaded successfully');
 
-      if (response.image_show) {
+      if (response.image_show !== null) {
         const newData = response.image_show.map((base64Data, index) => {
           return base64ToTiff(base64Data, 'image/tiff', `${response.image_type}_${index}.tiff`);
         });
         setFiles(newData);
 
-        if (saveImage) {
-          const file = base64ToTiff(response.image_save, 'image/tiff', `${response.image_type}.tiff`);
-          addMultiFile([file]);
-        }
-        if (isProjections) {
+        if (addProjections !== null) {
           const projection = response.projections.map((base64Data, index) => {
-            return base64ToTiff(base64Data, 'image/png', `${response.image_type}_${index}.png`);
+            return base64ToTiff(base64Data, 'image/tiff', `${response.image_type}_${index}.tiff`);
           });
           addProjections(projection);
         }
@@ -65,7 +63,7 @@ const Dropzone = ({ files = [], addFiles, setFiles, addMultiFile, addProjections
 
   return (
     <>
-      <DropzoneAreaBase
+        <DropzoneAreaBase
         fileObjects={files}
         showPreviewsInDropzone={true}
         useChipsForPreview
@@ -76,7 +74,7 @@ const Dropzone = ({ files = [], addFiles, setFiles, addMultiFile, addProjections
         filesLimit={Infinity}
         Icon={''}
         dropzoneText={
-          <Box className='custom-dropzone' px={16} py={6} display="flex" flexDirection="column" justifyContent="center" alignItems="center" gridGap={4} sx={{ backgroundColor: 'transparent' }}>
+          <Box className='custom-dropzone' px={16} py={6} display="flex" flexDirection="column" justifyContent="center" alignItems="center" gridGap={4}>
             {uploading && (
               <Box className='custom-dropzone-loader' display="flex" flexDirection="column" justifyContent="center" alignItems="center">
                 <CircularProgress size="2rem" />

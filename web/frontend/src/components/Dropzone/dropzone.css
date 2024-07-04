@@ -1,3 +1,7 @@
-.custom-dropzone .MuiDropzoneArea-root {
-    background-color: transparent;
-  }
+.custom-dropzone {
+  background-color: transparent;
+}
+
+.custom-dropzone-loader {
+  background-color: transparent;
+}

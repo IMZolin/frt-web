@@ -5,13 +5,11 @@ from typing import Union
 
 import numpy as np
 import redis
-from PIL import Image
 
 from web.backend.engine.src.common.AuxTkPlot_class import AuxCanvasPlot
 from web.backend.engine.src.common.ImageRaw_class import ImageRaw
 from web.backend.engine.src.deconvolutor.decon_image_model import DeconImageModel
 from web.backend.engine.src.deconvolutor.decon_psf_model import DeconPsfModel
-from web.backend.engine.src.extractor.extractor_model import ExtractorModel
 
 redis_client = redis.Redis(host='redis', port=6379, decode_responses=True)
 TIMEOUT = 600
@@ -44,16 +42,11 @@ async def tiff2bytes(image):
 
 async def tiff2base64(image, compress_quality=50, convert_type: str = 'compress'):
     try:
-        res_1, res_2 = None, None
-        if convert_type in ['compress', 'original', 'both']:
+        if convert_type in ['compress', 'original']:
             if convert_type == 'compress':
-                res_1 = await tiff2list(image, compress_quality)
+                return await tiff2list(image, compress_quality)
             elif convert_type == 'original':
-                res_2 = await tiff2bytes(image)
-            else:
-                res_1 = await tiff2list(image, compress_quality)
-                res_2 = await tiff2bytes(image)
-            return res_1, res_2
+                return await tiff2bytes(image)
         else:
             raise ValueError(f"Incorrect conversion type: {convert_type}. Must be one of the "
                              f"['compress_list', 'original', 'both']")
@@ -61,45 +54,40 @@ async def tiff2base64(image, compress_quality=50, convert_type: str = 'compress'
         raise Exception(f"Error in generate_projections: {e}")
 
 
-def generate_projections(image_raw):
-    try:
-        img_buf = io.BytesIO()
-        projections = AuxCanvasPlot.FigurePILImagekFrom3DArray(image_raw.GetIntensities())
-        if projections is None:
-            return None
-        projections.save(img_buf, format='PNG')
-        img_buf.seek(0)
-        base64_string = base64.b64encode(img_buf.getvalue()).decode('utf-8')
-        return [base64_string]
-    except Exception as e:
-        raise Exception(f"Error in generate_projections: {e}")
-
-
-def pass2cache(cache_key, data):
-    try:
-        cache_dict = {key: str(value) for key, value in data.items()}
-        redis_client.hset(cache_key, mapping=cache_dict)
-        redis_client.expire(cache_key, TIMEOUT)
-    except Exception as e:
-        raise Exception(f"Error in pass2cache: {e}")
-
-
-async def save_result(image: ImageRaw, image_type: str, convert_type: str, is_projections: bool):
+async def save_result(image: ImageRaw, image_type: str, is_projections: bool):
     try:
         if image is None:
             raise Exception("Image is None")
         image_tiff = image.SaveAsTiff()
-        images_show, images_save = await tiff2base64(image=image_tiff, convert_type=convert_type)
-        response_content = {'image_show': images_show, 'image_intensities': image.GetIntensities().tolist(),
-                            'voxel': image.GetVoxel()}
-        if images_save:
-            response_content['image_save'] = images_save
+        images_show = await tiff2base64(image=image_tiff, convert_type='compress')
+        response_content = {'image_show': images_show}
         if is_projections:
             response_content['projections'] = generate_projections(image)
-        pass2cache(image_type, response_content)
+        cache_data = {
+            'image_intensities': image.GetIntensities().tolist(),
+            'voxel': image.GetVoxel()
+        }
+        pass2cache(image_type, cache_data)
         return response_content
     except Exception as e:
         raise Exception(f"Error in save_result: {e}")
+
+
+def generate_projections(image_raw):
+    img_buf = io.BytesIO()
+    projections = AuxCanvasPlot.FigurePILImagekFrom3DArray(image_raw.GetIntensities())
+    if projections is None:
+        return None
+    projections.save(img_buf, format='TIFF')
+    img_buf.seek(0)
+    base64_string = base64.b64encode(img_buf.getvalue()).decode('utf-8')
+    return [base64_string]
+
+
+def pass2cache(cache_key, data):
+    cache_dict = {key: str(value) for key, value in data.items()}
+    redis_client.hset(cache_key, mapping=cache_dict)
+    redis_client.expire(cache_key, TIMEOUT)
 
 
 async def get_data(data_type: str):
@@ -113,29 +101,22 @@ async def get_data(data_type: str):
         raise Exception(f"Cache not found: {e}")
 
 
-async def init_bead_extractor():
+async def get_image(data_type: str, is_projections: bool = False):
     try:
-        beads_cache = await get_data('beads_image')
-        if beads_cache is not None:
-            print("Beads cache found:")
-            bead_extractor = ExtractorModel()
-            print(json.loads(beads_cache["voxel"]))
-            bead_extractor.SetMainImage(array=np.array(json.loads(beads_cache["image_intensities"])),
-                                        voxel=json.loads(beads_cache["voxel"]))
-            if bead_extractor is None:
-                raise Exception("Bead extractor initialization failed")
-            extractor_cache = await get_data('bead_extractor')
-            if extractor_cache is not None:
-                bead_coords = extractor_cache['bead_coords']
-                if bead_coords is not None and len(bead_coords) > 0:
-                    bead_extractor.beadCoords = eval(bead_coords)
-            else:
-                bead_extractor.beadCoords = []
-            return bead_extractor
+        cache_data = redis_client.hgetall(f"{data_type}")
+        if cache_data:
+            image = ImageRaw(intensitiesIn=np.array(json.loads(cache_data["image_intensities"])),
+                             voxelSizeIn=json.loads(cache_data["voxel"]))
+            image_tiff = image.SaveAsTiff()
+            images_show = await tiff2base64(image=image_tiff, convert_type='compress')
+            response_content = {'image_show': images_show}
+            if is_projections:
+                response_content['projections'] = generate_projections(image)
+            return response_content
         else:
             return None
     except Exception as e:
-        raise Exception(f"Error in initialization of BeadExtractor: {e}")
+        raise Exception(f"Cache not found: {e}")
 
 
 async def rl_deconvolution(model: Union[DeconPsfModel, DeconImageModel], iterations: int,
@@ -144,8 +125,6 @@ async def rl_deconvolution(model: Union[DeconPsfModel, DeconImageModel], iterati
     model.regularizationParameter = float(regularization)
     if isinstance(model, DeconPsfModel):
         model.CalculatePSF(deconMethodIn=decon_method)
-        print(model)
-        print(model.resultImage)
         res = model.resultImage
     else:
         model.DeconvolveImage(deconMethodIn=decon_method)

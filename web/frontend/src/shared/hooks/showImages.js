@@ -61,6 +61,10 @@ export const getImageResolutionFromSize = (fileSizeInBytes, colorDepth, numChann
 
 
 export const hexToRgb = (hex) => {
+  if (typeof hex !== 'string') {
+    console.error('Invalid hex value:', hex);
+    return '0, 0, 0'; // default to black if hex is invalid
+  }
   hex = hex.replace(/^#/, '');
   const r = parseInt(hex.substring(0, 2), 16);
   const g = parseInt(hex.substring(2, 4), 16);

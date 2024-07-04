@@ -50,15 +50,6 @@ const MainPage = ({ darkMode }) => {
         >
           RL deconvolution
         </Button>
-        <Button 
-          variant="outlined"
-          style={{ borderColor: customButtonColor, color: customButtonColor }}
-          className="menu-options"
-          component={Link}
-          to="/network"
-        >
-          CNN training ($)
-        </Button>
         <Button
           variant="outlined"
           style={{ borderColor: customButtonColor2, color: customButtonColor2 }}

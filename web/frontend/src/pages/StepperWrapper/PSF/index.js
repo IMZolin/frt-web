@@ -34,8 +34,8 @@ const StepperPSF = ({darkMode}) => {
             const response = await axiosStore.getData('avg_bead');
             console.log('Response:', response);
 
-            if (response.image_show && response.image_save && response.projections) {
-                const file = base64ToTiff(response.image_save, 'image/tiff', `average_bead.tiff`);
+            if (response.image_show && response.projections) {
+                // const file = base64ToTiff(response.image_save, 'image/tiff', `average_bead.tiff`);
                 const newAverageBead = response.image_show.map((base64Data, index) => {
                     return base64ToTiff(base64Data, 'image/tiff', `avg_bead_${index}.tiff`);
                 });
@@ -44,7 +44,7 @@ const StepperPSF = ({darkMode}) => {
                 });
                 state.setAverageBeadProjection(newProjection);
                 state.setAverageBead(newAverageBead);
-                state.setAverageBeadSave([file]);
+                // state.setAverageBeadSave([file]);
                 state.setIsLoad(true);
             } else {
                 console.log('No average bead data found in the response.');
@@ -66,30 +66,31 @@ const StepperPSF = ({darkMode}) => {
         }
     }, [state.activeStep]);
 
-    const handlePSFExtract = async () => {
-        console.log("Im tryin make psf extraction");
+    const handlePSFCalculate = async () => {
+        console.log("Im trying make psf extraction");
         try {
             const requestData = {
-                beadSize: state.beadSize,
-                iter: state.iter,
+                bead_size: state.beadSize,
+                iterations: state.iter,
                 regularization: state.regularization,
-                deconvMethod: state.deconvMethods[state.deconvMethod]
+                zoom_factor: state.zoomFactor,
+                decon_method: state.deconvMethods[state.deconvMethod]
             };
 
-            const response = await axiosStore.postPSFExtract(requestData);
+            const response = await axiosStore.calcPSF(requestData);
             console.log('Response:', response);
 
-            if (response.extracted_psf_show && response.extracted_psf_save && response.img_projection) {
-                const file = base64ToTiff(response.extracted_psf_save, 'image/tiff', `extracted_psf.tiff`);
-                const newExtractPSF = response.extracted_psf_show.map((base64Data, index) => {
-                    return base64ToTiff(base64Data, 'image/tiff', `extracted_psf_${index}.tiff`);
+            if (response.image_show && response.projections) {
+                // const file = base64ToTiff(response.image_save, 'image/tiff', `psf.tif`);
+                const newExtractPSF = response.image_show.map((base64Data, index) => {
+                    return base64ToTiff(base64Data, 'image/tiff', `psf_${index}.tiff`);
                 });
-                const newProjection = response.img_projection.map((base64Data, index) => {
-                    return base64ToTiff(base64Data, 'image/tiff', `psf_xyz_${index}.tiff`);
+                const newProjection = response.projections.map((base64Data, index) => {
+                    return base64ToTiff(base64Data, 'image/tiff', `psf_xyz_${index}.tif`);
                 });
                 state.setExtractedPSFProjection(newProjection);
                 state.setExtractedPSF(newExtractPSF);
-                state.setExtractedPSFSave([file]);
+                // state.setExtractedPSFSave([file]);
             } else {
                 console.log('No extracted PSF found in the response.');
                 window.alert('No extracted PSF found in the response.');
@@ -115,7 +116,6 @@ const StepperPSF = ({darkMode}) => {
                                 imageType={'avg_bead'}
                                 state={state}
                                 isSaveImage={true}
-                                isProjections={true}
                             />
                         </div>
                     </>);
@@ -188,6 +188,30 @@ const StepperPSF = ({darkMode}) => {
                                           }}
                                     />
                                     <TextField
+                                        id="zoom"
+                                        label="Microscope zoom factor"
+                                        variant="outlined"
+                                        placeholder="Enter an zoom factor"
+                                        fullWidth
+                                        margin="normal"
+                                        name="zoom"
+                                        onChange={(e) => state.setZoomFactor(e.target.value)}
+                                        value={state.zoomFactor}
+                                        sx={{
+                                            border: `1px solid rgba(${hexToRgb(state.customTextColor)}, 0.3)`,
+                                            borderRadius: '5px',
+                                          }}
+                                          InputLabelProps={{
+                                            sx: {
+                                              color: state.customTextColor,
+                                              textTransform: 'capitalize',
+                                            },
+                                          }}
+                                          inputProps={{
+                                            style: { color: state.customTextColor},
+                                          }}
+                                    />
+                                    <TextField
                                         id="iter"
                                         label="Iteration number"
                                         variant="outlined"
@@ -244,7 +268,7 @@ const StepperPSF = ({darkMode}) => {
                                         customTextColor={state.customTextColor}
                                     />
                                 </div>
-                                <Button variant="contained" color="success" className="btn-run" onClick={handlePSFExtract}>
+                                <Button variant="contained" color="success" className="btn-run" onClick={handlePSFCalculate}>
                                     Calculate PSF
                                 </Button>
                             </div>

@@ -13,7 +13,8 @@ from web.backend.engine.src.common.DenoiseImage_class import ImageDenoiser
 from web.backend.engine.src.common.ImageRaw_class import ImageRaw
 from web.backend.engine.src.deconvolutor.decon_image_model import DeconImageModel
 from web.backend.engine.src.deconvolutor.decon_psf_model import DeconPsfModel
-from web.backend.utils import save_result, get_data, init_bead_extractor, rl_deconvolution, get_source_img, pass2cache
+from web.backend.utils import tiff2base64, generate_projections, pass2cache, redis_client, get_data, rl_deconvolution, \
+    get_source_img, save_result, get_image
 
 router = APIRouter()
 
@@ -24,43 +25,52 @@ async def load_image(
         image_type: str = Form(...),
         voxel_xy: Optional[float] = Form(None),
         voxel_z: Optional[float] = Form(None),
-        save_image: bool = Form(False),
         is_projections: bool = Form(False)
 ):
     temp_dir = tempfile.TemporaryDirectory()
     try:
-        file_paths = [os.path.join(temp_dir.name, file.filename) for file in files]
+        file_paths = []
+        for file in files:
+            temp_file = os.path.join(temp_dir.name, file.filename)
+            with open(temp_file, "wb") as f:
+                f.write(await file.read())
+            file_paths.append(temp_file)
         if not file_paths:
             raise HTTPException(status_code=422, detail="No file uploaded")
-        for file, path in zip(files, file_paths):
-            with open(path, "wb") as f:
-                f.write(await file.read())
         if not image_type:
             raise HTTPException(status_code=422, detail="Image type not provided")
         if voxel_xy is not None and voxel_z is not None:
             image_data = ImageRaw(fpath=file_paths, voxelSizeIn=[voxel_z, voxel_xy, voxel_xy])
         else:
             image_data = ImageRaw(fpath=file_paths)
-        response_content = await save_result(image=image_data, image_type=image_type,
-                                             convert_type='both' if save_image else 'compress',
-                                             is_projections=is_projections)
+        response_content = await save_result(image=image_data, image_type=image_type, is_projections=is_projections)
         return JSONResponse(content=response_content)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
-    finally:
-        temp_dir.cleanup()
 
 
 @router.get("/api/get_image/")
 async def get_image_request(image_type: str = Form(...)):
     try:
-        cache_data = await get_data(data_type=image_type)
-        if cache_data:
-            return JSONResponse(content=cache_data)
+        response = await get_image(data_type=image_type)
+        if response:
+            return JSONResponse(content=response)
         else:
             raise HTTPException(status_code=404, detail="Cache not found")
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+
+# @router.get("/api/download_image/")
+# async def download_image(image_type: str = Form(...)):
+#     try:
+#         cache_data = redis_client.hgetall(f"{image_type}")
+#         if cache_data:
+#             return JSONResponse(content=cache_data)
+#         else:
+#             raise HTTPException(status_code=404, detail="Cache not found")
+#     except Exception as e:
+#         raise HTTPException(status_code=400, detail=str(e))
 
 
 @router.get("/api/get_voxel/")
@@ -75,45 +85,38 @@ async def get_voxel():
         raise HTTPException(status_code=400, detail=str(e))
 
 
-
-@router.get("/api/autosegment_beads/")
-async def autosegment_beads(max_area: int = Form(...)):
-    try:
-        bead_extractor = await init_bead_extractor()
-        if bead_extractor is None:
-            raise HTTPException(status_code=400, detail="Bead extractor initialization failed")
-        bead_extractor.maxArea = max_area
-        bead_extractor.AutoSegmentBeads()
-        response_content = {'bead_coords': json.loads(bead_extractor.beadCoords)}
-        pass2cache("bead_extractor", response_content)
-        return JSONResponse(content=response_content)
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+@router.post("/api/mark_bead/")
+async def mark_bead():
+    pass
 
 
-@router.post("/api/average_beads/")
-async def average_beads(denoise_type: str = Form(...)):
-    try:
+@router.post("/api/bead_extractor/autosegment/")
+async def autosegment_bead():
+    pass
 
-        if denoise_type is None or denoise_type not in ["Gaussian", "Median", "Wiener", "Totaial Vartion",
-                                                        "Non-Local Means", "Bilateral", "Wavelet", "none"]:
-            raise HTTPException(status_code=404, detail="Incorrect denoise type not found in the cache.")
-        bead_extractor = await init_bead_extractor()
-        if bead_extractor is None:
-            raise HTTPException(status_code=400, detail="Bead extractor initialization failed")
-        if bead_extractor.beadCoords is None or len(bead_extractor.beadCoords) == 0:
-            raise HTTPException(status_code=404, detail="The bead coordinates not found in the cache. Maybe the "
-                                                        "time is up. Try it again or segment beads.")
-        for coord in bead_extractor.beadCoords:
-            bead_extractor.MarkedBeadExtract(coord)
-        bead_extractor.BeadsArithmeticMean()
-        bead_extractor.BlurAveragedBead(denoise_type)
-        avg_bead = bead_extractor.averageBead
-        response_content = await save_result(image=avg_bead, image_type='avg_bead', convert_type='both',
-                                             is_projections=True)
-        return JSONResponse(content=response_content)
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+
+# @router.post("/api/average_beads/")
+# async def average_beads(denoise_type: str = Form(...)):
+#     try:
+#
+#         if denoise_type is None or denoise_type not in ["Gaussian", "Median", "Wiener", "Totaial Vartion",
+#                                                         "Non-Local Means", "Bilateral", "Wavelet", "none"]:
+#             raise HTTPException(status_code=404, detail="Incorrect denoise type not found in the cache.")
+#         bead_extractor = await init_bead_extractor()
+#         if bead_extractor is None:
+#             raise HTTPException(status_code=400, detail="Bead extractor initialization failed")
+#         if bead_extractor.beadCoords is None or len(bead_extractor.beadCoords) == 0:
+#             raise HTTPException(status_code=404, detail="The bead coordinates not found in the cache. Maybe the "
+#                                                         "time is up. Try it again or segment beads.")
+#         for coord in bead_extractor.beadCoords:
+#             bead_extractor.MarkedBeadExtract(coord)
+#         bead_extractor.BeadsArithmeticMean()
+#         bead_extractor.BlurAveragedBead(denoise_type)
+#         avg_bead = bead_extractor.averageBead
+#         response_content = await save_result(image=avg_bead, image_type='avg_bead', is_projections=True)
+#         return JSONResponse(content=response_content)
+#     except Exception as e:
+#         raise HTTPException(status_code=400, detail=str(e))
 
 
 @router.post("/api/calculate_psf/")
@@ -141,7 +144,7 @@ async def calculate_psf(
             psf_calculator.zoomFactor = zoom_factor
         psf = await rl_deconvolution(model=psf_calculator, iterations=iterations, regularization=regularization,
                                      decon_method=decon_method)
-        response_content = await save_result(image=psf, image_type='psf', convert_type='both', is_projections=False)
+        response_content = await save_result(image=psf, image_type='psf', is_projections=True)
         return JSONResponse(content=response_content)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -173,9 +176,7 @@ async def rl_decon_image(
                                      voxel=json.loads(source_cache["voxel"]))
         rl_img = await rl_deconvolution(model=rl_deconvolver, iterations=iterations, regularization=regularization,
                                         decon_method=decon_method)
-        print(rl_img)
-        response_content = await save_result(image=rl_img, image_type='rl_decon_img', convert_type='both',
-                                             is_projections=False)
+        response_content = await save_result(image=rl_img, image_type='rl_decon_img', is_projections=False)
         return JSONResponse(content=response_content)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -198,8 +199,7 @@ async def preprocess_image(denoise_type: str = Form(...)):
         if denoised_image is None:
             raise HTTPException(status_code=400, detail="Denoising failed")
         denoised_image = ImageRaw(intensitiesIn=denoised_image, voxelSizeIn=json.loads(noisy_cache["voxel"]))
-        response_content = await save_result(image=denoised_image, image_type='denoised_img', convert_type='both',
-                                             is_projections=False)
+        response_content = await save_result(image=denoised_image, image_type='denoised_img', is_projections=False)
         return JSONResponse(content=response_content)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -217,8 +217,7 @@ async def cnn_decon_image():
                                       voxel=json.loads(source_cache["voxel"]))
         cnn_deconvolver.DeconvolveImage()
         decon_img = cnn_deconvolver.deconResult.mainImageRaw
-        response_content = await save_result(image=decon_img, image_type='cnn_decon_img', convert_type='both',
-                                             is_projections=False)
+        response_content = await save_result(image=decon_img, image_type='cnn_decon_img', is_projections=False)
         return JSONResponse(content=response_content)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))

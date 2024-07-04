@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import {useState, useEffect} from "react";
 
 export const defaultValues = {
     files: [],
@@ -40,10 +40,11 @@ export const defaultValues = {
     gaussianBlurCount: 3,
     regularization: 0.0001,
     deconvMethod: "Richardson-Lucy",
-    cnnDeconvModel:"model-1.h5",
+    cnnDeconvModel: "model-1.h5",
     marginTop: 0,
     maxArea: 500,
     denoiseType: 'Gaussian',
+    zoomFactor: 2.6,
 
     sourceImage: [],
     sourceImageProjection: [],
@@ -59,7 +60,9 @@ export const defaultValues = {
     scaleCompare: 5,
 
     customTextColor: getComputedStyle(document.documentElement).getPropertyValue('--text-color-light'),
-    customBorder: getComputedStyle(document.documentElement).getPropertyValue('--button-text-color-light')
+    customBorder: getComputedStyle(document.documentElement).getPropertyValue('--button-text-color-light'),
+    customBorder2: getComputedStyle(document.documentElement).getPropertyValue('--button-text-color-light2'),
+    darkMode: true
 };
 
 export const useStateValues = () => {
@@ -109,6 +112,7 @@ export const useStateValues = () => {
     const [iter, setIter] = useState(defaultValues.iter);
     const [regularization, setRegularization] = useState(defaultValues.regularization);
     const [deconvMethod, setDeconvMethod] = useState(defaultValues.deconvMethod);
+    const [zoomFactor, setZoomFactor] = useState(defaultValues.zoomFactor);
 
     //Deconvolution
     const [sourceImage, setSourceImage] = useState(defaultValues.sourceImage);
@@ -117,7 +121,7 @@ export const useStateValues = () => {
     const [resultImage, setResultImage] = useState(defaultValues.resultImage);
     const [resultImageProjection, setResultImageProjection] = useState(defaultValues.resultImageProjection);
     const [resultImageSave, setResultImageSave] = useState(defaultValues.resultImageSave);
-    
+
     //Neural network
     const [preprocImage, setPreprocImage] = useState(defaultValues.preprocImage);
     const [preprocImageProjection, setPreprocImageProjection] = useState(defaultValues.preprocImageProjection);
@@ -131,6 +135,8 @@ export const useStateValues = () => {
     //General styles
     const [customTextColor, setCustomTextColor] = useState(defaultValues.customTextColor);
     const [customBorder, setCustomBorder] = useState(defaultValues.customBorder);
+    const [customBorder2, setCustomBorder2] = useState(defaultValues.customBorder2);
+    const [darkMode, setDarkMode] = useState(defaultValues.darkMode);
 
     const tiffTypes = ["8 bit", "16 bit", "32 bit"]
 
@@ -138,13 +144,13 @@ export const useStateValues = () => {
     const denoiseTypes = ["Gaussian", "Median", "Wiener", "Totaial Vartion", "Non-Local Means", "Bilateral", "Wavelet", "none"]
 
     const deconvMethods = {
-        "Richardson-Lucy":"RL",
-        "Richardson-Lucy TM":"RLTMR",
-        "Richardson-Lucy TV":"RLTVR"
-      };
+        "Richardson-Lucy": "RL",
+        "Richardson-Lucy TM": "RLTMR",
+        "Richardson-Lucy TV": "RLTVR"
+    };
 
     const cnnDeconvModels = {
-        "model-1.h5":"m1"
+        "model-1.h5": "m1"
     };
     const [cnnDeconvModel, setCnnDeconvMethod] = useState(defaultValues.cnnDeconvModel);
 
@@ -188,7 +194,6 @@ export const useStateValues = () => {
 
     const handleDenoiseTypeChange = (selectedType) => {
         setDenoiseType(selectedType);
-        console.log(selectedType);
     };
 
     const handleTiffTypeChange = (selectedType) => {
@@ -206,7 +211,7 @@ export const useStateValues = () => {
         const newLayer = value > maxLayer ? maxLayer : value;
         setLayer2(newLayer);
     };
-    
+
     const handleLayer3Change = (e, maxLayer) => {
         const value = e.target.value;
         const newLayer = value > maxLayer ? maxLayer : value;
@@ -233,46 +238,50 @@ export const useStateValues = () => {
         console.log(centerExtractBeads, resolution);
     }, [centerExtractBeads, resolution]);
 
+    const handleDarkModeToggle = () => {
+        setDarkMode(!darkMode);
+    };
+
     const handleUndoMark = (e, canvasRef) => {
         e.preventDefault();
         if (centerExtractBeads.length > 0) {
-          setCenterExtractBeads((prevCenterExtractBeads) =>
-            prevCenterExtractBeads.slice(0, prevCenterExtractBeads.length - 1)
-          );
-          setIsDeleted(true);  
-          const canvas = canvasRef.current;
-          if (canvas) {
-            const ctx = canvas.getContext('2d');
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            setCenterExtractBeads((prevCenterExtractBeads) =>
+                prevCenterExtractBeads.slice(0, prevCenterExtractBeads.length - 1)
+            );
+            setIsDeleted(true);
+            const canvas = canvasRef.current;
+            if (canvas) {
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            centerExtractBeads.slice(0, -1).forEach((bead) => {
-              drawSquare(bead.x, bead.y, selectSize, canvasRef);
-            });
-          }
+                centerExtractBeads.slice(0, -1).forEach((bead) => {
+                    drawSquare(bead.x, bead.y, selectSize, canvasRef);
+                });
+            }
         }
-      };
-    
+    };
+
     const handleClearMarks = (e, canvasRef) => {
         e.preventDefault();
         setCenterExtractBeads([]);
         const canvas = canvasRef.current;
         if (canvas) {
-        const ctx = canvas.getContext('2d');
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
         }
-        setIsDeleted(true); 
+        setIsDeleted(true);
     };
 
     const handleScaleChange = (e, maxScale) => {
         const value = e.target.value;
         const newScale = value > maxScale ? maxScale : value;
         setScale(newScale);
-    
-        const marginTopIncrement = 3; 
+
+        const marginTopIncrement = 3;
         const newMarginTop = Math.floor((value - 0.5) / 0.1) * marginTopIncrement;
         setMarginTop(newMarginTop);
-      };
-    
+    };
+
     return {
         files,
         addFiles,
@@ -329,7 +338,7 @@ export const useStateValues = () => {
         deconvMethod,
         setDeconvMethod,
         handleDeconvMethodChange,
-        deconvMethods, 
+        deconvMethods,
         blurType,
         setBlurType,
         blurTypes,
@@ -410,6 +419,13 @@ export const useStateValues = () => {
         denoiseTypes,
         denoiseType,
         setDenoiseType,
-        handleDenoiseTypeChange
+        handleDenoiseTypeChange,
+        zoomFactor,
+        setZoomFactor,
+        customBorder2,
+        setCustomBorder2,
+        darkMode,
+        setDarkMode,
+        handleDarkModeToggle
     };
 };

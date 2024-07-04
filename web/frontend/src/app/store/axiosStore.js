@@ -93,7 +93,7 @@ const useAxiosStore = create((set, get) => {
       }
     },
 
-    deconImage: async(params) =>{
+    rlDeconImage: async(params) =>{
       try{
         const { iterations, regularization, decon_method} = params;
         let formData = new FormData();
