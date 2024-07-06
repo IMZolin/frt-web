@@ -113,11 +113,11 @@ const StepperPSF = ({darkMode}) => {
                                 files={state.files}
                                 addFiles={state.addFiles}
                                 setFiles={state.setAverageBead}
-                                addMultiFile={state.averageBeadSave}
-                                addProjections={state.setAverageBeadSave}
+                                isProjections={true}
+                                addProjections={state.setAverageBeadProjection}
                                 imageType={'avg_bead'}
                                 state={state}
-                                isSaveImage={true}
+                                darkMode={darkMode}
                             />
                         </div>
                     </>);

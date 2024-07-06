@@ -1,7 +1,11 @@
 .custom-dropzone {
-  background-color: transparent;
+  background-color: transparent !important; /* Ensure transparency */
+  border-radius: 8px;
+  border: 2px solid var(--color);
+  max-width: 100%;
+  height: fit-content;
 }
 
-.custom-dropzone-loader {
-  background-color: aliceblue !important;
+.custom-dropzone {
+  background-color: transparent !important; /* Ensure transparency */
 }

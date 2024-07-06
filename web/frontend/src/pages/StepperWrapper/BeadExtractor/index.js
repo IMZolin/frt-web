@@ -202,6 +202,7 @@ const BeadExtractor = ({darkMode}) => {
                                     files={state.files}
                                     addFiles={state.addFiles}
                                     setFiles={state.setBeads}
+                                    isProjections={false}
                                     addProjections={null}
                                     imageType={'beads_img'}
                                     state={state}

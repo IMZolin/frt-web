@@ -11,7 +11,7 @@
 }
 
 .banner.info {
-    background-color: blue;
+    background-color: #362FD9;
 }
 
 .banner.error {
@@ -19,13 +19,13 @@
 }
 
 .banner.success {
-    background-color: green;
+    background-color: #9ad294;
 }
 
 .banner-close-button {
     background: none;
     border: none;
-    color: white;
+    color: #dafffb;
     font-size: 16px;
     cursor: pointer;
 }

@@ -157,9 +157,11 @@ const Deconvolution = ({darkMode}) => {
                 files={state.files}
                 addFiles={state.addFiles}
                 setFiles={state.extractedPSF}
+                isProjections={true}
                 addProjections={state.extractedPSFProjection}
                 imageType={'psf'}
                 state={state}
+                darkMode={darkMode}
             />
           </div>
         </>);

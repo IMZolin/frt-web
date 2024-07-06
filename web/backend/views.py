@@ -1,5 +1,4 @@
 import json
-import os
 import tempfile
 from typing import List, Optional
 
@@ -13,8 +12,7 @@ from web.backend.engine.src.common.DenoiseImage_class import ImageDenoiser
 from web.backend.engine.src.common.ImageRaw_class import ImageRaw
 from web.backend.engine.src.deconvolutor.decon_image_model import DeconImageModel
 from web.backend.engine.src.deconvolutor.decon_psf_model import DeconPsfModel
-from web.backend.utils import tiff2base64, generate_projections, pass2cache, redis_client, get_data, rl_deconvolution, \
-    get_source_img, save_result, get_image
+from web.backend.utils import get_data, rl_deconvolution, get_source_img, save_result, get_image, save_files
 
 router = APIRouter()
 
@@ -29,12 +27,7 @@ async def load_image(
 ):
     temp_dir = tempfile.TemporaryDirectory()
     try:
-        file_paths = []
-        for file in files:
-            temp_file = os.path.join(temp_dir.name, file.filename)
-            with open(temp_file, "wb") as f:
-                f.write(await file.read())
-            file_paths.append(temp_file)
+        file_paths = await save_files(files, temp_dir.name)
         if not file_paths:
             raise HTTPException(status_code=422, detail="No file uploaded")
         if not image_type:
@@ -43,40 +36,24 @@ async def load_image(
             image_data = ImageRaw(fpath=file_paths, voxelSizeIn=[voxel_z, voxel_xy, voxel_xy])
         else:
             image_data = ImageRaw(fpath=file_paths)
-        image_tiff = image_data.SaveAsTiff()
-        images_show = await tiff2base64(image=image_tiff)
-        response_content = {'image_show': images_show}
-        if is_projections:
-            projections = generate_projections(image_data)
-            response_content['projections'] = projections
-        pass2cache(image_type, response_content)
+        response_content = await save_result(image=image_data, image_type=image_type, is_projections=is_projections)
         return JSONResponse(content=response_content)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+    finally:
+        temp_dir.cleanup()
 
 
 @router.get("/api/get_image/")
-async def get_image_request(image_type: str = Form(...)):
+async def get_image_request(image_type: str = Form(...), is_compress: bool = Form(...)):
     try:
-        response = await get_image(data_type=image_type)
+        response = await get_image(data_type=image_type, is_compress=is_compress)
         if response:
             return JSONResponse(content=response)
         else:
             raise HTTPException(status_code=404, detail="Cache not found")
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
-
-
-# @router.get("/api/download_image/")
-# async def download_image(image_type: str = Form(...)):
-#     try:
-#         cache_data = redis_client.hgetall(f"{image_type}")
-#         if cache_data:
-#             return JSONResponse(content=cache_data)
-#         else:
-#             raise HTTPException(status_code=404, detail="Cache not found")
-#     except Exception as e:
-#         raise HTTPException(status_code=400, detail=str(e))
 
 
 @router.get("/api/get_voxel/")

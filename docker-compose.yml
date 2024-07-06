@@ -5,11 +5,15 @@ services:
     container_name: frt_backend
     restart: always
     image: frt-web:dev
-    command: sh -c "python main.py"
+    command: sh -c "uvicorn main:app --host 0.0.0.0 --port 8000 --timeout-keep-alive 120"
     ports:
       - "8000:8000"
     env_file:
       - .env
+    deploy:
+      resources:
+        limits:
+          memory: 4G
   frontend:
     container_name: frt_frontend
     restart: always
@@ -25,3 +29,7 @@ services:
     container_name: frt_redis
     ports:
       - "6379:6379"
+    deploy:
+      resources:
+        limits:
+          memory: 1G

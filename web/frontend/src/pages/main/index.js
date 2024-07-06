@@ -1,6 +1,6 @@
-import React, {useState, useEffect} from 'react';
-import {Link, Outlet} from 'react-router-dom';
-import {Button} from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { Link, Outlet } from 'react-router-dom';
+import { Button } from '@mui/material';
 import './style.css';
 import Tooltip from "../../components/ToolTip/ToolTip";
 
@@ -88,7 +88,7 @@ const MainPage = ({ darkMode }) => {
                     Authors
                 </Button>
             </div>
-            <Tooltip message={tooltip.message} visible={tooltip.visible} />
+            <Tooltip message={tooltip.message} visible={tooltip.visible} x={tooltip.x} y={tooltip.y} />
             <Outlet />
         </div>
     );
