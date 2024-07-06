@@ -55,8 +55,16 @@ const PreprocessStep = ({ state, handlePreprocessing }) => {
                         customTextColor={state.customTextColor}
                     />
                 </div>
-                <Button variant="outlined" color="secondary" className="btn-run"
-                        onClick={handlePreprocessing}>
+                <Button
+                    variant="contained"
+                    style={{
+                            backgroundColor: state.customBorder2,
+                            padding: "12px 12px",
+                            fontSize: "14px"
+                        }}
+                    className="btn-run"
+                    onClick={handlePreprocessing}
+                >
                     Make preprocessing
                 </Button>
             </div>

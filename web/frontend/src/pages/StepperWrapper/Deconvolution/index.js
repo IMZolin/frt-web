@@ -16,7 +16,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 const Deconvolution = ({darkMode}) => {
   const state = useStateValues();
-  const steps = ['Load PSF', 'Load image', 'Preprocessing', 'Run Deconvolution', 'Save results'];
+  const steps = ['Load PSF', 'Load image', 'Preprocessing', 'Deconvolution', 'Save results'];
   const axiosStore = useAxiosStore();
   
   useEffect(() => {
@@ -36,13 +36,13 @@ const Deconvolution = ({darkMode}) => {
 
       if (response.image_show) {
         // const file = base64ToTiff(response.psf_save, 'image/tiff', `extracted_psf.tiff`);
-        const newExtractPSF = response.psf_show.map((base64Data, index) => {
+        const newExtractPSF = response.image_show.map((base64Data, index) => {
           return base64ToTiff(base64Data, 'image/tiff', `psf_${index}.tiff`);
         });
-        const newProjection = response.img_projection.map((base64Data, index) => {
+        const projection = response.projections.map((base64Data, index) => {
           return base64ToTiff(base64Data, 'image/tiff', `psf_xyz_${index}.tiff`);
         });
-        state.setExtractedPSFProjection(newProjection);
+        state.setExtractedPSFProjection(projection);
         state.setExtractedPSF(newExtractPSF);
         // state.setExtractedPSFSave([file]);
         state.setIsLoad(true);
@@ -70,10 +70,39 @@ const Deconvolution = ({darkMode}) => {
         window.alert('No voxel data found in the response.');
       }
     } catch (error) {
-      console.error('Error fetching average bead:', error);
-      window.alert('Error fetching average bead:', error);
+      console.error('Error fetching voxel:', error);
+      window.alert('Error fetching voxel:', error);
     }
   };
+
+      const handlePreprocessing = async () => {
+        console.log("Im trying make preprocessing");
+        // window.alert("Im trying make preprocessing");
+        try {
+            const requestData = {
+                denoise_type: state.denoiseType
+            };
+            console.log(requestData);
+
+            const response = await axiosStore.preprocessImage(requestData);
+            console.log('Response:', response);
+
+            if (response.image_show) {
+                // const file = base64ToTiff(response.preproc_save, 'image/tiff', `result_preproc.tiff`);
+                const preprocessedImage = response.image_show.map((base64Data, index) => {
+                    return base64ToTiff(base64Data, 'image/tiff', `result_preproc_${index}.tiff`);
+                });
+                state.setPreprocImage(preprocessedImage);
+                // state.setPreprocImageSave([file]);
+            } else {
+                console.log('No preprocessing result found in the response.');
+                window.alert('No preprocessing result found in the response.');
+            }
+        } catch (error) {
+            console.error('Error in preprocessing:', error);
+            window.alert('Error in preprocessing: ' + error);
+        }
+    };
 
   useEffect(() => {
     if (state.activeStep === 0) {
@@ -204,214 +233,319 @@ const Deconvolution = ({darkMode}) => {
             </div>
           </>
         );
-      case steps.indexOf('Run Deconvolution'):
+        case steps.indexOf('Preprocessing'):
+                return (
+                    <>
+                        <div className="row">
+                            <div className="column-1" style={{zIndex: 2, border: `1px solid ${state.customBorder}`}}>
+                                <div className="slider-container">
+                                    <div>
+                                        <label htmlFor="layer-slider" style={{fontSize: "16px"}}>Layer:</label><br/>
+                                        <input
+                                            id="layer-slider"
+                                            type="range"
+                                            min="0"
+                                            max={state.sourceImage.length - 1}
+                                            step="1"
+                                            value={state.layer}
+                                            onChange={(e) => state.handleLayerChange(e, state.sourceImage.length - 1)}
+                                        />
+                                    </div>
+                                    <div>
+                                        <label htmlFor="scale-slider" style={{fontSize: "16px"}}>Scale:</label><br/>
+                                        <input
+                                            id="scale-slider"
+                                            type="range"
+                                            min="0.5"
+                                            max="7"
+                                            step="0.1"
+                                            value={state.scale}
+                                            onChange={(e) => state.handleScaleChange(e, 7)}
+                                        />
+                                    </div>
+                                    <div>
+                                        <label htmlFor="brightness-slider" style={{fontSize: "16px"}}>Brightness:</label><br/>
+                                        <input
+                                            id="brightness-slider"
+                                            type="range"
+                                            min="1"
+                                            max="3"
+                                            step="0.01"
+                                            value={state.levelBrightness}
+                                            onChange={state.handleSliderBrightnessChange}
+                                        />
+                                    </div>
+                                </div>
+                                <div className="box-parameters">
+                                    <ChooseList
+                                        className="choose-list"
+                                        name="Denoise type"
+                                        list={state.denoiseTypes}
+                                        selected={state.denoiseType}
+                                        onChange={state.handleDenoiseTypeChange}
+                                        customTextColor={state.customTextColor}
+                                    />
+                                </div>
+                                <Button
+                                    variant="contained"
+                                    style={{
+                                        backgroundColor: state.customBorder,
+                                        padding: "12px 12px",
+                                        fontSize: "14px",
+                                        marginTop: "5px"
+                                    }}
+                                    className="btn-run"
+                                    onClick={handlePreprocessing}
+                                >
+                                    Make preprocessing
+                                </Button>
+                            </div>
+                            <div className="column-2">
+                                <div className="images__preview">
+                                    <TifCompare
+                                        img_1={state.sourceImage}
+                                        img_2={state.preprocImage}
+                                        img_1_projection={null}
+                                        img_2_projection={null}
+                                        scale={state.scale}
+                                        state={state}
+                                        isSameLength={true}
+                                        type='deconvolution'
+                                        layerColor={state.customTextColor}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </>
+                );
+      case steps.indexOf('Deconvolution'):
         return (
           <>
             <div className="row">
-              <div className="column-1" style={{ zIndex: 2, border: `1px solid ${state.customBorder}`}}>
-                <div className="slider-container">
-                  <div>
-                    <label htmlFor="layer-slider">Layer:</label><br />
-                    <input
-                      id="layer-slider"
-                      type="range"
-                      min="0"
-                      max={state.sourceImage.length - 1}
-                      step="1"
-                      value={state.layer}
-                      onChange={(e) => state.handleLayerChange(e, state.sourceImage.length - 1)}
+                <div className="column-1" style={{zIndex: 2, border: `1px solid ${state.customBorder}`}}>
+                    <div className="slider-container">
+                        <div>
+                            <label htmlFor="layer-slider" style={{fontSize: "16px"}}>Layer:</label><br/>
+                            <input
+                                id="layer-slider"
+                                type="range"
+                                min="0"
+                                max={state.sourceImage.length - 1}
+                                step="1"
+                                value={state.layer}
+                                onChange={(e) => state.handleLayerChange(e, state.sourceImage.length - 1)}
+                            />
+                        </div>
+                        <div>
+                            <label htmlFor="scale-slider" style={{fontSize: "16px"}}>Scale:</label><br/>
+                            <input
+                                id="scale-slider"
+                                type="range"
+                                min="0.5"
+                                max="7"
+                                step="0.1"
+                                value={state.scale}
+                                onChange={(e) => state.handleScaleChange(e, 7)}
+                            />
+                        </div>
+                        <div>
+                            <label htmlFor="brightness-slider" style={{fontSize: "16px"}}>Brightness:</label><br/>
+                            <input
+                                id="brightness-slider"
+                                type="range"
+                                min="1"
+                                max="3"
+                                step="0.01"
+                                value={state.levelBrightness}
+                                onChange={state.handleSliderBrightnessChange}
+                            />
+                        </div>
+                    </div>
+                    <div style={{display: 'flex', justifyContent: 'space-between'}}>
+                        <TextField
+                            id="iter"
+                            label="Iterations"
+                            variant="outlined"
+                            placeholder="Enter an iteration number"
+                            fullWidth
+                            margin="normal"
+                            name="iter"
+                            onChange={(e) => state.setIter(e.target.value)}
+                            value={state.iter}
+                            sx={{
+                                border: `1px solid rgba(${hexToRgb(state.customTextColor)}, 0.3)`,
+                                borderRadius: '5px',
+                                '& .MuiInputLabel-outlined': {
+                                    whiteSpace: 'normal',
+                                    overflow: 'visible',
+                                    textOverflow: 'unset'
+                                },
+                                marginRight: '5px'
+                            }}
+                            InputLabelProps={{
+                                sx: {
+                                    color: state.customTextColor,
+                                    textTransform: 'capitalize',
+                                    paddingY: '2px'
+                                },
+                            }}
+                            inputProps={{
+                                style: {color: state.customTextColor},
+                            }}
+                        />
+                        <TextField
+                            id="regularization"
+                            label="Regularization"
+                            variant="outlined"
+                            placeholder="Enter a regularization"
+                            fullWidth
+                            margin="normal"
+                            name="regularization"
+                            onChange={(e) => state.setRegularization(e.target.value)}
+                            value={state.regularization}
+                            sx={{
+                                border: `1px solid rgba(${hexToRgb(state.customTextColor)}, 0.3)`,
+                                borderRadius: '5px',
+                                '& .MuiInputLabel-outlined': {
+                                    whiteSpace: 'normal',
+                                    overflow: 'visible',
+                                    textOverflow: 'unset',
+                                }
+                            }}
+                            InputLabelProps={{
+                                sx: {
+                                    color: state.customTextColor,
+                                    textTransform: 'capitalize',
+                                },
+                            }}
+                            inputProps={{
+                                style: {color: state.customTextColor},
+                            }}
+                        />
+                    </div>
+                    <ChooseList
+                        className="choose-list"
+                        name="Deconvolution method"
+                        list={Object.keys(state.deconvMethods)}
+                        selected={state.deconvMethod}
+                        onChange={state.handleDeconvMethodChange}
+                        customTextColor={state.customTextColor}
                     />
-                  </div>
-                  <div>
-                    <label htmlFor="scale-slider">Scale:</label><br />
-                    <input
-                      id="scale-slider"
-                      type="range"
-                      min="0.5"
-                      max="7"
-                      step="0.1"
-                      value={state.scale}
-                      onChange={(e) => state.handleScaleChange(e, 7)}
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="brightness-slider">Brightness:</label><br />
-                    <input
-                      id="brightness-slider"
-                      type="range"
-                      min="1"
-                      max="3"
-                      step="0.01"
-                      value={state.levelBrightness}
-                      onChange={state.handleSliderBrightnessChange}
-                    />
-                  </div>
+                    <Button
+                        variant="contained"
+                        style={{
+                            backgroundColor: state.customBorder,
+                            padding: "12px 12px",
+                            fontSize: "14px",
+                            marginTop: "5px"
+                        }}
+                        className="btn-run"
+                        disabled={!(state.sourceImage.length == 0 || state.extractedPSF.length)}
+                        onClick={handleDeconvolve}
+                    >
+                        Deconvolve
+                    </Button>
                 </div>
-                <TextField
-                  id="iter"
-                  label="Iteration number"
-                  variant="outlined"
-                  placeholder="Enter an iteration number"
-                  fullWidth
-                  margin="normal"
-                  name="iter"
-                  onChange={(e) => state.setIter(e.target.value)}
-                  value={state.iter}
-                  sx={{
-                    border: `1px solid rgba(${hexToRgb(state.customTextColor)}, 0.2)`,
-                    borderRadius: '5px',
-                    marginTop: '10px'
-                  }}
-                  InputLabelProps={{
-                    sx: {
-                      color: state.customTextColor,
-                      textTransform: 'capitalize',
-                    },
-                  }}
-                  inputProps={{
-                    style: { color: state.customTextColor},
-                  }}
-                />
-                <TextField
-                  id="regularization"
-                  label="Regularization"
-                  variant="outlined"
-                  placeholder="Enter a regularization"
-                  fullWidth
-                  margin="normal"
-                  name="regularization"
-                  onChange={(e) => state.setRegularization(e.target.value)}
-                  value={state.regularization}
-                  sx={{
-                    border: `1px solid rgba(${hexToRgb(state.customTextColor)}, 0.2)`,
-                    borderRadius: '5px',
-                    marginTop: '10px'
-                  }}
-                  InputLabelProps={{
-                    sx: {
-                      color: state.customTextColor,
-                      textTransform: 'capitalize',
-                    },
-                  }}
-                  inputProps={{
-                    style: { color: state.customTextColor},
-                  }}
-                />
-                <ChooseList
-                  className="choose-list"
-                  name="Deconvolution method"
-                  list={Object.keys(state.deconvMethods)}
-                  selected={state.deconvMethod}
-                  onChange={state.handleDeconvMethodChange}
-                  customTextColor={state.customTextColor}
-                />
-                <Button
-                  variant="outlined"
-                  className="btn-run"
-                  disabled={!(state.sourceImage.length == 0 || state.extractedPSF.length)}
-                  onClick={handleDeconvolve}
-                >
-                  Deconvolve
-                </Button>
-              </div>
-              <div className="column-2" style={{ zIndex: 1 }}>
-                <div className="images__preview">
-                  <TifCompare2 
-                    img_1={state.sourceImage} 
-                    img_2={null} 
-                    img_3={state.resultImage} 
-                    img_1_projection={null} 
-                    img_2_projection={state.extractedPSFProjection[0]} 
-                    img_3_projection={null} 
-                    scale={state.scale} 
-                    state={state} 
-                    isSameLength={state.sourceImage.length === state.extractedPSF.lengt} 
-                    type='deconvolution-2' 
-                    layerColor={state.customTextColor}
-                  />
+                <div className="column-2" style={{zIndex: 1}}>
+                    <div className="images__preview">
+                        <TifCompare2
+                            img_1={state.sourceImage}
+                            img_2={null}
+                            img_3={state.resultImage}
+                            img_1_projection={null}
+                            img_2_projection={state.extractedPSFProjection[0]}
+                            img_3_projection={null}
+                            scale={state.scale}
+                            state={state}
+                            isSameLength={state.sourceImage.length === state.extractedPSF.lengt}
+                            type='deconvolution-2'
+                            layerColor={state.customTextColor}
+                        />
+                    </div>
                 </div>
-              </div>
             </div>
           </>
         );
-      case steps.indexOf('Save results'):
-        return (
-          <>
-            <div className="row">
-              <div className="column-1" style={{ zIndex: 2, border: `1px solid ${state.customBorder}`}}>
-                <div className="slider-container">
-                  <div>
-                    <label htmlFor="layer-slider">Layer:</label><br />
-                    <input
-                      id="layer-slider"
-                      type="range"
-                      min="0"
-                      max={state.resultImage.length - 1}
-                      step="1"
-                      value={state.layer2}
-                      onChange={(e) => state.handleLayer2Change(e, state.resultImage.length - 1)}
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="scale-slider">Scale:</label><br />
-                    <input
-                      id="scale-slider"
-                      type="range"
-                      min="0.5"
-                      max="7"
-                      step="0.1"
-                      value={state.scale}
-                      onChange={(e) => state.handleScaleChange(e, 7)}
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="brightness-slider">Brightness:</label><br />
-                    <input
-                      id="brightness-slider"
-                      type="range"
-                      min="1"
-                      max="3"
-                      step="0.01"
-                      value={state.levelBrightness}
-                      onChange={state.handleSliderBrightnessChange}
-                    />
-                  </div>
-                </div>
-                <TextField
-                  id="filename"
-                  label="Filename"
-                  variant="outlined"
-                  placeholder="Enter a file name"
-                  fullWidth
-                  margin="normal"
-                  name="filename"
-                  onChange={(e) => state.setFilename(e.target.value)}
-                  value={state.filename}
-                  sx={{
-                    border: `1px solid rgba(${hexToRgb(state.customTextColor)}, 0.2)`,
-                    borderRadius: '5px',
-                    marginTop: '10px'
-                  }}
-                  InputLabelProps={{
-                    sx: {
-                      color: state.customTextColor,
-                      textTransform: 'capitalize',
-                    },
-                  }}
-                  inputProps={{
-                    style: { color: state.customTextColor},
-                  }}
-                />
-                <FileDownloader 
-                  fileList={state.resultImageSave} 
-                  folderName={state.filename} 
-                  btnName={"Save result"} 
-                />
-              </div>
-              <div className="column-2" style={{ zIndex: 1 }}>
-                <div className="images__preview" style={{ marginTop: '100px', marginRight: '50px' }}>
-                  <TifViewer
-                    img={state.resultImage[state.layer2]}
+        case steps.indexOf('Save results'):
+            return (
+                <>
+                    <div className="row">
+                        <div className="column-1" style={{zIndex: 2, border: `1px solid ${state.customBorder}`}}>
+                            <div className="slider-container">
+                                <div>
+                                    <label htmlFor="layer-slider" style={{fontSize: "16px"}}>Layer:</label><br/>
+                                    <input
+                                        id="layer-slider"
+                                        type="range"
+                                        min="0"
+                                        max={state.resultImage.length - 1}
+                                        step="1"
+                                        value={state.layer2}
+                                        onChange={(e) => state.handleLayer2Change(e, state.resultImage.length - 1)}
+                                    />
+                                </div>
+                                <div>
+                                    <label htmlFor="scale-slider" style={{fontSize: "16px"}}>Scale:</label><br/>
+                                    <input
+                                        id="scale-slider"
+                                        type="range"
+                                        min="0.5"
+                                        max="7"
+                                        step="0.1"
+                                        value={state.scale}
+                                        onChange={(e) => state.handleScaleChange(e, 7)}
+                                    />
+                                </div>
+                                <div>
+                                    <label htmlFor="brightness-slider"
+                                           style={{fontSize: "16px"}}>Brightness:</label><br/>
+                                    <input
+                                        id="brightness-slider"
+                                        type="range"
+                                        min="1"
+                                        max="3"
+                                        step="0.01"
+                                        value={state.levelBrightness}
+                                        onChange={state.handleSliderBrightnessChange}
+                                    />
+                                </div>
+                            </div>
+                            <TextField
+                                id="filename"
+                                label="Filename"
+                                variant="outlined"
+                                placeholder="Enter a file name"
+                                fullWidth
+                                margin="normal"
+                                name="filename"
+                                onChange={(e) => state.setFilename(e.target.value)}
+                                value={state.filename}
+                                sx={{
+                                    border: `1px solid rgba(${hexToRgb(state.customTextColor)}, 0.2)`,
+                                    borderRadius: '5px',
+                                    marginTop: '10px'
+                                }}
+                                InputLabelProps={{
+                                    sx: {
+                                        color: state.customTextColor,
+                                        textTransform: 'capitalize',
+                                    },
+                                }}
+                                inputProps={{
+                                    style: {color: state.customTextColor},
+                                }}
+                            />
+                            <FileDownloader
+                                fileList={state.resultImageSave}
+                                folderName={state.filename}
+                                btnName={"Save result"}
+                                customBorder={state.customBorder}
+                            />
+                        </div>
+                        <div className="column-2" style={{zIndex: 1}}>
+                            <div className="images__preview" style={{marginTop: '100px', marginRight: '50px'}}>
+                                <TifViewer
+                                    img={state.resultImage[state.layer2]}
                     scale={0.5 * state.scale}
                     brightness={state.levelBrightness}
                     imageProjection={null}

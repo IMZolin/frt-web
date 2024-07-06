@@ -16,7 +16,7 @@ import {useStateValues} from "../pages/StepperWrapper/state";
 
 const App = () => {
   const state = useStateValues();
-  const [darkMode, setDarkMode] = useState(false);
+  const [darkMode, setDarkMode] = useState(true);
 
   const handleDarkModeToggle = (isDarkMode) => {
     setDarkMode(isDarkMode);

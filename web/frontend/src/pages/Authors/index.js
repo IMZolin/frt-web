@@ -6,11 +6,11 @@ const Authors = () => {
     <div className="authors" variant="h4" align="center">
       <h1>Authors</h1>
       <ul>
-        <li>Zolin I.</li>
-        <li>Sachuk A.</li>
-        <li>Geasimenko A.</li>
-        <li>Chuckanov V.</li>
-        <li>Pchitskaya E.</li>
+        <li>Zolin Ivan</li>
+        <li>Sachuk Alexander</li>
+        <li>Gerasimenko Alexander</li>
+        <li>Chuckanov Vyacheslav</li>
+        <li>Pchitskaya Ekaterina</li>
       </ul>
     </div>
   );

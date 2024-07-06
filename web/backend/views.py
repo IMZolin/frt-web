@@ -43,7 +43,13 @@ async def load_image(
             image_data = ImageRaw(fpath=file_paths, voxelSizeIn=[voxel_z, voxel_xy, voxel_xy])
         else:
             image_data = ImageRaw(fpath=file_paths)
-        response_content = await save_result(image=image_data, image_type=image_type, is_projections=is_projections)
+        image_tiff = image_data.SaveAsTiff()
+        images_show = await tiff2base64(image=image_tiff)
+        response_content = {'image_show': images_show}
+        if is_projections:
+            projections = generate_projections(image_data)
+            response_content['projections'] = projections
+        pass2cache(image_type, response_content)
         return JSONResponse(content=response_content)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))

@@ -205,6 +205,7 @@ const BeadExtractor = ({darkMode}) => {
                                     addProjections={null}
                                     imageType={'beads_img'}
                                     state={state}
+                                    darkMode={darkMode}
                                 />
                             </div>
                         </div>
@@ -218,7 +219,7 @@ const BeadExtractor = ({darkMode}) => {
                                  style={{marginTop: '10px', border: `1px solid ${state.customBorder}`, height: '420px'}}>
                                 <div className="slider-container">
                                     <div>
-                                        <label htmlFor="layer-slider">Layer:</label><br/>
+                                        <label htmlFor="layer-slider" style={{fontSize: "16px"}}>Layer:</label><br/>
                                         <input
                                             id="layer-slider"
                                             type="range"
@@ -230,7 +231,7 @@ const BeadExtractor = ({darkMode}) => {
                                         />
                                     </div>
                                     <div>
-                                        <label htmlFor="brightness-slider">Brightness:</label>
+                                        <label htmlFor="brightness-slider" style={{fontSize: "16px"}}>Brightness:</label>
                                         <input
                                             id="brightness-slider"
                                             type="range"
@@ -241,7 +242,7 @@ const BeadExtractor = ({darkMode}) => {
                                             onChange={state.handleSliderBrightnessChange}
                                         />
                                     </div>
-                                    <div style={{marginTop: '10px'}}>
+                                    <div style={{marginBottom: "auto"}}>
                                         <TextField
                                             id="select-size"
                                             variant="outlined"
@@ -256,12 +257,12 @@ const BeadExtractor = ({darkMode}) => {
                                             sx={{
                                                 border: `1px solid rgba(${hexToRgb(state.customTextColor)}, 0.2)`,
                                                 borderRadius: '5px',
-                                                marginTop: '10px'
                                             }}
                                             InputLabelProps={{
                                                 sx: {
                                                     color: state.customTextColor,
-                                                    textTransform: 'capitalize',
+                                                    // textTransform: 'capitalize',
+                                                    zIndex: "4"
                                                 },
                                             }}
                                             inputProps={{
@@ -270,13 +271,14 @@ const BeadExtractor = ({darkMode}) => {
                                         />
                                     </div>
                                 </div>
-                                <div className="btn-stack-buttons">
+                                <div className="btn-stack-buttons" style={{marginBottom: "5px"}}>
                                     <Button
                                         variant="contained"
                                         style={{
                                             backgroundColor: state.customBorder,
                                             padding: "18px 18px",
-                                            fontSize: "10px"
+                                            fontSize: "10px",
+                                            marginRight: "5px"
                                         }}
                                         className="btn-run"
                                         onClick={(e) => state.handleUndoMark(e, canvasRef)}
@@ -321,7 +323,8 @@ const BeadExtractor = ({darkMode}) => {
                                     style={{
                                             backgroundColor: state.customBorder,
                                             padding: "12px 12px",
-                                            fontSize: "14px"
+                                            fontSize: "14px",
+                                            marginTop: "10px"
                                         }}
                                     className="btn-run"
                                     onClick={handleBeadAverage}
@@ -350,7 +353,7 @@ const BeadExtractor = ({darkMode}) => {
                             <div className="column-1" style={{zIndex: 2, border: `1px solid ${state.customBorder}`}}>
                                 <div className="slider-container">
                                     <div>
-                                        <label htmlFor="layer-slider">Layer:</label><br/>
+                                        <label htmlFor="layer-slider" style={{fontSize: "16px"}}>Layer:</label><br/>
                                         <input
                                             id="layer-slider"
                                             type="range"
@@ -362,7 +365,7 @@ const BeadExtractor = ({darkMode}) => {
                                         />
                                     </div>
                                     <div>
-                                        <label htmlFor="scale-slider">Scale:</label><br/>
+                                        <label htmlFor="scale-slider" style={{fontSize: "16px"}}>Scale:</label><br/>
                                         <input
                                             id="scale-slider"
                                             type="range"
@@ -374,7 +377,7 @@ const BeadExtractor = ({darkMode}) => {
                                         />
                                     </div>
                                     <div>
-                                        <label htmlFor="brightness-slider">Brightness:</label><br/>
+                                        <label htmlFor="brightness-slider" style={{fontSize: "16px"}}>Brightness:</label><br/>
                                         <input
                                             id="brightness-slider"
                                             type="range"
@@ -414,6 +417,7 @@ const BeadExtractor = ({darkMode}) => {
                                     fileList={state.averageBeadSave}
                                     folderName={state.filename}
                                     btnName={"Save result"}
+                                    customBorder={state.customBorder}
                                 />
                             </div>
                             <div className="column-2" style={{zIndex: 1}}>

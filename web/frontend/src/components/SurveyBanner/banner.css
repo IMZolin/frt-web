@@ -1,0 +1,31 @@
+/* banner.css */
+.banner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border-radius: 4px;
+    color: white;
+    margin: 10px 0;
+    position: relative;
+}
+
+.banner.info {
+    background-color: blue;
+}
+
+.banner.error {
+    background-color: red;
+}
+
+.banner.success {
+    background-color: green;
+}
+
+.banner-close-button {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+}

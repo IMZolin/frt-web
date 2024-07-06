@@ -1,60 +1,26 @@
-import React, { useState } from 'react';
+import React from 'react';
+import './banner.css';
 
-const SurveyBanner = ({ status, message }) => {
-  const [isBannerClosed, setIsBannerClosed] = useState(false);
+const SurveyBanner = ({ status, message, onClose  }) => {
+  const getBannerStyle = (status) => {
+        switch (status) {
+            case 'info':
+                return 'banner info';
+            case 'error':
+                return 'banner error';
+            case 'success':
+                return 'banner success';
+            default:
+                return 'banner';
+        }
+    };
 
-  let bannerColor = '';
-  let bannerText = '';
-
-  switch (status) {
-    case 'in progress':
-      bannerColor = 'blue';
-      bannerText = 'Survey in progress';
-      break;
-    case 'successful':
-      bannerColor = 'green';
-      bannerText = 'Survey successful';
-      break;
-    case 'error':
-      bannerColor = 'red';
-      bannerText = 'Survey encountered an error';
-      break;
-    default:
-      bannerColor = 'gray';
-      bannerText = 'Unknown survey status';
-  }
-
-  const closeBanner = () => {
-    setIsBannerClosed(true);
-  };
-
-  return !isBannerClosed ? (
-    <div
-      style={{
-        backgroundColor: bannerColor,
-        color: 'white',
-        padding: '10px',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-      }}
-    >
-      <span>
-        {bannerText}: {message}
-      </span>
-      <button
-        style={{
-          backgroundColor: 'transparent',
-          border: 'none',
-          color: 'white',
-          cursor: 'pointer',
-        }}
-        onClick={closeBanner}
-      >
-        &#10006; {/* Unicode cross symbol */}
-      </button>
-    </div>
-  ) : null;
+    return (
+        <div className={getBannerStyle(status)}>
+            <span>{message}</span>
+            <button className="banner-close-button" onClick={onClose}>&#10006;</button>
+        </div>
+    );
 };
 
 export default SurveyBanner;

@@ -1,7 +1,7 @@
 .stepper {
   max-width: 100%;
   margin: 0 auto;
-  padding: 20px;
+  padding-left: 20px;
   border-radius: 5px;
   display: flex;
   flex-direction: column;
@@ -51,7 +51,7 @@
 
 .stepper-head{
   display: block;
-  flex: 0 0 83%;
+  flex: 0 0 80%;
   align-items: flex-start;
 }
 
@@ -64,6 +64,8 @@
 .row {
   display: flex;
   flex-wrap: wrap;
+  padding: 0;
+  width: 100%;
 }
 
 .column-1,
@@ -90,6 +92,7 @@
 }
 
 .column-2 {
+  flex: 0 0 80%;
   margin-top: 20px; 
 }
 
@@ -97,7 +100,7 @@
   .column-1,
   .column-2 {
     flex: 0 0 100%;
-    margin-left: 0;
+    /*margin-left: 0;*/
   }
 }
 
@@ -112,6 +115,7 @@
   display: block;
   z-index: 1;
   align-self: stretch;
+  font-size: 12px;
 }
 
 .slider-container div{

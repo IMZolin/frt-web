@@ -1,14 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import { Button, TextField } from "@mui/material";
+import React, {useEffect, useState} from 'react';
+import {Button, TextField} from "@mui/material";
 import StepperWrapper from '../../StepperWrapper';
 import TifViewer from '../../../components/TifViewer';
 import TifCompare from '../../../components/TifCompare';
 import ChooseList from '../../../components/ChooseList';
 import FileDownloader from '../../../components/FileDownloader';
 import Dropzone from '../../../components/Dropzone';
-import { useStateValues } from "../state";
-import { base64ToTiff } from '../../../shared/hooks/showImages';
-import { hexToRgb } from '../../../shared/hooks/showImages';
+import {useStateValues} from "../state";
+import {base64ToTiff} from '../../../shared/hooks/showImages';
+import {hexToRgb} from '../../../shared/hooks/showImages';
 import useAxiosStore from '../../../app/store/axiosStore';
 import './stepper.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -18,15 +18,17 @@ const StepperPSF = ({darkMode}) => {
     const state = useStateValues();
     const steps = ['Load average bead', 'Calculate PSF', 'Save results'];
     const axiosStore = useAxiosStore();
-    
+
     useEffect(() => {
-      if (darkMode) {
+    if (darkMode) {
         state.setCustomTextColor(getComputedStyle(document.documentElement).getPropertyValue('--text-color-dark'));
         state.setCustomBorder(getComputedStyle(document.documentElement).getPropertyValue('--button-text-color-dark'));
-      } else {
+        state.setCustomBorder2(getComputedStyle(document.documentElement).getPropertyValue('--button-text-color-dark2'));
+    } else {
         state.setCustomTextColor(getComputedStyle(document.documentElement).getPropertyValue('--text-color-light'));
         state.setCustomBorder(getComputedStyle(document.documentElement).getPropertyValue('--button-text-color-light'));
-      }
+        state.setCustomBorder2(getComputedStyle(document.documentElement).getPropertyValue('--button-text-color-light2'));
+    }
     }, [darkMode]);
 
     const handleGetAverageBead = async () => {
@@ -123,10 +125,10 @@ const StepperPSF = ({darkMode}) => {
                 return (
                     <>
                         <div className="row">
-                            <div className="column-1" style={{ zIndex: 2, border: `1px solid ${state.customBorder}`}}>
+                            <div className="column-1" style={{zIndex: 2, border: `1px solid ${state.customBorder}`}}>
                                 <div className="slider-container">
                                     <div>
-                                        <label htmlFor="layer-slider">Layer:</label><br />
+                                        <label htmlFor="layer-slider" style={{fontSize: "16px"}}>Layer:</label><br/>
                                         <input
                                             id="layer-slider"
                                             type="range"
@@ -138,7 +140,7 @@ const StepperPSF = ({darkMode}) => {
                                         />
                                     </div>
                                     <div>
-                                        <label htmlFor="scale-slider">Scale:</label><br />
+                                        <label htmlFor="scale-slider" style={{fontSize: "16px"}}>Scale:</label><br/>
                                         <input
                                             id="scale-slider"
                                             type="range"
@@ -150,7 +152,8 @@ const StepperPSF = ({darkMode}) => {
                                         />
                                     </div>
                                     <div>
-                                        <label htmlFor="brightness-slider">Brightness:</label><br />
+                                        <label htmlFor="brightness-slider"
+                                               style={{fontSize: "16px"}}>Brightness:</label><br/>
                                         <input
                                             id="brightness-slider"
                                             type="range"
@@ -163,102 +166,129 @@ const StepperPSF = ({darkMode}) => {
                                     </div>
                                 </div>
                                 <div className="box-parameters">
-                                    <TextField
-                                        id="beadSize"
-                                        label="Bead size (micron)"
-                                        variant="outlined"
-                                        placeholder="Enter a bead size"
-                                        fullWidth
-                                        margin="normal"
-                                        name="beadSize"
-                                        onChange={(e) => state.setBeadSize(e.target.value)}
-                                        value={state.beadSize}
-                                        sx={{
-                                            border: `1px solid rgba(${hexToRgb(state.customTextColor)}, 0.3)`,
-                                            borderRadius: '5px',
-                                          }}
-                                          InputLabelProps={{
-                                            sx: {
-                                              color: state.customTextColor,
-                                              textTransform: 'capitalize',
-                                            },
-                                          }}
-                                          inputProps={{
-                                            style: { color: state.customTextColor},
-                                          }}
-                                    />
-                                    <TextField
-                                        id="zoom"
-                                        label="Microscope zoom factor"
-                                        variant="outlined"
-                                        placeholder="Enter an zoom factor"
-                                        fullWidth
-                                        margin="normal"
-                                        name="zoom"
-                                        onChange={(e) => state.setZoomFactor(e.target.value)}
-                                        value={state.zoomFactor}
-                                        sx={{
-                                            border: `1px solid rgba(${hexToRgb(state.customTextColor)}, 0.3)`,
-                                            borderRadius: '5px',
-                                          }}
-                                          InputLabelProps={{
-                                            sx: {
-                                              color: state.customTextColor,
-                                              textTransform: 'capitalize',
-                                            },
-                                          }}
-                                          inputProps={{
-                                            style: { color: state.customTextColor},
-                                          }}
-                                    />
-                                    <TextField
-                                        id="iter"
-                                        label="Iteration number"
-                                        variant="outlined"
-                                        placeholder="Enter an iteration number"
-                                        fullWidth
-                                        margin="normal"
-                                        name="iter"
-                                        onChange={(e) => state.setIter(e.target.value)}
-                                        value={state.iter}
-                                        sx={{
-                                            border: `1px solid rgba(${hexToRgb(state.customTextColor)}, 0.3)`,
-                                            borderRadius: '5px',
-                                          }}
-                                          InputLabelProps={{
-                                            sx: {
-                                              color: state.customTextColor,
-                                              textTransform: 'capitalize',
-                                            },
-                                          }}
-                                          inputProps={{
-                                            style: { color: state.customTextColor},
-                                          }}
-                                    />
-                                    <TextField
-                                        id="regularization"
-                                        label="Regularization"
-                                        variant="outlined"
-                                        placeholder="Enter a regularization"
-                                        fullWidth
-                                        margin="normal"
-                                        name="regularization"
-                                        onChange={(e) => state.setRegularization(e.target.value)}
-                                        value={state.regularization}
-                                        sx={{
-                                            border: `1px solid rgba(${hexToRgb(state.customTextColor)}, 0.3)`,
-                                            borderRadius: '5px',
-                                          }}
-                                          InputLabelProps={{
-                                            sx: {
-                                              color: state.customTextColor,
-                                              textTransform: 'capitalize',
-                                            },
-                                          }}
-                                          inputProps={{
-                                            style: { color: state.customTextColor},
-                                          }}
-                                    />
+                                    <div style={{display: 'flex', justifyContent: 'space-between'}}>
+                                        <TextField
+                                            id="beadSize"
+                                            label="Bead size (micron)"
+                                            variant="outlined"
+                                            placeholder="Enter a bead size"
+                                            fullWidth
+                                            margin="normal"
+                                            name="beadSize"
+                                            onChange={(e) => state.setBeadSize(e.target.value)}
+                                            value={state.beadSize}
+                                            sx={{
+                                                border: `1px solid rgba(${hexToRgb(state.customTextColor)}, 0.3)`,
+                                                borderRadius: '5px',
+                                                '& .MuiInputLabel-outlined': {
+                                                    whiteSpace: 'normal',
+                                                    overflow: 'visible',
+                                                    textOverflow: 'unset'
+                                                },
+                                                marginRight: '5px'
+                                            }}
+                                            InputLabelProps={{
+                                                sx: {
+                                                    color: state.customTextColor,
+                                                    textTransform: 'capitalize',
+                                                },
+                                            }}
+                                            inputProps={{
+                                                style: {color: state.customTextColor},
+                                            }}
+                                        />
+                                        <TextField
+                                            id="zoom"
+                                            label="Zoom factor"
+                                            variant="outlined"
+                                            placeholder="Enter an zoom factor"
+                                            fullWidth
+                                            margin="normal"
+                                            name="zoom"
+                                            onChange={(e) => state.setZoomFactor(e.target.value)}
+                                            value={state.zoomFactor}
+                                            sx={{
+                                                border: `1px solid rgba(${hexToRgb(state.customTextColor)}, 0.3)`,
+                                                borderRadius: '5px',
+                                                '& .MuiInputLabel-outlined': {
+                                                    whiteSpace: 'normal',
+                                                    overflow: 'visible',
+                                                    textOverflow: 'unset'
+                                                }
+                                            }}
+                                            InputLabelProps={{
+                                                sx: {
+                                                    color: state.customTextColor,
+                                                    textTransform: 'capitalize',
+                                                },
+                                            }}
+                                            inputProps={{
+                                                style: {color: state.customTextColor},
+                                            }}
+                                        />
+                                    </div>
+                                    <div style={{display: 'flex', justifyContent: 'space-between'}}>
+                                        <TextField
+                                            id="iter"
+                                            label="Iterations"
+                                            variant="outlined"
+                                            placeholder="Enter an iteration number"
+                                            fullWidth
+                                            margin="normal"
+                                            name="iter"
+                                            onChange={(e) => state.setIter(e.target.value)}
+                                            value={state.iter}
+                                            sx={{
+                                                border: `1px solid rgba(${hexToRgb(state.customTextColor)}, 0.3)`,
+                                                borderRadius: '5px',
+                                                '& .MuiInputLabel-outlined': {
+                                                    whiteSpace: 'normal',
+                                                    overflow: 'visible',
+                                                    textOverflow: 'unset'
+                                                },
+                                                marginRight: '5px'
+                                            }}
+                                            InputLabelProps={{
+                                                sx: {
+                                                    color: state.customTextColor,
+                                                    textTransform: 'capitalize',
+                                                    paddingY: '2px'
+                                                },
+                                            }}
+                                            inputProps={{
+                                                style: {color: state.customTextColor},
+                                            }}
+                                        />
+                                        <TextField
+                                            id="regularization"
+                                            label="Regularization"
+                                            variant="outlined"
+                                            placeholder="Enter a regularization"
+                                            fullWidth
+                                            margin="normal"
+                                            name="regularization"
+                                            onChange={(e) => state.setRegularization(e.target.value)}
+                                            value={state.regularization}
+                                            sx={{
+                                                border: `1px solid rgba(${hexToRgb(state.customTextColor)}, 0.3)`,
+                                                borderRadius: '5px',
+                                                '& .MuiInputLabel-outlined': {
+                                                    whiteSpace: 'normal',
+                                                    overflow: 'visible',
+                                                    textOverflow: 'unset',
+                                                }
+                                            }}
+                                            InputLabelProps={{
+                                                sx: {
+                                                    color: state.customTextColor,
+                                                    textTransform: 'capitalize',
+                                                },
+                                            }}
+                                            inputProps={{
+                                                style: {color: state.customTextColor},
+                                            }}
+                                        />
+                                    </div>
                                     <ChooseList
                                         className="choose-list"
                                         name="Deconvolution method"
@@ -268,21 +298,31 @@ const StepperPSF = ({darkMode}) => {
                                         customTextColor={state.customTextColor}
                                     />
                                 </div>
-                                <Button variant="contained" color="success" className="btn-run" onClick={handlePSFCalculate}>
+                                <Button
+                                    variant="contained"
+                                    style={{
+                                        backgroundColor: state.customBorder2,
+                                        padding: "12px 12px",
+                                        fontSize: "14px",
+                                        marginTop: "5px"
+                                    }}
+                                    className="btn-run"
+                                    onClick={handlePSFCalculate}
+                                >
                                     Calculate PSF
                                 </Button>
                             </div>
                             <div className="column-2">
-                                <div className="images__preview" style={{ marginTop: '30px' }}>
-                                    <TifCompare 
-                                        img_1={state.averageBead} 
-                                        img_2={state.extractedPSF} 
-                                        img_1_projection={state.averageBeadProjection[0]} 
-                                        img_2_projection={state.extractedPSFProjection[0]} 
-                                        scale={state.scale} 
-                                        state={state} 
-                                        isSameLength={true} 
-                                        type='psf' 
+                                <div className="images__preview" style={{marginTop: '150px'}}>
+                                    <TifCompare
+                                        img_1={state.averageBead}
+                                        img_2={state.extractedPSF}
+                                        img_1_projection={state.averageBeadProjection[0]}
+                                        img_2_projection={state.extractedPSFProjection[0]}
+                                        scale={state.scale}
+                                        state={state}
+                                        isSameLength={true}
+                                        type='psf'
                                         layerColor={state.customTextColor}
                                     />
                                 </div>
@@ -294,10 +334,10 @@ const StepperPSF = ({darkMode}) => {
                 return (
                     <>
                         <div className="row">
-                            <div className="column-1" style={{ zIndex: 2, border: `1px solid ${state.customBorder}`}}>
+                            <div className="column-1" style={{zIndex: 2, border: `1px solid ${state.customBorder}`}}>
                                 <div className="slider-container">
                                     <div>
-                                        <label htmlFor="layer-slider">Layer:</label><br />
+                                        <label htmlFor="layer-slider" style={{fontSize: "16px"}}>Layer:</label><br/>
                                         <input
                                             id="layer-slider"
                                             type="range"
@@ -309,7 +349,7 @@ const StepperPSF = ({darkMode}) => {
                                         />
                                     </div>
                                     <div>
-                                        <label htmlFor="scale-slider">Scale:</label><br />
+                                        <label htmlFor="scale-slider" style={{fontSize: "16px"}}>Scale:</label><br/>
                                         <input
                                             id="scale-slider"
                                             type="range"
@@ -321,7 +361,7 @@ const StepperPSF = ({darkMode}) => {
                                         />
                                     </div>
                                     <div>
-                                        <label htmlFor="brightness-slider">Brightness:</label><br />
+                                        <label htmlFor="brightness-slider" style={{fontSize: "16px"}}>Brightness:</label><br/>
                                         <input
                                             id="brightness-slider"
                                             type="range"
@@ -347,25 +387,26 @@ const StepperPSF = ({darkMode}) => {
                                         border: `1px solid rgba(${hexToRgb(state.customTextColor)}, 0.2)`,
                                         borderRadius: '5px',
                                         marginTop: '10px'
-                                      }}
-                                      InputLabelProps={{
+                                    }}
+                                    InputLabelProps={{
                                         sx: {
-                                          color: state.customTextColor,
-                                          textTransform: 'capitalize',
+                                            color: state.customTextColor,
+                                            textTransform: 'capitalize',
                                         },
-                                      }}
-                                      inputProps={{
-                                        style: { color: state.customTextColor},
-                                      }}
+                                    }}
+                                    inputProps={{
+                                        style: {color: state.customTextColor},
+                                    }}
                                 />
-                                <FileDownloader 
-                                    fileList={state.extractedPSFSave} 
-                                    folderName={state.filename} 
-                                    btnName={"Save result"} 
+                                <FileDownloader
+                                    fileList={state.extractedPSFSave}
+                                    folderName={state.filename}
+                                    btnName={"Save result"}
+                                    customBorder={state.customBorder}
                                 />
                             </div>
-                            <div className="column-2" style={{ zIndex: 1 }}>
-                                <div className="images__preview" style={{ marginTop: '-60px' }}>
+                            <div className="column-2" style={{zIndex: 1}}>
+                                <div className="images__preview" style={{marginTop: '-60px'}}>
                                     <TifViewer
                                         img={state.extractedPSF[state.layer2]}
                                         scale={state.scale}
@@ -381,6 +422,7 @@ const StepperPSF = ({darkMode}) => {
                 return 'unknown step';
         }
     }
+
     return (
         <div>
             <StepperWrapper
