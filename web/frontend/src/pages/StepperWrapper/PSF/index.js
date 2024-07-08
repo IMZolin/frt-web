@@ -1,43 +1,38 @@
 import React, {useEffect, useState} from 'react';
-import {Button, TextField} from "@mui/material";
 import StepperWrapper from '../../StepperWrapper';
-import TifViewer from '../../../components/TifViewer';
 import TifCompare from '../../../components/TifCompare';
 import ChooseList from '../../../components/ChooseList';
-import FileDownloader from '../../../components/FileDownloader';
-import Dropzone from '../../../components/Dropzone';
 import {useStateValues} from "../state";
 import {base64ToTiff} from '../../../shared/hooks/showImages';
 import {hexToRgb} from '../../../shared/hooks/showImages';
 import useAxiosStore from '../../../app/store/axiosStore';
 import './stepper.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import Downloader from "../../../components/SpecificStep/Downloader/Downloader";
+import ImageLoader from "../../../components/SpecificStep/ImageLoader/ImageLoader";
+import CustomButton from "../../../components/CustomButton/CustomButton";
+import SliderContainer from "../../../components/SliderContainer/SliderContainer";
+import CustomTextfield from "../../../components/CustomTextfield/CustomTextfield";
 
 
-const StepperPSF = ({darkMode}) => {
+const StepperPSF = () => {
     const state = useStateValues();
+    const [bannerStatus, setBannerStatus] = useState(null);
+    const [bannerMessage, setBannerMessage] = useState('');
     const steps = ['Load average bead', 'Calculate PSF', 'Save results'];
     const axiosStore = useAxiosStore();
 
-    useEffect(() => {
-    if (darkMode) {
-        state.setCustomTextColor(getComputedStyle(document.documentElement).getPropertyValue('--text-color-dark'));
-        state.setCustomBorder(getComputedStyle(document.documentElement).getPropertyValue('--button-text-color-dark'));
-        state.setCustomBorder2(getComputedStyle(document.documentElement).getPropertyValue('--button-text-color-dark2'));
-    } else {
-        state.setCustomTextColor(getComputedStyle(document.documentElement).getPropertyValue('--text-color-light'));
-        state.setCustomBorder(getComputedStyle(document.documentElement).getPropertyValue('--button-text-color-light'));
-        state.setCustomBorder2(getComputedStyle(document.documentElement).getPropertyValue('--button-text-color-light2'));
-    }
-    }, [darkMode]);
-
     const handleGetAverageBead = async () => {
         try {
-            const response = await axiosStore.getData('avg_bead');
+            const response = await axiosStore.getData({
+                image_type: 'avg_bead',
+                is_compress: true
+            });
             console.log('Response:', response);
 
             if (response.image_show && response.projections) {
-                // const file = base64ToTiff(response.image_save, 'image/tiff', `average_bead.tiff`);
+                setBannerStatus('success');
+                setBannerMessage('Averaged bead preloaded successfully');
                 const newAverageBead = response.image_show.map((base64Data, index) => {
                     return base64ToTiff(base64Data, 'image/tiff', `avg_bead_${index}.tiff`);
                 });
@@ -46,19 +41,16 @@ const StepperPSF = ({darkMode}) => {
                 });
                 state.setAverageBeadProjection(newProjection);
                 state.setAverageBead(newAverageBead);
-                // state.setAverageBeadSave([file]);
                 state.setIsLoad(true);
             } else {
                 console.log('No average bead data found in the response.');
-                window.alert('No average bead data found in the response.');
+                setBannerStatus('error');
+                setBannerMessage(`Error: ${response.message}`);
             }
         } catch (error) {
             console.error('Error fetching average bead:', error);
-            if (error.response && error.response.data && error.response.data.message) {
-                window.alert('Error in PSF extraction: ' + error.response.data.message);
-            } else {
-                window.alert('Error in PSF extraction: ' + error.message);
-            }
+            setBannerStatus('error');
+            setBannerMessage(`Error posting data: ${error.message}`);
         }
     };
 
@@ -83,7 +75,8 @@ const StepperPSF = ({darkMode}) => {
             console.log('Response:', response);
 
             if (response.image_show && response.projections) {
-                // const file = base64ToTiff(response.image_save, 'image/tiff', `psf.tif`);
+                setBannerStatus('success');
+                setBannerMessage('PSF computed successfully');
                 const newExtractPSF = response.image_show.map((base64Data, index) => {
                     return base64ToTiff(base64Data, 'image/tiff', `psf_${index}.tiff`);
                 });
@@ -92,7 +85,6 @@ const StepperPSF = ({darkMode}) => {
                 });
                 state.setExtractedPSFProjection(newProjection);
                 state.setExtractedPSF(newExtractPSF);
-                // state.setExtractedPSFSave([file]);
             } else {
                 console.log('No extracted PSF found in the response.');
                 window.alert('No extracted PSF found in the response.');
@@ -103,190 +95,63 @@ const StepperPSF = ({darkMode}) => {
         }
     };
 
+    const closeBanner = () => {
+        setBannerStatus(null);
+        setBannerMessage('');
+    };
+
     function getStepContent(step) {
         switch (step) {
             case steps.indexOf('Load average bead'):
                 return (
                     <>
-                        <div className="row">
-                            <Dropzone
-                                files={state.files}
-                                addFiles={state.addFiles}
-                                setFiles={state.setAverageBead}
-                                isProjections={true}
-                                addProjections={state.setAverageBeadProjection}
-                                imageType={'avg_bead'}
-                                state={state}
-                                darkMode={darkMode}
-                            />
-                        </div>
-                    </>);
+                        <ImageLoader
+                            state={state}
+                            imageType={'avg_bead'}
+                            setFiles={state.setAverageBead}
+                            isProjections={true}
+                            addProjections={state.setAverageBeadProjection}
+                            isVoxel={false}
+                        />
+                    </>
+                );
             case steps.indexOf('Calculate PSF'):
                 return (
                     <>
                         <div className="row">
-                            <div className="column-1" style={{zIndex: 2, border: `1px solid ${state.customBorder}`}}>
-                                <div className="slider-container">
-                                    <div>
-                                        <label htmlFor="layer-slider" style={{fontSize: "16px"}}>Layer:</label><br/>
-                                        <input
-                                            id="layer-slider"
-                                            type="range"
-                                            min="0"
-                                            max={state.averageBead.length - 1}
-                                            step="1"
-                                            value={state.layer}
-                                            onChange={(e) => state.handleLayerChange(e, state.averageBead.length - 1)}
-                                        />
-                                    </div>
-                                    <div>
-                                        <label htmlFor="scale-slider" style={{fontSize: "16px"}}>Scale:</label><br/>
-                                        <input
-                                            id="scale-slider"
-                                            type="range"
-                                            min="3"
-                                            max="7"
-                                            step="0.1"
-                                            value={state.scale}
-                                            onChange={(e) => state.handleScaleChange(e, 7)}
-                                        />
-                                    </div>
-                                    <div>
-                                        <label htmlFor="brightness-slider"
-                                               style={{fontSize: "16px"}}>Brightness:</label><br/>
-                                        <input
-                                            id="brightness-slider"
-                                            type="range"
-                                            min="1"
-                                            max="3"
-                                            step="0.01"
-                                            value={state.levelBrightness}
-                                            onChange={state.handleSliderBrightnessChange}
-                                        />
-                                    </div>
-                                </div>
+                            <div className="column-1" style={{zIndex: 2, border: '1px solid var(--button-color)'}}>
+                                <SliderContainer
+                                    state={state}
+                                    imageShow={state.averageBead}
+                                    isScale={true}
+                                />
                                 <div className="box-parameters">
                                     <div style={{display: 'flex', justifyContent: 'space-between'}}>
-                                        <TextField
-                                            id="beadSize"
-                                            label="Bead size (micron)"
-                                            variant="outlined"
-                                            placeholder="Enter a bead size"
-                                            fullWidth
-                                            margin="normal"
-                                            name="beadSize"
-                                            onChange={(e) => state.setBeadSize(e.target.value)}
+                                        <CustomTextfield
+                                            label={"Bead size"}
                                             value={state.beadSize}
-                                            sx={{
-                                                border: `1px solid rgba(${hexToRgb(state.customTextColor)}, 0.3)`,
-                                                borderRadius: '5px',
-                                                '& .MuiInputLabel-outlined': {
-                                                    whiteSpace: 'normal',
-                                                    overflow: 'visible',
-                                                    textOverflow: 'unset'
-                                                },
-                                                marginRight: '5px'
-                                            }}
-                                            InputLabelProps={{
-                                                sx: {
-                                                    color: state.customTextColor,
-                                                    textTransform: 'capitalize',
-                                                },
-                                            }}
-                                            inputProps={{
-                                                style: {color: state.customTextColor},
-                                            }}
+                                            setValue={state.setBeadSize}
+                                            placeholder={"Enter a bead size"}
                                         />
-                                        <TextField
-                                            id="zoom"
-                                            label="Zoom factor"
-                                            variant="outlined"
-                                            placeholder="Enter an zoom factor"
-                                            fullWidth
-                                            margin="normal"
-                                            name="zoom"
-                                            onChange={(e) => state.setZoomFactor(e.target.value)}
+                                        <CustomTextfield
+                                            label={"Zoom factor"}
                                             value={state.zoomFactor}
-                                            sx={{
-                                                border: `1px solid rgba(${hexToRgb(state.customTextColor)}, 0.3)`,
-                                                borderRadius: '5px',
-                                                '& .MuiInputLabel-outlined': {
-                                                    whiteSpace: 'normal',
-                                                    overflow: 'visible',
-                                                    textOverflow: 'unset'
-                                                }
-                                            }}
-                                            InputLabelProps={{
-                                                sx: {
-                                                    color: state.customTextColor,
-                                                    textTransform: 'capitalize',
-                                                },
-                                            }}
-                                            inputProps={{
-                                                style: {color: state.customTextColor},
-                                            }}
+                                            setValue={state.setZoomFactor}
+                                            placeholder={"Enter an zoom factor"}
                                         />
                                     </div>
                                     <div style={{display: 'flex', justifyContent: 'space-between'}}>
-                                        <TextField
-                                            id="iter"
-                                            label="Iterations"
-                                            variant="outlined"
-                                            placeholder="Enter an iteration number"
-                                            fullWidth
-                                            margin="normal"
-                                            name="iter"
-                                            onChange={(e) => state.setIter(e.target.value)}
+                                        <CustomTextfield
+                                            label={"Iterations"}
                                             value={state.iter}
-                                            sx={{
-                                                border: `1px solid rgba(${hexToRgb(state.customTextColor)}, 0.3)`,
-                                                borderRadius: '5px',
-                                                '& .MuiInputLabel-outlined': {
-                                                    whiteSpace: 'normal',
-                                                    overflow: 'visible',
-                                                    textOverflow: 'unset'
-                                                },
-                                                marginRight: '5px'
-                                            }}
-                                            InputLabelProps={{
-                                                sx: {
-                                                    color: state.customTextColor,
-                                                    textTransform: 'capitalize',
-                                                    paddingY: '2px'
-                                                },
-                                            }}
-                                            inputProps={{
-                                                style: {color: state.customTextColor},
-                                            }}
+                                            setValue={state.setIter}
+                                            placeholder={"Enter an iteration number"}
                                         />
-                                        <TextField
-                                            id="regularization"
-                                            label="Regularization"
-                                            variant="outlined"
-                                            placeholder="Enter a regularization"
-                                            fullWidth
-                                            margin="normal"
-                                            name="regularization"
-                                            onChange={(e) => state.setRegularization(e.target.value)}
+                                        <CustomTextfield
+                                            label={"Regularization"}
                                             value={state.regularization}
-                                            sx={{
-                                                border: `1px solid rgba(${hexToRgb(state.customTextColor)}, 0.3)`,
-                                                borderRadius: '5px',
-                                                '& .MuiInputLabel-outlined': {
-                                                    whiteSpace: 'normal',
-                                                    overflow: 'visible',
-                                                    textOverflow: 'unset',
-                                                }
-                                            }}
-                                            InputLabelProps={{
-                                                sx: {
-                                                    color: state.customTextColor,
-                                                    textTransform: 'capitalize',
-                                                },
-                                            }}
-                                            inputProps={{
-                                                style: {color: state.customTextColor},
-                                            }}
+                                            setValue={state.setRegularization}
+                                            placeholder={"Enter a regularization"}
                                         />
                                     </div>
                                     <ChooseList
@@ -295,22 +160,14 @@ const StepperPSF = ({darkMode}) => {
                                         list={Object.keys(state.deconvMethods)}
                                         selected={state.deconvMethod}
                                         onChange={state.handleDeconvMethodChange}
-                                        customTextColor={state.customTextColor}
+                                        customTextColor={'var(--textfield-color)'}
                                     />
                                 </div>
-                                <Button
-                                    variant="contained"
-                                    style={{
-                                        backgroundColor: state.customBorder2,
-                                        padding: "12px 12px",
-                                        fontSize: "14px",
-                                        marginTop: "5px"
-                                    }}
-                                    className="btn-run"
-                                    onClick={handlePSFCalculate}
-                                >
-                                    Calculate PSF
-                                </Button>
+                                <CustomButton
+                                    nameBtn={"Calculate PSF"}
+                                    colorBtn={'var(--button-color2)'}
+                                    handleProcess={handlePSFCalculate}
+                                />
                             </div>
                             <div className="column-2">
                                 <div className="images__preview" style={{marginTop: '150px'}}>
@@ -333,89 +190,13 @@ const StepperPSF = ({darkMode}) => {
             case steps.indexOf('Save results'):
                 return (
                     <>
-                        <div className="row">
-                            <div className="column-1" style={{zIndex: 2, border: `1px solid ${state.customBorder}`}}>
-                                <div className="slider-container">
-                                    <div>
-                                        <label htmlFor="layer-slider" style={{fontSize: "16px"}}>Layer:</label><br/>
-                                        <input
-                                            id="layer-slider"
-                                            type="range"
-                                            min="0"
-                                            max={state.extractedPSF.length - 1}
-                                            step="1"
-                                            value={state.layer2}
-                                            onChange={(e) => state.handleLayer2Change(e, state.extractedPSF.length - 1)}
-                                        />
-                                    </div>
-                                    <div>
-                                        <label htmlFor="scale-slider" style={{fontSize: "16px"}}>Scale:</label><br/>
-                                        <input
-                                            id="scale-slider"
-                                            type="range"
-                                            min="3"
-                                            max="7"
-                                            step="0.1"
-                                            value={state.scale}
-                                            onChange={(e) => state.handleScaleChange(e, 7)}
-                                        />
-                                    </div>
-                                    <div>
-                                        <label htmlFor="brightness-slider" style={{fontSize: "16px"}}>Brightness:</label><br/>
-                                        <input
-                                            id="brightness-slider"
-                                            type="range"
-                                            min="1"
-                                            max="3"
-                                            step="0.01"
-                                            value={state.levelBrightness}
-                                            onChange={state.handleSliderBrightnessChange}
-                                        />
-                                    </div>
-                                </div>
-                                <TextField
-                                    id="filename"
-                                    label="Filename"
-                                    variant="outlined"
-                                    placeholder="Enter a file name"
-                                    fullWidth
-                                    margin="normal"
-                                    name="filename"
-                                    onChange={(e) => state.setFilename(e.target.value)}
-                                    value={state.filename}
-                                    sx={{
-                                        border: `1px solid rgba(${hexToRgb(state.customTextColor)}, 0.2)`,
-                                        borderRadius: '5px',
-                                        marginTop: '10px'
-                                    }}
-                                    InputLabelProps={{
-                                        sx: {
-                                            color: state.customTextColor,
-                                            textTransform: 'capitalize',
-                                        },
-                                    }}
-                                    inputProps={{
-                                        style: {color: state.customTextColor},
-                                    }}
-                                />
-                                <FileDownloader
-                                    fileList={state.extractedPSFSave}
-                                    folderName={state.filename}
-                                    btnName={"Save result"}
-                                    customBorder={state.customBorder}
-                                />
-                            </div>
-                            <div className="column-2" style={{zIndex: 1}}>
-                                <div className="images__preview" style={{marginTop: '-60px'}}>
-                                    <TifViewer
-                                        img={state.extractedPSF[state.layer2]}
-                                        scale={state.scale}
-                                        brightness={state.levelBrightness}
-                                        imageProjection={state.extractedPSFProjection[0]}
-                                    />
-                                </div>
-                            </div>
-                        </div>
+                        <Downloader
+                            state={state}
+                            imagesShow={state.extractedPSF}
+                            imagesSave={state.extractedPSFSave}
+                            imageProjection={state.extractedPSFProjection[0]}
+                            isScale={true}
+                        />
                     </>
                 );
             default:
@@ -435,7 +216,6 @@ const StepperPSF = ({darkMode}) => {
                 isLoad={state.isLoad}
                 urlPage='/deconvolution'
                 typeRun='Deconvolution'
-                darkMode={darkMode}
             />
         </div>
     );

@@ -41,7 +41,7 @@ const TifCompare2 = ({ img_1, img_2, img_1_projection, img_2_projection, img_3, 
             </div>
             {!isImg2 ? null : (
               <div style={{marginTop: '-80px', marginBottom: '20px'}}>
-                <label className="viewer-label" htmlFor="layer-slider" style={{color: layerColor}}>
+                <label className="viewer-label" htmlFor="layer-slider" style={{color: 'var(--textfield-color)'}}>
                   Layer:
                 </label>
                 <input

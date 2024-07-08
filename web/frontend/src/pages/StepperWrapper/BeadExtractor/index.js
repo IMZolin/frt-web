@@ -14,25 +14,19 @@ import ChooseList from '../../../components/ChooseList';
 import useAxiosStore from '../../../app/store/axiosStore';
 import './stepper.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import VoxelBox from "../../../components/VoxelBox/VoxelBox";
+import ImageLoader from "../../../components/SpecificStep/ImageLoader/ImageLoader";
+import Downloader from "../../../components/SpecificStep/Downloader/Downloader";
+import CustomButton from "../../../components/CustomButton/CustomButton";
+import SliderContainer from "../../../components/SliderContainer/SliderContainer";
 
-const BeadExtractor = ({darkMode}) => {
+const BeadExtractor = () => {
     const state = useStateValues();
     const steps = ['Load beads', 'Segment & average beads', 'Save results'];
     const axiosStore = useAxiosStore();
     const canvasRef = useRef();
     const markBead = useBeadMark();
 
-  useEffect(() => {
-    if (darkMode) {
-        state.setCustomTextColor(getComputedStyle(document.documentElement).getPropertyValue('--text-color-dark'));
-        state.setCustomBorder(getComputedStyle(document.documentElement).getPropertyValue('--button-text-color-dark'));
-        state.setCustomBorder2(getComputedStyle(document.documentElement).getPropertyValue('--button-text-color-dark2'));
-    } else {
-        state.setCustomTextColor(getComputedStyle(document.documentElement).getPropertyValue('--text-color-light'));
-        state.setCustomBorder(getComputedStyle(document.documentElement).getPropertyValue('--button-text-color-light'));
-        state.setCustomBorder2(getComputedStyle(document.documentElement).getPropertyValue('--button-text-color-light2'));
-    }
-    }, [darkMode]);
 
     const handleBeadMark = async () => {
         try {
@@ -142,74 +136,14 @@ const BeadExtractor = ({darkMode}) => {
             case steps.indexOf('Load beads'):
                 return (
                     <>
-                        <div className="row">
-                            <div className="column-1" style={{zIndex: 2, border: `1px solid ${state.customBorder}`}}>
-                                <div className="subtitle">Voxel size:</div>
-                                <div className="voxel-box">
-                                    <TextField
-                                        className="stepper-resolution"
-                                        id="resolution-x"
-                                        label="Voxel-XY (micron)"
-                                        variant="outlined"
-                                        placeholder="Enter the resolution in X and Y direction"
-                                        fullWidth
-                                        margin="normal"
-                                        onChange={(e) => state.setVoxelXY(e.target.value)}
-                                        value={state.voxelXY}
-                                        sx={{
-                                            border: `1px solid rgba(${hexToRgb(state.customTextColor)}, 0.3)`,
-                                            borderRadius: '5px',
-                                        }}
-                                        InputLabelProps={{
-                                            sx: {
-                                                color: state.customTextColor,
-                                                textTransform: 'capitalize',
-                                            },
-                                        }}
-                                        inputProps={{
-                                            style: {color: state.customTextColor},
-                                        }}
-                                    />
-                                    <TextField
-                                        className="stepper-resolution"
-                                        id="resolution-z"
-                                        label="Voxel-Z (micron)"
-                                        variant="outlined"
-                                        placeholder="Enter the resolution in Z direction"
-                                        fullWidth
-                                        margin="normal"
-                                        onChange={(e) => state.setVoxelZ(e.target.value)}
-                                        value={state.voxelZ}
-                                        sx={{
-                                            border: `1px solid rgba(${hexToRgb(state.customTextColor)}, 0.2)`,
-                                            borderRadius: '5px',
-                                            marginTop: '10px'
-                                        }}
-                                        InputLabelProps={{
-                                            sx: {
-                                                color: state.customTextColor,
-                                                textTransform: 'capitalize',
-                                            },
-                                        }}
-                                        inputProps={{
-                                            style: {color: state.customTextColor},
-                                        }}
-                                    />
-                                </div>
-                            </div>
-                            <div className="column-2" style={{zIndex: 1}}>
-                                <Dropzone
-                                    files={state.files}
-                                    addFiles={state.addFiles}
-                                    setFiles={state.setBeads}
-                                    isProjections={false}
-                                    addProjections={null}
-                                    imageType={'beads_img'}
-                                    state={state}
-                                    darkMode={darkMode}
-                                />
-                            </div>
-                        </div>
+                        <ImageLoader
+                            state={state}
+                            imageType={'beads_img'}
+                            setFiles={state.setBeads}
+                            isProjections={false}
+                            addProjections={null}
+                            isVoxel={true}
+                        />
                     </>
                 );
             case steps.indexOf('Segment & average beads'):
@@ -217,130 +151,54 @@ const BeadExtractor = ({darkMode}) => {
                     <>
                         <div className="row">
                             <div className="column-1"
-                                 style={{marginTop: '10px', border: `1px solid ${state.customBorder}`, height: '420px'}}>
-                                <div className="slider-container">
-                                    <div>
-                                        <label htmlFor="layer-slider" style={{fontSize: "16px"}}>Layer:</label><br/>
-                                        <input
-                                            id="layer-slider"
-                                            type="range"
-                                            min="0"
-                                            max={state.beads.length - 1}
-                                            step="1"
-                                            value={state.layer}
-                                            onChange={(e) => state.handleLayerChange(e, state.beads.length - 1)}
-                                        />
-                                    </div>
-                                    <div>
-                                        <label htmlFor="brightness-slider" style={{fontSize: "16px"}}>Brightness:</label>
-                                        <input
-                                            id="brightness-slider"
-                                            type="range"
-                                            min="1"
-                                            max="3"
-                                            step="0.01"
-                                            value={state.levelBrightness}
-                                            onChange={state.handleSliderBrightnessChange}
-                                        />
-                                    </div>
-                                    <div style={{marginBottom: "auto"}}>
-                                        <TextField
-                                            id="select-size"
-                                            variant="outlined"
-                                            label="Selection Size (px)"
-                                            className="stepper-resolution"
-                                            placeholder="Enter a select size"
-                                            fullWidth
-                                            name="selectSize"
-                                            margin="normal"
-                                            onChange={(e) => state.setSelectSize(e.target.value)}
-                                            value={state.selectSize}
-                                            sx={{
-                                                border: `1px solid rgba(${hexToRgb(state.customTextColor)}, 0.2)`,
-                                                borderRadius: '5px',
-                                            }}
-                                            InputLabelProps={{
-                                                sx: {
-                                                    color: state.customTextColor,
-                                                    // textTransform: 'capitalize',
-                                                    zIndex: "4"
-                                                },
-                                            }}
-                                            inputProps={{
-                                                style: {color: state.customTextColor},
-                                            }}
-                                        />
-                                    </div>
-                                </div>
+                                 style={{marginTop: '10px', border: `1px solid var(--button-color)`, height: '420px'}}>
+                                <SliderContainer
+                                    state={state}
+                                    imageShow={state.beads}
+                                    isScale={false}
+                                />
                                 <div className="btn-stack-buttons" style={{marginBottom: "5px"}}>
-                                    <Button
-                                        variant="contained"
-                                        style={{
-                                            backgroundColor: state.customBorder,
-                                            padding: "18px 18px",
-                                            fontSize: "10px",
-                                            marginRight: "5px"
-                                        }}
-                                        className="btn-run"
-                                        onClick={(e) => state.handleUndoMark(e, canvasRef)}
-                                    >
-                                        Undo mark
-                                    </Button>
-                                    <Button
-                                        variant="contained"
-                                        style={{
-                                            backgroundColor: state.customBorder,
-                                            padding: "10px 10px",
-                                            fontSize: "10px"
-                                        }}
-                                        className="btn-run"
-                                        onClick={(e) => state.handleClearMarks(e, canvasRef)}
-                                    >
-                                        Clear all marks
-                                    </Button>
+                                    <CustomButton
+                                        nameBtn={"Undo mark"}
+                                        colorBtn={'var(--button-color)'}
+                                        handleProcess={state.handleUndoMark}
+                                    />
+                                    <CustomButton
+                                        nameBtn={"Clear all marks"}
+                                        colorBtn={'var(--button-color)'}
+                                        handleProcess={state.handleClearMarks}
+                                    />
                                 </div>
-                                <Button
-                                    variant="contained"
-                                    style={{
-                                            backgroundColor: state.customBorder2,
-                                            padding: "12px 12px",
-                                            fontSize: "14px"
-                                        }}
-                                    className="btn-run"
-                                    onClick={handleBeadAutosegment}
-                                >
-                                    Auto-segment beads
-                                </Button>
+                                <CustomButton
+                                        nameBtn={"Auto-segment beads"}
+                                        colorBtn={'var(--button-color2)'}
+                                        handleProcess={handleBeadAutosegment}
+                                    />
                                 <ChooseList
                                     className="choose-list"
                                     name="Blur type"
                                     list={state.denoiseTypes}
                                     selected={state.denoiseType}
                                     onChange={state.handleDenoiseTypeChange}
-                                    customTextColor={state.customTextColor}
+                                    customTextColor={'var(--textfield-color)'}
                                 />
-                                <Button
-                                    variant="contained"
-                                    style={{
-                                            backgroundColor: state.customBorder,
-                                            padding: "12px 12px",
-                                            fontSize: "14px",
-                                            marginTop: "10px"
-                                        }}
-                                    className="btn-run"
-                                    onClick={handleBeadAverage}
-                                >
-                                    Average beads
-                                </Button>
+                                <div style={{marginBottom: 'auto'}}>
+                                    <CustomButton
+                                        nameBtn={"Average beads"}
+                                        colorBtn={'var(--button-color)'}
+                                        handleProcess={handleBeadAverage}
+
+                                    />
+                                </div>
                             </div>
-                            <div className="column-2" style={{zIndex: 1, marginLeft: '20px', marginTop: '-10px'}}>
+                            <div className="column-2" style={{zIndex: 1, marginLeft: '20px'}}>
                                 <div className="images__preview">
                                     <TiffExtractor
                                         img={state.beads[state.layer]}
                                         scale={1}
                                         state={state}
                                         canvasRef={canvasRef}
-                                        customBorder={state.customBorder}
+                                        customBorder={'var(--button-color)'}
                                     />
                                 </div>
                             </div>
@@ -350,88 +208,13 @@ const BeadExtractor = ({darkMode}) => {
             case steps.indexOf('Save results'):
                 return (
                     <>
-                        <div className="row">
-                            <div className="column-1" style={{zIndex: 2, border: `1px solid ${state.customBorder}`}}>
-                                <div className="slider-container">
-                                    <div>
-                                        <label htmlFor="layer-slider" style={{fontSize: "16px"}}>Layer:</label><br/>
-                                        <input
-                                            id="layer-slider"
-                                            type="range"
-                                            min="0"
-                                            max={state.averageBead.length - 1}
-                                            step="1"
-                                            value={state.layer2}
-                                            onChange={(e) => state.handleLayer2Change(e, state.averageBead.length - 1)}
-                                        />
-                                    </div>
-                                    <div>
-                                        <label htmlFor="scale-slider" style={{fontSize: "16px"}}>Scale:</label><br/>
-                                        <input
-                                            id="scale-slider"
-                                            type="range"
-                                            min="3"
-                                            max="7"
-                                            step="0.1"
-                                            value={state.scale}
-                                            onChange={(e) => state.handleScaleChange(e, 7)}
-                                        />
-                                    </div>
-                                    <div>
-                                        <label htmlFor="brightness-slider" style={{fontSize: "16px"}}>Brightness:</label><br/>
-                                        <input
-                                            id="brightness-slider"
-                                            type="range"
-                                            min="1"
-                                            max="3"
-                                            step="0.01"
-                                            value={state.levelBrightness}
-                                            onChange={state.handleSliderBrightnessChange}
-                                        />
-                                    </div>
-                                </div>
-                                <TextField
-                                    id="filename"
-                                    label="Filename"
-                                    variant="outlined"
-                                    placeholder="Enter a file name"
-                                    fullWidth
-                                    margin="normal"
-                                    name="filename"
-                                    onChange={(e) => state.setFilename(e.target.value)}
-                                    value={state.filename}
-                                    sx={{
-                                        border: `1px solid rgba(${hexToRgb(state.customTextColor)}, 0.3)`,
-                                        borderRadius: '5px',
-                                    }}
-                                    InputLabelProps={{
-                                        sx: {
-                                            color: state.customTextColor,
-                                            textTransform: 'capitalize',
-                                        },
-                                    }}
-                                    inputProps={{
-                                        style: {color: state.customTextColor},
-                                    }}
-                                />
-                                <FileDownloader
-                                    fileList={state.averageBeadSave}
-                                    folderName={state.filename}
-                                    btnName={"Save result"}
-                                    customBorder={state.customBorder}
-                                />
-                            </div>
-                            <div className="column-2" style={{zIndex: 1}}>
-                                <div className="images__preview" style={{marginRight: '110px', marginTop: '-60px'}}>
-                                    <TifViewer
-                                        img={state.averageBead[state.layer2]}
-                                        scale={state.scale}
-                                        brightness={state.levelBrightness}
-                                        imageProjection={state.averageBeadProjection[0]}
-                                    />
-                                </div>
-                            </div>
-                        </div>
+                        <Downloader
+                            state={state}
+                            imagesShow={state.averageBead}
+                            imagesSave={state.averageBeadSave}
+                            imageProjection={state.averageBeadProjection[0]}
+                            isScale={true}
+                        />
                     </>
                 );
             default:
@@ -451,7 +234,6 @@ const BeadExtractor = ({darkMode}) => {
                 isLoad={state.isLoad}
                 urlPage='/psf'
                 typeRun='PSF'
-                darkMode={darkMode}
             />
         </div>
     );

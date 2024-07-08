@@ -120,13 +120,16 @@ async def get_image(data_type: str, is_projections: bool = False, is_compress: b
     try:
         cache_data = redis_client.hgetall(f"{data_type}")
         if cache_data:
-            image = ImageRaw(intensitiesIn=np.array(json.loads(cache_data["image_intensities"])),
+            image_raw = ImageRaw(intensitiesIn=np.array(json.loads(cache_data["image_intensities"])),
                              voxelSizeIn=json.loads(cache_data["voxel"]))
-            image_tiff = image.SaveAsTiff()
-            images_show = await tiff2base64(image=image_tiff, is_compress=is_compress)
-            response_content = {'image_show': images_show}
-            if is_projections:
-                response_content['projections'] = generate_projections(image)
+            image_tiff = image_raw.SaveAsTiff()
+            image = await tiff2base64(image=image_tiff, is_compress=is_compress)
+            if is_compress:
+                response_content = {'image_show': image}
+                if is_projections:
+                    response_content['projections'] = generate_projections(image_raw)
+            else:
+                response_content = {'image_save': image}
             return response_content
         else:
             return None

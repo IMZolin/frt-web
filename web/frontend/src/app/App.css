@@ -14,11 +14,17 @@
 .dark-mode {
   background-color: var(--background-dark);
   color: var(--text-color-dark);
+  --button-color: var(--button-text-color-dark);
+  --button-color2: var(--button-text-color-dark2);
+  --textfield-color: var(--textfield-text-color-dark);
 }
 
 .light-mode {
   background-color: var(--background-light);
   color: var(--text-color-light);
+  --button-color: var(--button-text-color-light);
+  --button-color2: var(--button-text-color-light2);
+  --textfield-color: var(--textfield-text-color-light);
 }
 html,
 body {

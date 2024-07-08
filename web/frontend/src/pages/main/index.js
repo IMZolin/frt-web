@@ -1,23 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState} from 'react';
 import { Link, Outlet } from 'react-router-dom';
 import { Button } from '@mui/material';
 import './style.css';
 import Tooltip from "../../components/ToolTip/ToolTip";
 
-const MainPage = ({ darkMode }) => {
-    const [customButtonColor, setCustomButtonColor] = useState(getComputedStyle(document.documentElement).getPropertyValue('--button-text-color-light'));
-    const [customButtonColor2, setCustomButtonColor2] = useState(getComputedStyle(document.documentElement).getPropertyValue('--button-text-color-light2'));
-    const [tooltip, setTooltip] = useState({ message: '', visible: false, x: 0, y: 0 });
+const MainPage = () => {
 
-    useEffect(() => {
-        if (darkMode) {
-            setCustomButtonColor(getComputedStyle(document.documentElement).getPropertyValue('--button-text-color-dark'));
-            setCustomButtonColor2(getComputedStyle(document.documentElement).getPropertyValue('--button-text-color-dark2'));
-        } else {
-            setCustomButtonColor(getComputedStyle(document.documentElement).getPropertyValue('--button-text-color-light'));
-            setCustomButtonColor2(getComputedStyle(document.documentElement).getPropertyValue('--button-text-color-light2'));
-        }
-    }, [darkMode]);
+    const [tooltip, setTooltip] = useState({ message: '', visible: false, x: 0, y: 0 });
 
     const handleMouseEnter = (e, message) => {
         const { clientX, clientY } = e;
@@ -34,7 +23,7 @@ const MainPage = ({ darkMode }) => {
             <div style={{ display: 'flex', justifyContent: 'center' }} className="menu-container">
                 <Button
                     variant="contained"
-                    style={{ backgroundColor: customButtonColor, padding: "8px 8px", fontSize: "14px" }}
+                    style={{ backgroundColor: 'var(--button-color)', padding: "8px 8px", fontSize: "14px" }}
                     className="menu-options"
                     component={Link}
                     to="/bead_extractor"
@@ -45,7 +34,7 @@ const MainPage = ({ darkMode }) => {
                 </Button>
                 <Button
                     variant="contained"
-                    style={{ backgroundColor: customButtonColor, padding: "8px 8px", fontSize: "14px" }}
+                    style={{ backgroundColor: 'var(--button-color)', padding: "8px 8px", fontSize: "14px" }}
                     className="menu-options"
                     component={Link}
                     to="/psf"
@@ -56,7 +45,7 @@ const MainPage = ({ darkMode }) => {
                 </Button>
                 <Button
                     variant="contained"
-                    style={{ backgroundColor: customButtonColor2, padding: "8px 8px", fontSize: "14px" }}
+                    style={{ backgroundColor: 'var(--button-color2)', padding: "8px 8px", fontSize: "14px" }}
                     className="menu-options"
                     component={Link}
                     to="/deconvolution"
@@ -67,7 +56,7 @@ const MainPage = ({ darkMode }) => {
                 </Button>
                 <Button
                     variant="contained"
-                    style={{ backgroundColor: customButtonColor2, padding: "8px 8px", fontSize: "14px" }}
+                    style={{ backgroundColor: 'var(--button-color2)', padding: "8px 8px", fontSize: "14px" }}
                     className="menu-options"
                     component={Link}
                     to="/network"
@@ -78,7 +67,7 @@ const MainPage = ({ darkMode }) => {
                 </Button>
                 <Button
                     variant="contained"
-                    style={{ backgroundColor: customButtonColor, padding: "8px 8px", fontSize: "14px" }}
+                    style={{ backgroundColor: 'var(--button-color)', padding: "8px 8px", fontSize: "14px" }}
                     className="menu-options"
                     component={Link}
                     to="/authors"

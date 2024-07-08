@@ -3,8 +3,8 @@ import './tooltip.css';
 
 const Tooltip = ({ message, visible, x, y }) => {
     const style = {
-        top: y + 10 + 'px',
-        left: x + 10 + 'px',
+        top: y + 'px',
+        left: x + 50 + 'px',
     };
 
     return (

@@ -1,72 +1,33 @@
 import React from 'react';
 import ChooseList from "../../ChooseList";
-import { Button } from "@mui/material";
 import TifCompare from "../../TifCompare";
+import CustomButton from "../../CustomButton/CustomButton";
+import SliderContainer from "../../SliderContainer/SliderContainer";
 
 const PreprocessStep = ({ state, handlePreprocessing }) => {
     return (
         <div className="row">
-            <div className="column-1" style={{ zIndex: 2, border: `1px solid ${state.customBorder}` }}>
-                <div className="slider-container">
-                    <div>
-                        <label htmlFor="layer-slider">Layer:</label><br/>
-                        <input
-                            id="layer-slider"
-                            type="range"
-                            min="0"
-                            max={state.sourceImage.length - 1}
-                            step="1"
-                            value={state.layer}
-                            onChange={(e) => state.handleLayerChange(e, state.sourceImage.length - 1)}
-                        />
-                    </div>
-                    <div>
-                        <label htmlFor="scale-slider">Scale:</label><br/>
-                        <input
-                            id="scale-slider"
-                            type="range"
-                            min="0.5"
-                            max="7"
-                            step="0.1"
-                            value={state.scale}
-                            onChange={(e) => state.handleScaleChange(e, 7)}
-                        />
-                    </div>
-                    <div>
-                        <label htmlFor="brightness-slider">Brightness:</label><br/>
-                        <input
-                            id="brightness-slider"
-                            type="range"
-                            min="1"
-                            max="3"
-                            step="0.01"
-                            value={state.levelBrightness}
-                            onChange={state.handleSliderBrightnessChange}
-                        />
-                    </div>
-                </div>
+            <div className="column-1" style={{zIndex: 2, border: `1px solid var(--button-color)`}}>
+                <SliderContainer
+                    state={state}
+                    imageShow={state.sourceImage}
+                    isScale={false}
+                />
                 <div className="box-parameters">
                     <ChooseList
                         className="choose-list"
-                        name="Blur type"
+                        name="Denoise type"
                         list={state.denoiseTypes}
                         selected={state.denoiseType}
                         onChange={state.handleDenoiseTypeChange}
-                        customTextColor={state.customTextColor}
+                        customTextColor={'var(--textfield-color)'}
                     />
                 </div>
-                <Button
-                    variant="contained"
-                    style={{
-                            backgroundColor: state.customBorder2,
-                            padding: "12px 12px",
-                            fontSize: "14px"
-                        }}
-                    className="btn-run"
-                    onClick={handlePreprocessing}
-                >
-                    Make preprocessing
-                </Button>
+                <CustomButton
+                    nameBtn={"Make preprocessing"}
+                    colorBtn={'var(--button-color)'}
+                    handleProcess={handlePreprocessing}
+                />
             </div>
             <div className="column-2">
                 <div className="images__preview">

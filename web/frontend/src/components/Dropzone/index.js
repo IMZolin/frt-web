@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { DropzoneAreaBase } from 'material-ui-dropzone';
 import { Box, Button, CircularProgress, Typography } from '@mui/material';
 import useAxiosStore from '../../app/store/axiosStore';
@@ -7,20 +7,12 @@ import './dropzone.css';
 import SurveyBanner from "../SurveyBanner";
 
 
-const Dropzone = ({ files = [], addFiles, setFiles, isProjections, addProjections, imageType, state, darkMode }) => {
+const Dropzone = ({ files = [], addFiles, setFiles, isProjections, addProjections, imageType, state}) => {
     const axiosStore = useAxiosStore();
     const [uploading, setUploading] = useState(false);
     const [bannerStatus, setBannerStatus] = useState(null);
     const [bannerMessage, setBannerMessage] = useState('');
-    const [customButtonColor, setCustomButtonColor] = useState(getComputedStyle(document.documentElement).getPropertyValue('--button-text-color-light'));
-
-    useEffect(() => {
-        if (darkMode) {
-            setCustomButtonColor(getComputedStyle(document.documentElement).getPropertyValue('--button-text-color-dark'));
-        } else {
-            setCustomButtonColor(getComputedStyle(document.documentElement).getPropertyValue('--button-text-color-light'));
-        }
-    }, [darkMode]);
+    files = [];
 
     const handleAddFiles = async (newFiles) => {
         const updatedFiles = newFiles.map((file) => {
@@ -41,7 +33,6 @@ const Dropzone = ({ files = [], addFiles, setFiles, isProjections, addProjection
                 voxel_xy: state.voxelXY,
                 voxel_z: state.voxelZ
               });
-            console.log(response);
 
             if (response.image_show !== null) {
                 setBannerStatus('success');
@@ -95,7 +86,7 @@ const Dropzone = ({ files = [], addFiles, setFiles, isProjections, addProjection
                 acceptedFiles={['.tif', '.tiff']}
                 maxFileSize={Infinity}
                 filesLimit={Infinity}
-                Icon={null}
+                Icon={'null'}
                 dropzoneText={
                     <Box
                         className='custom-dropzone'
@@ -119,7 +110,7 @@ const Dropzone = ({ files = [], addFiles, setFiles, isProjections, addProjection
                             <Button
                                 variant="contained"
                                 style={{
-                                    backgroundColor: customButtonColor,
+                                    backgroundColor: "var(--button-color)",
                                     padding: "12px 12px",
                                     fontSize: "14px",
                                     width: 125
@@ -145,10 +136,7 @@ const Dropzone = ({ files = [], addFiles, setFiles, isProjections, addProjection
                 showAlerts={false}
                 sx={{
                     backgroundColor: 'transparent',
-                    border: `2px solid ${customButtonColor}`,
-                    '& .MuiDropzoneArea-root': {
-                        borderColor: customButtonColor,
-                    }
+                    border: '2px solid var(--button-color)'
                 }}
             />
         </>

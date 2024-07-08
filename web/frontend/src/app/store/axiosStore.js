@@ -43,10 +43,12 @@ const useAxiosStore = create((set, get) => {
       }
     },
 
-    getData: async (image_type) => {
+    getData: async (params) => {
       try{
+        const { image_type, is_compress} = params;
         let formData = new FormData();
         formData.append('image_type', image_type);
+        formData.append('is_compress', is_compress);
         const response = await axiosInstance.get('/api/get_image/', formData);
         return response.data;
       } catch(error){
