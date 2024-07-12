@@ -3,7 +3,7 @@ import tempfile
 from typing import List, Optional
 
 import numpy as np
-from fastapi import UploadFile, File, Form, HTTPException
+from fastapi import UploadFile, File, Form, HTTPException, Query
 from fastapi.responses import JSONResponse
 from fastapi import APIRouter
 
@@ -45,9 +45,9 @@ async def load_image(
 
 
 @router.get("/api/get_image/")
-async def get_image_request(image_type: str = Form(...), is_compress: bool = Form(...)):
+async def get_image_request(image_type: str = Query(...), is_compress: bool = Query(...), is_projections: bool = Query(...)):
     try:
-        response = await get_image(data_type=image_type, is_compress=is_compress)
+        response = await get_image(data_type=image_type, is_compress=is_compress, is_projections=is_projections)
         if response:
             return JSONResponse(content=response)
         else:

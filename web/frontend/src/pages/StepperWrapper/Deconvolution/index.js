@@ -16,6 +16,7 @@ import SliderContainer from "../../../components/SliderContainer/SliderContainer
 import CustomTextfield from "../../../components/CustomTextfield/CustomTextfield";
 import Downloader from "../../../components/SpecificStep/Downloader/Downloader";
 import Slider from "../../../components/SliderContainer/Slider";
+import SurveyBanner from "../../../components/SurveyBanner";
 
 const Deconvolution = () => {
     const state = useStateValues();
@@ -24,12 +25,13 @@ const Deconvolution = () => {
 
     const handleGetPSF = async () => {
         try {
-            const response = await axiosStore.getData({
+            const requestData = {
                 image_type: 'psf',
-                is_compress: true
-            });
+                is_compress: true,
+                is_projections: true
+            };
+            const response = await axiosStore.getData(requestData);
             console.log('Response:', response);
-
 
             if (response.image_show && response.projections) {
                 const newExtractPSF = response.image_show.map((base64Data, index) => {
@@ -49,6 +51,7 @@ const Deconvolution = () => {
         }
     };
 
+
     const handleGetVoxel = async () => {
         try {
             const response = await axiosStore.getVoxel();
@@ -64,28 +67,6 @@ const Deconvolution = () => {
         } catch (error) {
             console.error('Error fetching voxel:', error);
             window.alert('Error fetching voxel:', error);
-        }
-    };
-
-    const handlePreprocessing = async () => {
-        console.log("Im trying make preprocessing");
-        try {
-
-            const response = await axiosStore.preprocessImage(state.denoiseType);
-            console.log('Response:', response);
-
-            if (response.image_show) {
-                const preprocessedImage = response.image_show.map((base64Data, index) => {
-                    return base64ToTiff(base64Data, 'image/tiff', `result_preproc_${index}.tiff`);
-                });
-                state.setPreprocImage(preprocessedImage);
-            } else {
-                console.log('No preprocessing result found in the response.');
-                window.alert('No preprocessing result found in the response.');
-            }
-        } catch (error) {
-            console.error('Error in preprocessing:', error);
-            window.alert('Error in preprocessing: ' + error);
         }
     };
 
@@ -160,14 +141,14 @@ const Deconvolution = () => {
                                     )}<br/>
                                     <div>
                                         <Slider
-                                                idSlider={"brightness-slider"}
-                                                nameSlider={"Brightness"}
-                                                mimSlider={"1"}
-                                                maxSlider={"3"}
-                                                step={"0.01"}
-                                                value={state.levelBrightness}
-                                                onChange={state.handleSliderBrightnessChange}
-                                            />
+                                            idSlider={"brightness-slider"}
+                                            nameSlider={"Brightness"}
+                                            mimSlider={"1"}
+                                            maxSlider={"3"}
+                                            step={"0.01"}
+                                            value={state.levelBrightness}
+                                            onChange={state.handleSliderBrightnessChange}
+                                        />
                                     </div>
                                 </div>
                                 <Dropzone
@@ -181,9 +162,10 @@ const Deconvolution = () => {
                                 />
                             </div>
                             <div className="column-2">
+                                {/*{state.banner.status && <SurveyBanner status={state.banner.status} message={state.banner.message} onClose={state.closeBanner} />}*/}
                                 <div className="images__preview">
                                     <TifCompare
-                                        img_1={state.preprocImage}
+                                        img_1={state.sourceImage}
                                         img_2={state.extractedPSF}
                                         img_1_projection={null}
                                         img_2_projection={state.extractedPSFProjection[0]}
@@ -191,7 +173,7 @@ const Deconvolution = () => {
                                         state={state}
                                         isSameLength={state.sourceImage.length === state.extractedPSF.length}
                                         type='deconvolution'
-                                        layerColor={state.customTextColor}
+                                        layerColor={'var(--textfield-color)'}
                                     />
                                 </div>
                             </div>
@@ -203,7 +185,6 @@ const Deconvolution = () => {
                     <>
                         <PreprocessStep
                             state={state}
-                            handlePreprocessing={handlePreprocessing}
                         />
                     </>
                 );
@@ -256,9 +237,9 @@ const Deconvolution = () => {
                                         img_3_projection={null}
                                         scale={state.scale}
                                         state={state}
-                                        isSameLength={state.sourceImage.length === state.extractedPSF.lengt}
+                                        isSameLength={state.sourceImage.length === state.extractedPSF.length}
                                         type='deconvolution-2'
-                                        layerColor={state.customTextColor}
+                                        layerColor={'var(--textfield-color)'}
                                     />
                                 </div>
                             </div>

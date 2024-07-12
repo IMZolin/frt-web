@@ -10,8 +10,6 @@ import SurveyBanner from "../SurveyBanner";
 const Dropzone = ({ files = [], addFiles, setFiles, isProjections, addProjections, imageType, state}) => {
     const axiosStore = useAxiosStore();
     const [uploading, setUploading] = useState(false);
-    const [bannerStatus, setBannerStatus] = useState(null);
-    const [bannerMessage, setBannerMessage] = useState('');
     files = [];
 
     const handleAddFiles = async (newFiles) => {
@@ -35,8 +33,7 @@ const Dropzone = ({ files = [], addFiles, setFiles, isProjections, addProjection
               });
 
             if (response.image_show !== null) {
-                setBannerStatus('success');
-                setBannerMessage('Files uploaded successfully');
+                state.setBanner({ status: 'success', message: 'Files uploaded successfully' });
 
                 const newData = response.image_show.map((base64Data, index) => {
                     return base64ToTiff(base64Data, 'image/tiff', `${response.image_type}_${index}.tiff`);
@@ -50,13 +47,11 @@ const Dropzone = ({ files = [], addFiles, setFiles, isProjections, addProjection
                     addProjections(projection);
                 }
             } else {
-                setBannerStatus('error');
-                setBannerMessage(`Error: ${response.message}`);
+                state.setBanner({ status: 'error', message: `Error: ${response.message}` });
             }
         } catch (error) {
             console.error('Error posting data:', error);
-            setBannerStatus('error');
-            setBannerMessage(`Error posting data: ${error.message}`);
+            state.setBanner({ status: 'error', message: `Error posting data: ${error.message}` });
         } finally {
             setUploading(false);
         }
@@ -68,14 +63,9 @@ const Dropzone = ({ files = [], addFiles, setFiles, isProjections, addProjection
         state.setIsLoad(updatedFiles.length > 0);
     };
 
-    const closeBanner = () => {
-        setBannerStatus(null);
-        setBannerMessage('');
-    };
-
     return (
         <>
-            {bannerStatus && <SurveyBanner status={bannerStatus} message={bannerMessage} onClose={closeBanner} />}
+            {state.banner.status && <SurveyBanner status={state.banner.status} message={state.banner.message} onClose={state.closeBanner} />}
 
             <DropzoneAreaBase
                 fileObjects={files}

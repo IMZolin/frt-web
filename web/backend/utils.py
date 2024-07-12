@@ -81,7 +81,9 @@ def generate_projections(image_raw):
 
 
 def pass2cache(cache_key, data):
+    print("Before writing")
     cache_dict = {key: str(value) for key, value in data.items()}
+    print("Cache key:", cache_key)
     redis_client.hset(cache_key, mapping=cache_dict)
     redis_client.expire(cache_key, TIMEOUT)
 
@@ -95,11 +97,13 @@ async def save_result(image: ImageRaw, image_type: str, is_projections: bool):
         response_content = {'image_show': images_show}
         if is_projections:
             response_content['projections'] = generate_projections(image)
-        cache_data = {
-            'image_intensities': image.GetIntensities().tolist(),
-            'voxel': image.GetVoxel()
-        }
-        pass2cache(image_type, cache_data)
+        # image_intensities = np.array(image.GetIntensities())
+        # cache_data = {
+        #     'image_intensities': image_intensities.tolist(),
+        #     'voxel': image.GetVoxel()
+        # }
+        # print(image_intensities.shape)
+        # pass2cache(image_type, cache_data)
         return response_content
     except Exception as e:
         raise Exception(f"Error in save_result: {e}")
@@ -121,7 +125,7 @@ async def get_image(data_type: str, is_projections: bool = False, is_compress: b
         cache_data = redis_client.hgetall(f"{data_type}")
         if cache_data:
             image_raw = ImageRaw(intensitiesIn=np.array(json.loads(cache_data["image_intensities"])),
-                             voxelSizeIn=json.loads(cache_data["voxel"]))
+                                 voxelSizeIn=json.loads(cache_data["voxel"]))
             image_tiff = image_raw.SaveAsTiff()
             image = await tiff2base64(image=image_tiff, is_compress=is_compress)
             if is_compress:

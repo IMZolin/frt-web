@@ -1,6 +1,8 @@
 import {useState, useEffect} from "react";
 
 export const defaultValues = {
+    bannerStatus: '',
+    bannerMessage: '',
     files: [],
     averageBeadSave: [],
     extractedPSFSave: [],
@@ -67,6 +69,7 @@ export const defaultValues = {
 
 export const useStateValues = () => {
     //General states
+    const [banner, setBanner] = useState({ status: defaultValues.bannerStatus, message: defaultValues.bannerMessage });
     const [files, addFiles] = useState(defaultValues.files);
     const [isLoad, setIsLoad] = useState(defaultValues.isLoad);
     const [layer, setLayer] = useState(defaultValues.layer);
@@ -234,9 +237,9 @@ export const useStateValues = () => {
         drawSquare(centerCoords.x, centerCoords.y, selectSize, canvasRef);
     };
 
-    useEffect(() => {
-        console.log(centerExtractBeads, resolution);
-    }, [centerExtractBeads, resolution]);
+    // useEffect(() => {
+    //     console.log(centerExtractBeads, resolution);
+    // }, [centerExtractBeads, resolution]);
 
     const handleDarkModeToggle = () => {
         setDarkMode(!darkMode);
@@ -281,8 +284,14 @@ export const useStateValues = () => {
         const newMarginTop = Math.floor((value - 0.5) / 0.1) * marginTopIncrement;
         setMarginTop(newMarginTop);
     };
+    const closeBanner = () => {
+        setBanner({ status: null, message: '' });
+    };
 
     return {
+        banner,
+        setBanner,
+        closeBanner,
         files,
         addFiles,
         isLoad,

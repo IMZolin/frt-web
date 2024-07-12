@@ -1,9 +1,11 @@
 import {base64ToTiff} from "../../shared/hooks/showImages";
-import useAxiosStore from "./axiosStore";
+import useAxiosStore from "../../app/store/axiosStore";
+
 
 
 // eslint-disable-next-line react-hooks/rules-of-hooks
 const axiosStore = useAxiosStore();
+
 
 const setData = async (response, image_type, setImage, setImageSave, setImageProjections, setIsLoad) => {
   console.log('Response:', response);
@@ -46,23 +48,24 @@ const handleGetData = async (imageType, setImage, setImageSave, setImageProjecti
     }
   };
 
-const handleGetVoxel = async (setVoxelXY, setVoxelZ) => {
-  try {
-    const response = await axiosStore.getVoxel();
-    console.log('Response:', response);
-
-    if (response.voxel) {
-      setVoxelZ(response.voxel[0]);
-      setVoxelXY(response.voxel[1]);
-    } else {
-      console.log('No voxel data found in the response.');
-      window.alert('No voxel data found in the response.');
-    }
-  } catch (error) {
-    console.error('Error fetching voxel:', error);
-    window.alert('Error fetching voxel:', error);
-  }
-};
+// const handleGetVoxel = async (setVoxelXY, setVoxelZ) => {
+//   try {
+//     const response = await axiosStore.getVoxel();
+//     console.log('Response:', response);
+//
+//     if (response.voxel) {
+//       state.setBanner({ status: 'success', message: 'Image preprocessed successfully' });
+//       setVoxelZ(response.voxel[0]);
+//       setVoxelXY(response.voxel[1]);
+//     } else {
+//       console.log('No voxel data found in the response.');
+//       state.setBanner({ status: 'error', message: `Error in preprocessing: ${response.message}` });
+//     }
+//   } catch (error) {
+//     console.error('Error fetching voxel:', error);
+//     window.alert('Error fetching voxel:', error);
+//   }
+// };
 
 const handleRLDeconvolve = async (setResult, setResultSave, iterations, regularization, deconMethod) => {
     console.log("Im trying make deconvolve");
