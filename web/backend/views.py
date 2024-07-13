@@ -12,7 +12,7 @@ from web.backend.engine.src.common.DenoiseImage_class import ImageDenoiser
 from web.backend.engine.src.common.ImageRaw_class import ImageRaw
 from web.backend.engine.src.deconvolutor.decon_image_model import DeconImageModel
 from web.backend.engine.src.deconvolutor.decon_psf_model import DeconPsfModel
-from web.backend.utils import get_data, rl_deconvolution, get_source_img, save_result, get_image, save_files
+from web.backend.utils import get_data, rl_deconvolution, get_source_img, set_response, get_image, save_files
 
 router = APIRouter()
 
@@ -36,7 +36,7 @@ async def load_image(
             image_data = ImageRaw(fpath=file_paths, voxelSizeIn=[voxel_z, voxel_xy, voxel_xy])
         else:
             image_data = ImageRaw(fpath=file_paths)
-        response_content = await save_result(image=image_data, image_type=image_type, is_projections=is_projections)
+        response_content = await set_response(image=image_data, image_type=image_type, is_projections=is_projections)
         return JSONResponse(content=response_content)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -127,7 +127,7 @@ async def calculate_psf(
             psf_calculator.zoomFactor = zoom_factor
         psf = await rl_deconvolution(model=psf_calculator, iterations=iterations, regularization=regularization,
                                      decon_method=decon_method)
-        response_content = await save_result(image=psf, image_type='psf', is_projections=True)
+        response_content = await set_response(image=psf, image_type='psf', is_projections=True)
         return JSONResponse(content=response_content)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -159,7 +159,7 @@ async def rl_decon_image(
                                      voxel=json.loads(source_cache["voxel"]))
         rl_img = await rl_deconvolution(model=rl_deconvolver, iterations=iterations, regularization=regularization,
                                         decon_method=decon_method)
-        response_content = await save_result(image=rl_img, image_type='rl_decon_img', is_projections=False)
+        response_content = await set_response(image=rl_img, image_type='rl_decon_img', is_projections=False)
         return JSONResponse(content=response_content)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -182,7 +182,7 @@ async def preprocess_image(denoise_type: str = Form(...)):
         if denoised_image is None:
             raise HTTPException(status_code=400, detail="Denoising failed")
         denoised_image = ImageRaw(intensitiesIn=denoised_image, voxelSizeIn=json.loads(noisy_cache["voxel"]))
-        response_content = await save_result(image=denoised_image, image_type='denoised_img', is_projections=False)
+        response_content = await set_response(image=denoised_image, image_type='denoised_img', is_projections=False)
         return JSONResponse(content=response_content)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -200,7 +200,7 @@ async def cnn_decon_image():
                                       voxel=json.loads(source_cache["voxel"]))
         cnn_deconvolver.DeconvolveImage()
         decon_img = cnn_deconvolver.deconResult.mainImageRaw
-        response_content = await save_result(image=decon_img, image_type='cnn_decon_img', is_projections=False)
+        response_content = await set_response(image=decon_img, image_type='cnn_decon_img', is_projections=False)
         return JSONResponse(content=response_content)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))

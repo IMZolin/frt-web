@@ -1,9 +1,8 @@
-import os
 from typing import Optional
 from fastapi import APIRouter
 
 from config import settings
-from s3.s3 import S3Client
+from web.backend.s3.s3 import S3Client
 
 
 class Router(APIRouter):

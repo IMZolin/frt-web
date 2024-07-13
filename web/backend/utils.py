@@ -2,7 +2,7 @@ import base64
 import io
 import json
 import os
-from typing import Union, List
+from typing import Union, List, Tuple
 
 import numpy as np
 import redis
@@ -81,14 +81,13 @@ def generate_projections(image_raw):
 
 
 def pass2cache(cache_key, data):
-    print("Before writing")
     cache_dict = {key: str(value) for key, value in data.items()}
     print("Cache key:", cache_key)
     redis_client.hset(cache_key, mapping=cache_dict)
     redis_client.expire(cache_key, TIMEOUT)
 
 
-async def save_result(image: ImageRaw, image_type: str, is_projections: bool):
+async def set_response(image: ImageRaw, is_projections: bool) -> dict:
     try:
         if image is None:
             raise Exception("Image is None")
@@ -97,16 +96,31 @@ async def save_result(image: ImageRaw, image_type: str, is_projections: bool):
         response_content = {'image_show': images_show}
         if is_projections:
             response_content['projections'] = generate_projections(image)
-        # image_intensities = np.array(image.GetIntensities())
-        # cache_data = {
-        #     'image_intensities': image_intensities.tolist(),
-        #     'voxel': image.GetVoxel()
-        # }
-        # print(image_intensities.shape)
-        # pass2cache(image_type, cache_data)
         return response_content
     except Exception as e:
         raise Exception(f"Error in save_result: {e}")
+
+
+async def save_result(image: ImageRaw, image_type: str, is_save_cloud: bool = False):
+    image_intensities = np.array(image.GetIntensities())
+    voxel = image.GetVoxel()
+    if is_save_cloud:
+        await save_cloud(save_path=f'{image_type}', img=image_intensities, voxel=voxel)
+    else:
+        cache_data = {
+            'image_intensities': image_intensities.tolist(),
+            'voxel': voxel
+        }
+        pass2cache(image_type, cache_data)
+
+
+async def save_cloud(save_path: str, img: np.ndarray, voxel: list):
+    await router.s3.upload_file(file=file.file,
+                                s3_key=f"{s3_path}/{file.filename}")
+
+
+async def read_cloud(save_path: str) -> Tuple[np.ndarray, list]:
+    pass
 
 
 async def get_data(data_type: str):
