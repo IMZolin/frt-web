@@ -1,14 +1,14 @@
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import BaseSettings
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
     yandex_access_key: str
     yandex_secret_key: str
     yandex_bucket_name: str
     yandex_endpoint: str
-    db_url: str
-    sentry_dsn: str
+
+    class Config:
+        env_file = ".env"
 
 
 settings = Settings()
