@@ -5,6 +5,7 @@ import os
 from typing import Union, List, Tuple
 
 import aioboto3
+from botocore.exceptions import ClientError
 import numpy as np
 import redis
 from fastapi import UploadFile
@@ -135,12 +136,44 @@ async def save_cloud(save_path: str, img_array: np.ndarray, voxel: list):
                 aws_access_key_id=settings.yandex_access_key,
                 aws_secret_access_key=settings.yandex_secret_key
         ) as s3_client:
-            response = await s3_client.list_buckets()
-            buckets = [bucket['Name'] for bucket in response['Buckets']]
-            print("Buckets:", buckets)
-            await s3_client.upload_fileobj('/tmp/img_array.npy', settings.yandex_bucket_name, f'{save_path}/img_array.npy')
+            try:
+                print(settings.yandex_endpoint, settings.yandex_access_key, settings.yandex_secret_key)
+                await s3_client.head_bucket(Bucket=settings.yandex_bucket_name)
+                print(f"Successfully connected to bucket: {settings.yandex_bucket_name}")
+            except ClientError as e:
+                if e.response['Error']['Code'] == '403':
+                    raise Exception("Access Denied. Please check your AWS credentials and permissions.")
+                elif e.response['Error']['Code'] == '404':
+                    raise Exception("Bucket does not exist. Please check the bucket name and try again.")
+                else:
+                    raise Exception(f"Unexpected error while checking connection: {e}")
+
+            try:
+                response = await s3_client.list_buckets()
+                buckets = [bucket['Name'] for bucket in response['Buckets']]
+                print("Buckets:", buckets)
+            except ClientError as e:
+                raise Exception(f"Error in listing buckets: {e}")
+
+            await s3_client.upload_file('/tmp/img_array.npy', settings.yandex_bucket_name, f'{save_path}/img_array.npy')
             await s3_client.upload_file('/tmp/voxel.npy', settings.yandex_bucket_name, f'{save_path}/voxel.npy')
 
+    except s3_client.exceptions.NoSuchBucket:
+        raise Exception("No such bucket. Please check the bucket name and try again.")
+    except s3_client.exceptions.NoSuchKey:
+        raise Exception("No such key. Please check the object key and try again.")
+    except s3_client.exceptions.BucketAlreadyExists:
+        raise Exception("Bucket already exists. Please use a different bucket name.")
+    except s3_client.exceptions.BucketAlreadyOwnedByYou:
+        raise Exception("Bucket already owned by you. You can use this bucket.")
+    except s3_client.exceptions.InvalidObjectState:
+        raise Exception("Invalid object state. Please check the object state and try again.")
+    except s3_client.exceptions.NoSuchUpload:
+        raise Exception("No such upload. Please check the upload and try again.")
+    except s3_client.exceptions.ObjectAlreadyInActiveTierError:
+        raise Exception("Object already in active tier.")
+    except s3_client.exceptions.ObjectNotInActiveTierError:
+        raise Exception("Object not in active tier.")
     except Exception as e:
         raise Exception(f"Error in save_cloud: {e}")
     finally:
