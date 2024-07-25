@@ -12,8 +12,8 @@ from web.backend.engine.src.common.DenoiseImage_class import ImageDenoiser
 from web.backend.engine.src.common.ImageRaw_class import ImageRaw
 from web.backend.engine.src.deconvolutor.decon_image_model import DeconImageModel
 from web.backend.engine.src.deconvolutor.decon_psf_model import DeconPsfModel
-from web.backend.utils import get_cache_data, rl_deconvolution, get_source_img, set_response, get_image, save_files, \
-    save_result
+from web.backend.utils import get_cache_data, rl_deconvolution, get_source_img, set_response, save_files, \
+    save_result, handle_image
 
 router = APIRouter()
 
@@ -24,7 +24,7 @@ async def load_image(
         image_type: str = Form(...),
         voxel_xy: Optional[float] = Form(None),
         voxel_z: Optional[float] = Form(None),
-        is_projections: bool = Form(False),
+        get_projections: bool = Form(False),
 
 ):
     temp_dir = tempfile.TemporaryDirectory()
@@ -38,7 +38,7 @@ async def load_image(
             image_data = ImageRaw(fpath=file_paths, voxelSizeIn=[voxel_z, voxel_xy, voxel_xy])
         else:
             image_data = ImageRaw(fpath=file_paths)
-        response_content = await set_response(image=image_data, is_projections=is_projections)
+        response_content = await set_response(image=image_data, get_projections=get_projections)
         await save_result(image=image_data, image_type=image_type)
         return JSONResponse(content=response_content)
     except Exception as e:
@@ -48,9 +48,9 @@ async def load_image(
 
 
 @router.get("/api/get_image/")
-async def get_image_request(image_type: str = Query(...), is_compress: bool = Query(...), is_projections: bool = Query(...)):
+async def get_image(image_type: str = Query(...), get_projections: bool = Query(...)):
     try:
-        response = await get_image(image_type=image_type, is_compress=is_compress, is_projections=is_projections)
+        response = await handle_image(image_type=image_type, get_projections=get_projections)
         if response:
             return JSONResponse(content=response)
         else:

@@ -37,7 +37,7 @@ async def save_files(files: List[UploadFile], temp_dir: str):
         raise Exception(f"Error in save_files: {e}")
 
 
-async def tiff2list(image):
+async def tiff2list(image):  # list of compressed image layers
     try:
         base64_list = []
         for layer in image:
@@ -51,7 +51,7 @@ async def tiff2list(image):
         raise Exception(f"Error in tiff2byte_list: {e}")
 
 
-async def tiff2bytes(image):
+async def tiff2bytes(image):  # original multi-layer image
     try:
         byte_stream2 = io.BytesIO()
         image[0].save(byte_stream2, format='TIFF', save_all=True, append_images=image[1:])
@@ -87,20 +87,23 @@ def generate_projections(image_raw):
 
 
 def pass2cache(cache_key, data):
-    cache_dict = {key: str(value) for key, value in data.items()}
-    print("Cache key:", cache_key)
-    redis_client.hset(cache_key, mapping=cache_dict)
-    redis_client.expire(cache_key, TIMEOUT)
+    try:
+        cache_dict = {key: str(value) for key, value in data.items()}
+        redis_client.hset(cache_key, mapping=cache_dict)
+        redis_client.expire(cache_key, TIMEOUT)
+        print(f"Successfully saved data in cache by cache key: {cache_key}")
+    except Exception as e:
+        raise Exception(f"Error in pass2cache: {e}")
 
 
-async def set_response(image: ImageRaw, is_projections: bool) -> dict:
+async def set_response(image: ImageRaw, get_projections: bool) -> dict:
     try:
         if image is None:
             raise Exception("Image is None")
         image_tiff = image.SaveAsTiff()
         images_show = await tiff2base64(image=image_tiff, is_compress=True)
         response_content = {'image_show': images_show}
-        if is_projections:
+        if get_projections:
             response_content['projections'] = generate_projections(image)
         return response_content
     except Exception as e:
@@ -137,7 +140,6 @@ async def save_cloud(save_path: str, img_array: np.ndarray, voxel: list):
                 aws_secret_access_key=settings.yandex_secret_key
         ) as s3_client:
             try:
-                print(settings.yandex_endpoint, settings.yandex_access_key, settings.yandex_secret_key)
                 await s3_client.head_bucket(Bucket=settings.yandex_bucket_name)
                 print(f"Successfully connected to bucket: {settings.yandex_bucket_name}")
             except ClientError as e:
@@ -147,13 +149,6 @@ async def save_cloud(save_path: str, img_array: np.ndarray, voxel: list):
                     raise Exception("Bucket does not exist. Please check the bucket name and try again.")
                 else:
                     raise Exception(f"Unexpected error while checking connection: {e}")
-
-            try:
-                response = await s3_client.list_buckets()
-                buckets = [bucket['Name'] for bucket in response['Buckets']]
-                print("Buckets:", buckets)
-            except ClientError as e:
-                raise Exception(f"Error in listing buckets: {e}")
 
             await s3_client.upload_file('/tmp/img_array.npy', settings.yandex_bucket_name, f'{save_path}/img_array.npy')
             await s3_client.upload_file('/tmp/voxel.npy', settings.yandex_bucket_name, f'{save_path}/voxel.npy')
@@ -192,12 +187,12 @@ async def read_cloud(save_path: str) -> Tuple[np.ndarray, list]:
         ) as s3_client:
             img_array_path = f'{save_path}/img_array.npy'
             voxel_path = f'{save_path}/voxel.npy'
-
             await s3_client.download_file(settings.yandex_bucket_name, img_array_path, '/tmp/img_array.npy')
             await s3_client.download_file(settings.yandex_bucket_name, voxel_path, '/tmp/voxel.npy')
-
             img_array = np.load('/tmp/img_array.npy')
             voxel = np.load('/tmp/voxel.npy').tolist()
+            await s3_client.delete_object(Bucket=settings.yandex_bucket_name, Key=img_array_path)
+            await s3_client.delete_object(Bucket=settings.yandex_bucket_name, Key=voxel_path)
 
             return img_array, voxel
     except Exception as e:
@@ -220,51 +215,52 @@ async def get_cache_data(data_type: str):
         raise Exception(f"Cache not found: {e}")
 
 
-async def get_image(image_type: str, is_projections: bool = False, is_compress: bool = True):
+async def handle_image(image_type: str, get_projections: bool = False):
     try:
-        cache_data = redis_client.hgetall(f"{image_type}")
-        if cache_data:
-            if cache_data['is_cache_size']:
-                img_array, voxel = (np.array(json.loads(cache_data["image_intensities"])),
-                                    json.loads(cache_data["voxel"]))
-            else:
-                img_array, voxel = await read_cloud(save_path=f'{image_type}')
-            if img_array and voxel:
-                image_raw = ImageRaw(intensitiesIn=img_array, voxelSizeIn=voxel)
-                image_tiff = image_raw.SaveAsTiff()
-                image = await tiff2base64(image=image_tiff, is_compress=is_compress)
-                if is_compress:
-                    response_content = {'image_show': image}
-                    if is_projections:
-                        response_content['projections'] = generate_projections(image_raw)
-                else:
-                    response_content = {'image_save': image}
-                return response_content
+        cache_data = await get_cache_data(image_type)
+        if not cache_data:
+            return 'Cache miss'
+        is_cache_size = cache_data.get('is_cache_size') == 'True'
+        if is_cache_size:
+            img_array = np.array(json.loads(cache_data.get('image_intensities')))
+            voxel = json.loads(cache_data.get('voxel'))
         else:
-            return None
+            img_array, voxel = await read_cloud(save_path=image_type)
+        if img_array is not None and voxel is not None:
+            image = ImageRaw(intensitiesIn=img_array, voxelSizeIn=voxel)
+            response_content = await set_response(image, get_projections)
+            return response_content
+        else:
+            return 'Error in read cloud/cache'
     except Exception as e:
         raise Exception(f"Cache not found: {e}")
 
 
 async def rl_deconvolution(model: Union[DeconPsfModel, DeconImageModel], iterations: int,
                            regularization: float, decon_method: str) -> ImageRaw:
-    model.iterationNumber = int(iterations)
-    model.regularizationParameter = float(regularization)
-    if isinstance(model, DeconPsfModel):
-        model.CalculatePSF(deconMethodIn=decon_method)
-        res = model.resultImage
-    else:
-        model.DeconvolveImage(deconMethodIn=decon_method)
-        res = model.deconResult.mainImageRaw
-    return res
+    try:
+        model.iterationNumber = int(iterations)
+        model.regularizationParameter = float(regularization)
+        if isinstance(model, DeconPsfModel):
+            model.CalculatePSF(deconMethodIn=decon_method)
+            res = model.resultImage
+        else:
+            model.DeconvolveImage(deconMethodIn=decon_method)
+            res = model.deconResult.mainImageRaw
+        return res
+    except Exception as e:
+        raise Exception(f"Error in rl_deconvolution: {e}")
 
 
 async def get_source_img():
-    noisy_cache = await get_cache_data('source_img')
-    denoised_cache = await get_cache_data('denoised_img')
-    if noisy_cache is None and denoised_cache is None:
-        raise Exception("The source image not found in the cache. Maybe the time is up. Upload it again.")
-    elif denoised_cache is not None:
-        return denoised_cache
-    elif noisy_cache is not None:
-        return noisy_cache
+    try:
+        noisy_cache = await get_cache_data('source_img')
+        denoised_cache = await get_cache_data('denoised_img')
+        if noisy_cache is None and denoised_cache is None:
+            raise Exception("The source image not found in the cache. Maybe the time is up. Upload it again.")
+        elif denoised_cache is not None:
+            return denoised_cache
+        elif noisy_cache is not None:
+            return noisy_cache
+    except Exception as e:
+        raise Exception(f"Error in get_source_img: {e}")
