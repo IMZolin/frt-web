@@ -1,10 +1,9 @@
-import React, {useEffect, useState} from 'react';
+import React from 'react';
 import StepperWrapper from '../../StepperWrapper';
 import TifCompare from '../../../components/TifCompare';
 import ChooseList from '../../../components/ChooseList';
 import {useStateValues} from "../state";
 import {base64ToTiff} from '../../../shared/hooks/showImages';
-import {hexToRgb} from '../../../shared/hooks/showImages';
 import useAxiosStore from '../../../app/store/axiosStore';
 import './stepper.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -17,48 +16,8 @@ import CustomTextfield from "../../../components/CustomTextfield/CustomTextfield
 
 const StepperPSF = () => {
     const state = useStateValues();
-    const [bannerStatus, setBannerStatus] = useState(null);
-    const [bannerMessage, setBannerMessage] = useState('');
     const steps = ['Load average bead', 'Calculate PSF', 'Save results'];
     const axiosStore = useAxiosStore();
-
-    const handleGetAverageBead = async () => {
-        try {
-            const response = await axiosStore.getData({
-                image_type: 'avg_bead',
-                is_compress: true
-            });
-            console.log('Response:', response);
-
-            if (response.image_show && response.projections) {
-                setBannerStatus('success');
-                setBannerMessage('Averaged bead preloaded successfully');
-                const newAverageBead = response.image_show.map((base64Data, index) => {
-                    return base64ToTiff(base64Data, 'image/tiff', `avg_bead_${index}.tiff`);
-                });
-                const newProjection = response.projections.map((base64Data, index) => {
-                    return base64ToTiff(base64Data, 'image/tiff', `avg_bead_xyz_${index}.tiff`);
-                });
-                state.setAverageBeadProjection(newProjection);
-                state.setAverageBead(newAverageBead);
-                state.setIsLoad(true);
-            } else {
-                console.log('No average bead data found in the response.');
-                setBannerStatus('error');
-                setBannerMessage(`Error: ${response.message}`);
-            }
-        } catch (error) {
-            console.error('Error fetching average bead:', error);
-            setBannerStatus('error');
-            setBannerMessage(`Error posting data: ${error.message}`);
-        }
-    };
-
-    useEffect(() => {
-        if (state.activeStep === 0) {
-            handleGetAverageBead();
-        }
-    }, [state.activeStep]);
 
     const handlePSFCalculate = async () => {
         console.log("Im trying make psf extraction");
@@ -75,8 +34,7 @@ const StepperPSF = () => {
             console.log('Response:', response);
 
             if (response.image_show && response.projections) {
-                setBannerStatus('success');
-                setBannerMessage('PSF computed successfully');
+                state.setBanner({ status: 'success', message: 'PSF computed successfully'});
                 const newExtractPSF = response.image_show.map((base64Data, index) => {
                     return base64ToTiff(base64Data, 'image/tiff', `psf_${index}.tiff`);
                 });
@@ -87,17 +45,12 @@ const StepperPSF = () => {
                 state.setExtractedPSF(newExtractPSF);
             } else {
                 console.log('No extracted PSF found in the response.');
-                window.alert('No extracted PSF found in the response.');
+                state.setBanner({ status: 'error', message: 'No extracted PSF found in the response.'});
             }
         } catch (error) {
             console.error('Error in PSF extraction:', error);
-            window.alert('Error in PSF extraction: ' + error.response.data.message);
+            state.setBanner({ status: 'error', message: 'Error in PSF extraction: ' + error.response.data.message});
         }
-    };
-
-    const closeBanner = () => {
-        setBannerStatus(null);
-        setBannerMessage('');
     };
 
     function getStepContent(step) {
@@ -109,9 +62,11 @@ const StepperPSF = () => {
                             state={state}
                             imageType={'avg_bead'}
                             setFiles={state.setAverageBead}
-                            isProjections={true}
+                            getProjections={true}
                             addProjections={state.setAverageBeadProjection}
                             isVoxel={false}
+                            nameImage={'Averaged bead'}
+                            makePreload={true}
                         />
                     </>
                 );

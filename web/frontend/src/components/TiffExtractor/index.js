@@ -6,7 +6,7 @@ import 'slick-carousel/slick/slick-theme.css';
 import './tiff_extractor.css';
 
 const TiffExtractor = ({ img, scale, state, canvasRef, customBorder }) => {
-  const markBead = useBeadMark(); 
+  const markBead = useBeadMark();
 
   useEffect(() => {
     console.log(img);
@@ -35,11 +35,7 @@ const TiffExtractor = ({ img, scale, state, canvasRef, customBorder }) => {
   };
 
   return (
-    <div className="tiff-wrapper"
-      style={{
-        border: `1px solid ${customBorder}`,
-      }}
-    >
+    <div className="tiff-wrapper" style={{ border: `1px solid ${customBorder}` }}>
       <div className="tiff-canvas">
         <canvas
           ref={canvasRef}
@@ -56,7 +52,7 @@ const TiffExtractor = ({ img, scale, state, canvasRef, customBorder }) => {
           }}
           onClick={(e) => handleDrawClick(e, canvasRef)}
         />
-        <TifViewer img={img} scale={scale} brightness={state.levelBrightness} imageProjection={null}/>
+        <TifViewer img={img} scale={scale} brightness={state.levelBrightness} imageProjection={null} />
       </div>
     </div>
   );

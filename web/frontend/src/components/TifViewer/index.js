@@ -7,13 +7,20 @@ const TifViewer = ({ img, scale, brightness, imageProjection }) => {
     e.preventDefault();
   };
 
+  const imageStyle = (width, height) => {
+    if (width > 400 || height > 400) {
+      return { overflow: 'auto', maxWidth: '400px', maxHeight: '400px' };
+    }
+    return { transform: `scale(${scale})`, objectFit: 'contain', filter: `brightness(${brightness})` };
+  };
+
   if (!img && !imageProjection) {
     return null;
   }
-  else{
-    return (
-      <div className="tif-viewer-container">
-        <div className="tif-viewer">
+
+  return (
+    <div className="tif-viewer-container">
+      <div className="tif-viewer">
         {img ? (
           <TIFFViewer
             key={img.id}
@@ -21,24 +28,22 @@ const TifViewer = ({ img, scale, brightness, imageProjection }) => {
             paginate="bottom"
             buttonColor="#337fd6"
             onClick={handleButtonClick}
-            style={{ transform: `scale(${scale})`, objectFit: 'contain', filter: `brightness(${brightness})` }}
+            style={imageStyle(img.width, img.height)}
           />
-          ) : null}
-          {imageProjection ? (
-            <TIFFViewer
-              key={imageProjection.id}
-              tiff={imageProjection.data}
-              paginate="bottom"
-              buttonColor="#337fd6"
-              onClick={handleButtonClick}
-              style={{ transform: `scale(${0.7})`, objectFit: 'contain',marginLeft: '120px' }}
-            />
-          ) : null}
-        </div>
+        ) : null}
+        {imageProjection ? (
+          <TIFFViewer
+            key={imageProjection.id}
+            tiff={imageProjection.data}
+            paginate="bottom"
+            buttonColor="#337fd6"
+            onClick={handleButtonClick}
+            style={{ ...imageStyle(imageProjection.width, imageProjection.height), marginLeft: '120px', transform: `scale(0.7)` }}
+          />
+        ) : null}
       </div>
-    );
-  }
-  
+    </div>
+  );
 };
 
 export default TifViewer;

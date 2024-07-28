@@ -20,7 +20,7 @@ const useAxiosStore = create((set, get) => {
         axiosInstance,
 
         postData: async (params) => {
-            const {files, image_type, voxel_xy, voxel_z, is_projections} = params;
+            const {files, image_type, voxel_xy, voxel_z, get_projections} = params;
 
             let formData = new FormData();
             console.log(params);
@@ -29,7 +29,7 @@ const useAxiosStore = create((set, get) => {
             });
 
             formData.append('image_type', image_type);
-            formData.append('is_projections', is_projections);
+            formData.append('get_projections', get_projections);
             if (voxel_xy !== null && voxel_z !== null) {
                 formData.append('voxel_xy', parseFloat(voxel_xy));
                 formData.append('voxel_z', parseFloat(voxel_z));
@@ -45,12 +45,11 @@ const useAxiosStore = create((set, get) => {
 
         getData: async (params) => {
             try {
-                const { image_type, is_compress, is_projections } = params;
+                const { image_type, get_projections } = params;
                 const response = await axiosInstance.get('/api/get_image/', {
                     params: {
                         image_type,
-                        is_compress,
-                        is_projections
+                        get_projections
                     }
                 });
                 return response.data;

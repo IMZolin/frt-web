@@ -4,7 +4,8 @@ import "../../../pages/StepperWrapper/stepper.css"
 import VoxelBox from "../../VoxelBox/VoxelBox";
 
 
-const ImageLoader = ({state, imageType, setFiles, isProjections, addProjections, isVoxel = true}) => {
+const ImageLoader = ({state, imageType, nameImage, makePreload, setFiles, getProjections, addProjections, isVoxel = true}) => {
+
 
     return (
         <div className="row" style={{justifyContent: "center"}}>
@@ -21,9 +22,11 @@ const ImageLoader = ({state, imageType, setFiles, isProjections, addProjections,
                     files={state.files}
                     addFiles={state.addFiles}
                     setFiles={setFiles}
-                    isProjections={isProjections}
+                    getProjections={getProjections}
                     addProjections={addProjections}
                     imageType={imageType}
+                    nameImage={nameImage}
+                    makePreload={makePreload}
                     state={state}
                 />
             </div>

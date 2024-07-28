@@ -130,7 +130,7 @@ async def calculate_psf(
             psf_calculator.zoomFactor = zoom_factor
         psf = await rl_deconvolution(model=psf_calculator, iterations=iterations, regularization=regularization,
                                      decon_method=decon_method)
-        response_content = await set_response(image=psf, is_projections=True)
+        response_content = await set_response(image=psf, get_projections=True)
         await save_result(image=psf, image_type='psf')
         return JSONResponse(content=response_content)
     except Exception as e:
@@ -163,7 +163,7 @@ async def rl_decon_image(
                                      voxel=json.loads(source_cache["voxel"]))
         rl_img = await rl_deconvolution(model=rl_deconvolver, iterations=iterations, regularization=regularization,
                                         decon_method=decon_method)
-        response_content = await set_response(image=rl_img, is_projections=False)
+        response_content = await set_response(image=rl_img, get_projections=False)
         await save_result(image=rl_img, image_type='rl_decon_img')
         return JSONResponse(content=response_content)
     except Exception as e:
@@ -187,7 +187,7 @@ async def preprocess_image(denoise_type: str = Form(...)):
         if denoised_image is None:
             raise HTTPException(status_code=400, detail="Denoising failed")
         denoised_image = ImageRaw(intensitiesIn=denoised_image, voxelSizeIn=json.loads(noisy_cache["voxel"]))
-        response_content = await set_response(image=denoised_image, is_projections=False)
+        response_content = await set_response(image=denoised_image, get_projections=False)
         await save_result(image=denoised_image, image_type='denoised_img')
         return JSONResponse(content=response_content)
     except Exception as e:
@@ -206,7 +206,7 @@ async def cnn_decon_image():
                                       voxel=json.loads(source_cache["voxel"]))
         cnn_deconvolver.DeconvolveImage()
         decon_img = cnn_deconvolver.deconResult.mainImageRaw
-        response_content = await set_response(image=decon_img, is_projections=False)
+        response_content = await set_response(image=decon_img, get_projections=False)
         await save_result(image=decon_img, image_type='cnn_decon_img')
         return JSONResponse(content=response_content)
     except Exception as e:

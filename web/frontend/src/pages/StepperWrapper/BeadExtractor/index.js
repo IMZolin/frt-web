@@ -1,20 +1,13 @@
-import React, {useRef, useState, useEffect} from 'react';
-import {Button, TextField, collapseClasses} from '@mui/material';
+import React, {useRef, useEffect} from 'react';
 import StepperWrapper from '../../StepperWrapper';
-import TifViewer from '../../../components/TifViewer';
-import TifCompare from '../../../components/TifCompare';
 import TiffExtractor from '../../../components/TiffExtractor';
 import useBeadMark from '../../../components/TiffExtractor/hook';
-import Dropzone from '../../../components/Dropzone';
-import FileDownloader from '../../../components/FileDownloader';
 import {useStateValues} from '../state';
 import {base64ToTiff} from '../../../shared/hooks/showImages';
-import {hexToRgb} from '../../../shared/hooks/showImages';
 import ChooseList from '../../../components/ChooseList';
 import useAxiosStore from '../../../app/store/axiosStore';
 import './stepper.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import VoxelBox from "../../../components/VoxelBox/VoxelBox";
 import ImageLoader from "../../../components/SpecificStep/ImageLoader/ImageLoader";
 import Downloader from "../../../components/SpecificStep/Downloader/Downloader";
 import CustomButton from "../../../components/CustomButton/CustomButton";
@@ -140,9 +133,11 @@ const BeadExtractor = () => {
                             state={state}
                             imageType={'beads_img'}
                             setFiles={state.setBeads}
-                            isProjections={false}
+                            getProjections={false}
                             addProjections={null}
                             isVoxel={true}
+                            nameImage={'Beads image'}
+                            makePreload={false}
                         />
                     </>
                 );

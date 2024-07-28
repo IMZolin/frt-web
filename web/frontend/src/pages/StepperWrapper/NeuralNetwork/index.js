@@ -23,17 +23,18 @@ const NeuralNetwork = () => {
             console.log('Response:', response);
 
             if (response.image_show) {
+                state.setBanner({ status: 'success', message: 'CNN deconvolution was successful' });
                 const newResult = response.image_show.map((base64Data, index) => {
                     return base64ToTiff(base64Data, 'image/tiff', `cnn_decon_img_${index}.tiff`);
                 });
                 state.setResultImage(newResult);
             } else {
                 console.log('No CNN deconvolution result found in the response.');
-                window.alert('No CNN deconvolution result found in the response.');
+                state.setBanner({ status: 'error', message: 'No CNN deconvolution result found in the response.' });
             }
         } catch (error) {
             console.error('Error in CNN deconvolution:', error);
-            window.alert('Error in CNN deconvolution: ' + error);
+            state.setBanner({ status: 'error', message: 'Error in CNN deconvolution: ' + error});
         }
     };
 
@@ -45,9 +46,11 @@ const NeuralNetwork = () => {
                         state={state}
                         imageType={'source_img'}
                         setFiles={state.setSourceImage}
-                        isProjections={false}
+                        getProjections={false}
                         addProjections={null}
                         isVoxel={true}
+                        nameImage={'Source image'}
+                        makePreload={false}
                     />
                 );
             case steps.indexOf('Preprocessing'):

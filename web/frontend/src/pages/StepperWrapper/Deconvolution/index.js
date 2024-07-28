@@ -16,64 +16,32 @@ import SliderContainer from "../../../components/SliderContainer/SliderContainer
 import CustomTextfield from "../../../components/CustomTextfield/CustomTextfield";
 import Downloader from "../../../components/SpecificStep/Downloader/Downloader";
 import Slider from "../../../components/SliderContainer/Slider";
-import SurveyBanner from "../../../components/SurveyBanner";
+
 
 const Deconvolution = () => {
     const state = useStateValues();
     const steps = ['Load PSF', 'Load image', 'Preprocessing', 'Deconvolution', 'Save results'];
     const axiosStore = useAxiosStore();
 
-    const handleGetPSF = async () => {
-        try {
-            const requestData = {
-                image_type: 'psf',
-                is_compress: true,
-                is_projections: true
-            };
-            const response = await axiosStore.getData(requestData);
-            console.log('Response:', response);
-
-            if (response.image_show && response.projections) {
-                const newExtractPSF = response.image_show.map((base64Data, index) => {
-                    return base64ToTiff(base64Data, 'image/tiff', `psf_${index}.tiff`);
-                });
-                const projection = response.projections.map((base64Data, index) => {
-                    return base64ToTiff(base64Data, 'image/tiff', `psf_xyz_${index}.tiff`);
-                });
-                state.setExtractedPSFProjection(projection);
-                state.setExtractedPSF(newExtractPSF);
-                state.setIsLoad(true);
-            } else {
-                console.log('No psf data found in the response.');
-            }
-        } catch (error) {
-            console.error('Error fetching psf:', error);
-        }
-    };
-
-
     const handleGetVoxel = async () => {
         try {
             const response = await axiosStore.getVoxel();
             console.log('Response:', response);
-
             if (response.voxel) {
                 state.setVoxelZ(response.voxel[0]);
                 state.setVoxelXY(response.voxel[1]);
             } else {
                 console.log('No voxel data found in the response.');
-                window.alert('No voxel data found in the response.');
+                state.setBanner({ status: 'error', message: 'No voxel data found in the response.' });
             }
         } catch (error) {
             console.error('Error fetching voxel:', error);
-            window.alert('Error fetching voxel:', error);
+            state.setBanner({ status: 'error', message: 'Error fetching voxel:' + error.data.message });
         }
     };
 
     useEffect(() => {
-        if (state.activeStep === 0) {
-            handleGetPSF();
-        } else if (state.activeStep === 1) {
+        if (state.activeStep === 1) {
             handleGetVoxel();
         }
     }, [state.activeStep]);
@@ -91,17 +59,18 @@ const Deconvolution = () => {
             console.log('Response:', response);
 
             if (response.image_show) {
+                state.setBanner({ status: 'success', message: 'RL deconvolution was successful' });
                 const newResult = response.image_show.map((base64Data, index) => {
                     return base64ToTiff(base64Data, 'image/tiff', `rl_decon_img_${index}.tiff`);
                 });
                 state.setResultImage(newResult);
             } else {
                 console.log('No deconvolution result found in the response.');
-                window.alert('No deconvolution result found in the response.');
+                state.setBanner({ status: 'error', message: 'No deconvolution result found in the response.'});
             }
         } catch (error) {
             console.error('Error in Deconvolution:', error);
-            window.alert('Error in Deconvolution: ' + error);
+            state.setBanner({ status: 'error', message: 'Error in Deconvolution:', error});
         }
     };
 
@@ -114,9 +83,11 @@ const Deconvolution = () => {
                             state={state}
                             imageType={'psf'}
                             setFiles={state.setExtractedPSF}
-                            isProjections={true}
+                            getProjections={true}
                             addProjections={state.setExtractedPSFProjection}
                             isVoxel={false}
+                            nameImage={'PSF'}
+                            makePreload={true}
                         />
                     </>
                 );
@@ -155,9 +126,11 @@ const Deconvolution = () => {
                                     files={state.files}
                                     addFiles={state.addFiles}
                                     setFiles={state.setSourceImage}
-                                    isProjections={false}
+                                    getProjections={false}
                                     addProjections={null}
                                     imageType={'source_img'}
+                                    nameImage={'Source image'}
+                                    makePreload={false}
                                     state={state}
                                 />
                             </div>
