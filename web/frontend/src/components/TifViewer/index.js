@@ -8,8 +8,8 @@ const TifViewer = ({ img, scale, brightness, imageProjection }) => {
   };
 
   const imageStyle = (width, height) => {
-    if (width > 400 || height > 400) {
-      return { overflow: 'auto', maxWidth: '400px', maxHeight: '400px' };
+    if (width > 200 || height > 200) {
+      return { overflow: 'auto', maxWidth: '200px', maxHeight: '200px' };
     }
     return { transform: `scale(${scale})`, objectFit: 'contain', filter: `brightness(${brightness})` };
   };
@@ -38,7 +38,7 @@ const TifViewer = ({ img, scale, brightness, imageProjection }) => {
             paginate="bottom"
             buttonColor="#337fd6"
             onClick={handleButtonClick}
-            style={{ ...imageStyle(imageProjection.width, imageProjection.height), marginLeft: '120px', transform: `scale(0.7)` }}
+            style={{ ...imageStyle(imageProjection.width, imageProjection.height), marginLeft: '80px', transform: `scale(0.53)` }}
           />
         ) : null}
       </div>

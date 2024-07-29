@@ -96,12 +96,12 @@ def pass2cache(cache_key, data):
         raise Exception(f"Error in pass2cache: {e}")
 
 
-async def set_response(image: ImageRaw, get_projections: bool) -> dict:
+async def set_response(image: ImageRaw, get_projections: bool, is_compress: bool = True) -> dict:
     try:
         if image is None:
             raise Exception("Image is None")
         image_tiff = image.SaveAsTiff()
-        images_show = await tiff2base64(image=image_tiff, is_compress=True)
+        images_show = await tiff2base64(image=image_tiff, is_compress=is_compress)
         response_content = {'image_show': images_show}
         if get_projections:
             response_content['projections'] = generate_projections(image)
@@ -215,7 +215,7 @@ async def get_cache_data(data_type: str):
         raise Exception(f"Cache not found: {e}")
 
 
-async def handle_image(image_type: str, get_projections: bool = False):
+async def handle_image(image_type: str) -> Union[ImageRaw, str]:
     try:
         cache_data = await get_cache_data(image_type)
         if not cache_data:
@@ -227,9 +227,7 @@ async def handle_image(image_type: str, get_projections: bool = False):
         else:
             img_array, voxel = await read_cloud(save_path=image_type)
         if img_array is not None and voxel is not None:
-            image = ImageRaw(intensitiesIn=img_array, voxelSizeIn=voxel)
-            response_content = await set_response(image, get_projections)
-            return response_content
+            return ImageRaw(intensitiesIn=img_array, voxelSizeIn=voxel)
         else:
             return 'Error in read cloud/cache'
     except Exception as e:
@@ -254,13 +252,13 @@ async def rl_deconvolution(model: Union[DeconPsfModel, DeconImageModel], iterati
 
 async def get_source_img():
     try:
-        noisy_cache = await get_cache_data('source_img')
-        denoised_cache = await get_cache_data('denoised_img')
-        if noisy_cache is None and denoised_cache is None:
+        noisy_img = await handle_image('source_img')
+        denoised_img = await handle_image('denoised_img')
+        if noisy_img is None and denoised_img is None:
             raise Exception("The source image not found in the cache. Maybe the time is up. Upload it again.")
-        elif denoised_cache is not None:
-            return denoised_cache
-        elif noisy_cache is not None:
-            return noisy_cache
+        elif denoised_img is not None:
+            return denoised_img
+        elif noisy_img is not None:
+            return noisy_img
     except Exception as e:
         raise Exception(f"Error in get_source_img: {e}")
