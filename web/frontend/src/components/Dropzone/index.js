@@ -26,7 +26,8 @@ const Dropzone = ({
         try {
           const response = await axiosStore.getData({
             image_type: imageType,
-            get_projections: getProjections
+            get_projections: getProjections,
+            is_compress: true
           });
           console.log('Response:', response);
 
@@ -49,7 +50,7 @@ const Dropzone = ({
           }
         } catch (error) {
           console.error(`Error fetching ${nameImage}:`, error);
-          state.setBanner({ status: 'error', message: `Error posting data: ${error.message}` });
+          state.setBanner({ status: 'info', message: `Cache not found (${nameImage}): ${error}` });
         }
       };
       handleGetImage();

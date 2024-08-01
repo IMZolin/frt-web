@@ -2,6 +2,7 @@ import json
 import tempfile
 from typing import List, Optional
 
+import numpy as np
 from fastapi import UploadFile, File, Form, HTTPException, Query
 from fastapi.responses import JSONResponse
 from fastapi import APIRouter
@@ -13,7 +14,7 @@ from web.backend.engine.src.deconvolutor.decon_image_model import DeconImageMode
 from web.backend.engine.src.deconvolutor.decon_psf_model import DeconPsfModel
 from web.backend.middlewares import valid_method_name, valid_positive_nums
 from web.backend.utils import get_cache_data, rl_deconvolution, get_source_img, set_response, save_files, \
-    save_result, handle_image
+    save_result, handle_image, pass2cache, init_bead_extractor
 
 router = APIRouter()
 
@@ -48,12 +49,13 @@ async def load_image(
 
 
 @router.get("/api/get_image/")
-async def get_image(image_type: str = Query(...), get_projections: bool = Query(...)):
+async def get_image(image_type: str = Query(...), get_projections: bool = Query(...), is_compress: bool = Query(...)):
     try:
         image_raw = await handle_image(image_type=image_type)
-        response_content = await set_response(image_raw, get_projections)
-        if response_content:
-            return JSONResponse(content=response_content)
+        if not isinstance(image_raw, str):
+            response_content = await set_response(image_raw, get_projections, is_compress)
+            if response_content:
+                return JSONResponse(content=response_content)
         else:
             raise HTTPException(status_code=404, detail="Cache not found")
     except Exception as e:
@@ -72,38 +74,37 @@ async def get_voxel():
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.post("/api/mark_bead/")
-async def mark_bead():
-    pass
+@router.post("/api/autosegment_beads/")
+async def autosegment_bead(max_area: int = Form(...)):
+    try:
+        bead_extractor = await init_bead_extractor()
+        bead_extractor.maxArea = max_area
+        bead_extractor.AutoSegmentBeads()
+        bead_coords = [coord.tolist() if isinstance(coord, np.ndarray) else coord for coord in
+                       bead_extractor.beadCoords]
+        print(bead_coords, type(bead_coords))
+        bead_coords_str = json.dumps(bead_coords)
+        print(bead_coords_str, type(bead_coords_str))
+        pass2cache('bead_coords', bead_coords_str, is_dict_data=False)
+        return JSONResponse(content={'bead_coords': bead_coords_str})
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.post("/api/bead_extractor/autosegment/")
-async def autosegment_bead():
-    pass
-
-
-# @router.post("/api/average_beads/")
-# async def average_beads(denoise_type: str = Form(...)):
-#     try:
-#
-#         if denoise_type is None or denoise_type not in ["Gaussian", "Median", "Wiener", "Totaial Vartion",
-#                                                         "Non-Local Means", "Bilateral", "Wavelet", "none"]:
-#             raise HTTPException(status_code=404, detail="Incorrect denoise type not found in the cache.")
-#         bead_extractor = await init_bead_extractor()
-#         if bead_extractor is None:
-#             raise HTTPException(status_code=400, detail="Bead extractor initialization failed")
-#         if bead_extractor.beadCoords is None or len(bead_extractor.beadCoords) == 0:
-#             raise HTTPException(status_code=404, detail="The bead coordinates not found in the cache. Maybe the "
-#                                                         "time is up. Try it again or segment beads.")
-#         for coord in bead_extractor.beadCoords:
-#             bead_extractor.MarkedBeadExtract(coord)
-#         bead_extractor.BeadsArithmeticMean()
-#         bead_extractor.BlurAveragedBead(denoise_type)
-#         avg_bead = bead_extractor.averageBead
-#         response_content = await save_result(image=avg_bead, image_type='avg_bead', is_projections=True)
-#         return JSONResponse(content=response_content)
-#     except Exception as e:
-#         raise HTTPException(status_code=400, detail=str(e))
+@router.post("/api/average_beads/")
+async def average_beads(denoise_type: str = Form(...), new_coords: str = Form(...)):
+    try:
+        await valid_method_name(method=denoise_type, method_list=["Gaussian", "Median", "Wiener", "Totaial Vartion",
+                                                                  "Non-Local Means", "Bilateral",
+                                                                  "Wavelet", "none"], method_type="denoise")
+        bead_extractor = await init_bead_extractor(eval(new_coords))
+        bead_extractor.BeadsArithmeticMean()
+        bead_extractor.BlurAveragedBead(denoise_type)
+        avg_bead = bead_extractor.averageBead
+        response_content = await save_result(image=avg_bead, image_type='avg_bead')
+        return JSONResponse(content=response_content)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 
 @router.post("/api/calculate_psf/")

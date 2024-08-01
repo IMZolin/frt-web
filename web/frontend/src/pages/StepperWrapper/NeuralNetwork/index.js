@@ -10,6 +10,7 @@ import ImageLoader from "../../../components/SpecificStep/ImageLoader/ImageLoade
 import Downloader from "../../../components/SpecificStep/Downloader/Downloader";
 import SliderContainer from "../../../components/SliderContainer/SliderContainer";
 import CustomButton from "../../../components/CustomButton/CustomButton";
+import TifCompare2 from "../../../components/TifCompare2";
 
 const NeuralNetwork = () => {
     const state = useStateValues();
@@ -74,17 +75,19 @@ const NeuralNetwork = () => {
                         </div>
                         <div className="column-2" style={{ zIndex: 1 }}>
                             <div className="images__preview">
-                                <TifCompare
-                                    img_1={state.preprocImage}
-                                    img_2={state.resultImage}
-                                    img_1_projection={null}
-                                    img_2_projection={null}
-                                    scale={state.scale}
-                                    state={state}
-                                    isSameLength={true}
-                                    type='deconvolution'
-                                    layerColor={'var(--textfield-color)'}
-                                />
+                                <TifCompare2
+                                        img_1={state.preprocImage}
+                                        img_2={null}
+                                        img_3={state.resultImage}
+                                        img_1_projection={null}
+                                        img_2_projection={null}
+                                        img_3_projection={null}
+                                        scale={state.scale}
+                                        state={state}
+                                        isSameLength={state.sourceImage.length === state.extractedPSF.length}
+                                        type='deconvolution-2'
+                                        layerColor={'var(--textfield-color)'}
+                                    />
                             </div>
                         </div>
                     </div>

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useRef} from 'react';
 import ChooseList from "../../ChooseList";
 import TifCompare from "../../TifCompare";
 import CustomButton from "../../CustomButton/CustomButton";
@@ -6,9 +6,12 @@ import SliderContainer from "../../SliderContainer/SliderContainer";
 import {base64ToTiff} from "../../../shared/hooks/showImages";
 import useAxiosStore from "../../../app/store/axiosStore";
 import SurveyBanner from "../../SurveyBanner";
+import TiffExtractor from "../../TiffExtractor";
+import TifViewer from "../../TifViewer";
 
 const PreprocessStep = ({state}) => {
     const axiosStore = useAxiosStore();
+    const canvasRef = useRef();
     const handlePreprocessing = async () => {
         console.log("Im trying make preprocessing");
         try {
@@ -17,18 +20,18 @@ const PreprocessStep = ({state}) => {
             console.log('Response:', response);
 
             if (response.image_show) {
-                state.setBanner({ status: 'success', message: 'Image preprocessed successfully' });
+                state.setBanner({status: 'success', message: 'Image preprocessed successfully'});
                 const preprocessedImage = response.image_show.map((base64Data, index) => {
                     return base64ToTiff(base64Data, 'image/tiff', `result_preproc_${index}.tiff`);
                 });
                 state.setPreprocImage(preprocessedImage);
             } else {
                 console.log('No preprocessing result found in the response.');
-                state.setBanner({ status: 'error', message: `Error in preprocessing: ${response.message}` });
+                state.setBanner({status: 'error', message: `Error in preprocessing: ${response.message}`});
             }
         } catch (error) {
             console.error('Error in preprocessing:', error);
-            state.setBanner({ status: 'error', message: `Error in preprocessing: ${error.message}` });
+            state.setBanner({status: 'error', message: `Error in preprocessing: ${error.message}`});
         }
     };
     return (
@@ -56,8 +59,9 @@ const PreprocessStep = ({state}) => {
                 />
             </div>
             <div className="column-2">
-                {state.banner.status && <SurveyBanner status={state.banner.status} message={state.banner.message} onClose={state.closeBanner} />}
-                <div className="images__preview">
+                {state.banner.status && <SurveyBanner status={state.banner.status} message={state.banner.message}
+                                                      onClose={state.closeBanner}/>}
+                <div className="images__preview" style={{marginTop: '60px'}}>
                     <TifCompare
                         img_1={state.sourceImage}
                         img_2={state.preprocImage}
@@ -68,6 +72,7 @@ const PreprocessStep = ({state}) => {
                         isSameLength={true}
                         type='deconvolution'
                         layerColor={state.customTextColor}
+
                     />
                 </div>
             </div>

@@ -1,29 +1,30 @@
-import useAxiosStore from '../../app/store/axiosStore';
+import {gaussianFilter, unravelIndex} from 'ndarray-ops';
+import ndarray from 'ndarray';
 
-const useBeadMark = () => {
-  const axiosStore = useAxiosStore();
+const useBeadMark = (state) => {
+  return async (x, y, selectSize) => {
+    const LocateFrameMaxIntensity3D = (xi, yi) => {
+      const d = Math.floor(selectSize / 2);
+      const bound1 = Math.max(yi - d, 0);
+      const bound2 = Math.min(yi + d, state.imageHeight);
+      const bound3 = Math.max(xi - d, 0);
+      const bound4 = Math.min(xi + d, state.imageWidth);
 
-  const markBead = async (x, y, selectSize) => {
+      const sample = state.imageData.slice(bound1, bound2).map(row => row.slice(bound3, bound4));
+      const blurredSample = gaussianFilter(ndarray(sample), 1);
+
+      const coords = unravelIndex(blurredSample.argmax(), blurredSample.shape);
+      return [coords[1] + bound3, coords[0] + bound1];
+    };
+
     try {
-      const response = await axiosStore.postBeadMark({
-        x: x,
-        y: y,
-        select_size: selectSize,
-      });
-
-      if (response.center_coords) {
-        const [xCenter, yCenter] = response.center_coords;
-        return { x: xCenter, y: yCenter };
-      }
-
-      return null;
+      const [xCenter, yCenter] = LocateFrameMaxIntensity3D(x, y);
+      return {x: xCenter, y: yCenter};
     } catch (error) {
-      console.error('Error marking bead:', error);
+      console.error('Error locating bead:', error);
       return null;
     }
   };
-
-  return markBead;
 };
 
 export default useBeadMark;

@@ -12,6 +12,7 @@ import ImageLoader from "../../../components/SpecificStep/ImageLoader/ImageLoade
 import CustomButton from "../../../components/CustomButton/CustomButton";
 import SliderContainer from "../../../components/SliderContainer/SliderContainer";
 import CustomTextfield from "../../../components/CustomTextfield/CustomTextfield";
+import SurveyBanner from "../../../components/SurveyBanner";
 
 
 const StepperPSF = () => {
@@ -125,13 +126,15 @@ const StepperPSF = () => {
                                 />
                             </div>
                             <div className="column-2">
-                                <div className="images__preview" style={{marginTop: '150px'}}>
+                                {state.banner.status &&
+        <SurveyBanner status={state.banner.status} message={state.banner.message} onClose={state.closeBanner} />}
+                                <div className="images__preview" style={{marginTop: '-150px'}}>
                                     <TifCompare
                                         img_1={state.averageBead}
                                         img_2={state.extractedPSF}
                                         img_1_projection={state.averageBeadProjection[0]}
                                         img_2_projection={state.extractedPSFProjection[0]}
-                                        scale={state.scale}
+                                        scale={5}
                                         state={state}
                                         isSameLength={true}
                                         type='psf'

@@ -2,7 +2,7 @@ import base64
 import io
 import json
 import os
-from typing import Union, List, Tuple
+from typing import Union, List, Tuple, Any, Optional
 
 import aioboto3
 from botocore.exceptions import ClientError
@@ -15,6 +15,7 @@ from web.backend.engine.src.common.AuxTkPlot_class import AuxCanvasPlot
 from web.backend.engine.src.common.ImageRaw_class import ImageRaw
 from web.backend.engine.src.deconvolutor.decon_image_model import DeconImageModel
 from web.backend.engine.src.deconvolutor.decon_psf_model import DeconPsfModel
+from web.backend.engine.src.extractor.extractor_model import ExtractorModel
 
 redis_client = redis.Redis(host='redis', port=6379, decode_responses=True)
 TIMEOUT = 600
@@ -86,10 +87,13 @@ def generate_projections(image_raw):
         raise Exception(f"Error in generate_projections: {e}")
 
 
-def pass2cache(cache_key, data):
+def pass2cache(cache_key: str, data: Any, is_dict_data: bool = True):
     try:
-        cache_dict = {key: str(value) for key, value in data.items()}
-        redis_client.hset(cache_key, mapping=cache_dict)
+        if is_dict_data:
+            cache_dict = {key: str(value) for key, value in data.items()}
+            redis_client.hset(cache_key, mapping=cache_dict)
+        else:
+            redis_client.set(cache_key, data)
         redis_client.expire(cache_key, TIMEOUT)
         print(f"Successfully saved data in cache by cache key: {cache_key}")
     except Exception as e:
@@ -120,7 +124,6 @@ async def save_result(image: ImageRaw, image_type: str):
                 'image_intensities': image_intensities.tolist(),
                 'voxel': voxel
             }
-            pass2cache(image_type, cache_data)
         else:
             await save_cloud(save_path=f'{image_type}', img_array=image_intensities, voxel=voxel)
             cache_data = {'is_cache_size': False}
@@ -187,6 +190,8 @@ async def read_cloud(save_path: str) -> Tuple[np.ndarray, list]:
         ) as s3_client:
             img_array_path = f'{save_path}/img_array.npy'
             voxel_path = f'{save_path}/voxel.npy'
+            await s3_client.head_bucket(Bucket=settings.yandex_bucket_name)
+            print(f"Successfully connected to bucket: {settings.yandex_bucket_name}")
             await s3_client.download_file(settings.yandex_bucket_name, img_array_path, '/tmp/img_array.npy')
             await s3_client.download_file(settings.yandex_bucket_name, voxel_path, '/tmp/voxel.npy')
             img_array = np.load('/tmp/img_array.npy')
@@ -204,9 +209,12 @@ async def read_cloud(save_path: str) -> Tuple[np.ndarray, list]:
             os.remove('/tmp/voxel.npy')
 
 
-async def get_cache_data(data_type: str):
+async def get_cache_data(data_type: str, is_dict_data: bool = True) -> Optional[Any]:
     try:
-        cache_data = redis_client.hgetall(f"{data_type}")
+        if is_dict_data:
+            cache_data = redis_client.hgetall(f"{data_type}")
+        else:
+            cache_data = redis_client.get(f"{data_type}")
         if cache_data:
             return cache_data
         else:
@@ -231,7 +239,28 @@ async def handle_image(image_type: str) -> Union[ImageRaw, str]:
         else:
             return 'Error in read cloud/cache'
     except Exception as e:
-        raise Exception(f"Cache not found: {e}")
+        raise Exception(f"Error in handle image: {e}")
+
+
+async def get_bead_coords():
+    try:
+        bead_coords = await get_cache_data('bead_coords', is_dict_data=False)
+        if bead_coords is not None and len(bead_coords) > 0:
+            return json.loads(bead_coords)
+        else:
+            return []
+    except Exception as e:
+        raise Exception(f"Error in rl_deconvolution: {e}")
+
+
+async def init_bead_extractor(coords: List[Tuple[int, int]] = None) -> ExtractorModel:
+    beads_img = await handle_image(image_type='beads_img')
+    bead_extractor = ExtractorModel()
+    bead_extractor.mainImage = beads_img
+    bead_coords = await get_bead_coords()
+    print(bead_coords)
+    bead_extractor.beadCoords = bead_coords if coords is None else coords
+    return bead_extractor
 
 
 async def rl_deconvolution(model: Union[DeconPsfModel, DeconImageModel], iterations: int,

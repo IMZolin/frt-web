@@ -16,6 +16,7 @@ import SliderContainer from "../../../components/SliderContainer/SliderContainer
 import CustomTextfield from "../../../components/CustomTextfield/CustomTextfield";
 import Downloader from "../../../components/SpecificStep/Downloader/Downloader";
 import Slider from "../../../components/SliderContainer/Slider";
+import TiffExtractor from "../../../components/TiffExtractor";
 
 
 const Deconvolution = () => {
@@ -32,11 +33,11 @@ const Deconvolution = () => {
                 state.setVoxelXY(response.voxel[1]);
             } else {
                 console.log('No voxel data found in the response.');
-                state.setBanner({ status: 'error', message: 'No voxel data found in the response.' });
+                state.setBanner({status: 'error', message: 'No voxel data found in the response.'});
             }
         } catch (error) {
             console.error('Error fetching voxel:', error);
-            state.setBanner({ status: 'error', message: 'Error fetching voxel:' + error.data.message });
+            state.setBanner({status: 'error', message: 'Error fetching voxel:' + error.data.message});
         }
     };
 
@@ -59,18 +60,18 @@ const Deconvolution = () => {
             console.log('Response:', response);
 
             if (response.image_show) {
-                state.setBanner({ status: 'success', message: 'RL deconvolution was successful' });
+                state.setBanner({status: 'success', message: 'RL deconvolution was successful'});
                 const newResult = response.image_show.map((base64Data, index) => {
                     return base64ToTiff(base64Data, 'image/tiff', `rl_decon_img_${index}.tiff`);
                 });
                 state.setResultImage(newResult);
             } else {
                 console.log('No deconvolution result found in the response.');
-                state.setBanner({ status: 'error', message: 'No deconvolution result found in the response.'});
+                state.setBanner({status: 'error', message: 'No deconvolution result found in the response.'});
             }
         } catch (error) {
             console.error('Error in Deconvolution:', error);
-            state.setBanner({ status: 'error', message: 'Error in Deconvolution:', error});
+            state.setBanner({status: 'error', message: 'Error in Deconvolution:', error});
         }
     };
 
@@ -201,18 +202,16 @@ const Deconvolution = () => {
                             </div>
                             <div className="column-2" style={{zIndex: 1}}>
                                 <div className="images__preview">
-                                    <TifCompare2
+                                    <TifCompare
                                         img_1={state.preprocImage}
-                                        img_2={null}
-                                        img_3={state.resultImage}
+                                        img_2={state.resultImage}
                                         img_1_projection={null}
-                                        img_2_projection={state.extractedPSFProjection[0]}
-                                        img_3_projection={null}
+                                        img_2_projection={null}
                                         scale={state.scale}
                                         state={state}
-                                        isSameLength={state.sourceImage.length === state.extractedPSF.length}
-                                        type='deconvolution-2'
-                                        layerColor={'var(--textfield-color)'}
+                                        isSameLength={true}
+                                        type='deconvolution'
+                                        layerColor={state.customTextColor}
                                     />
                                 </div>
                             </div>

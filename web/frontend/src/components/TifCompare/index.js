@@ -13,8 +13,6 @@ const TifCompare = ({ img_1, img_2, img_1_projection, img_2_projection, scale, s
   const img1Scale2 = type === 'deconvolution-2' || (type === 'deconvolution' && img_2_projection === null) ? 0.5 * scale : scale;
   const isImg2 = img_2 !== null;
 
-  console.log(img_2.length, isImg2, layerChanged, img1Scale2, img_2);
-
   return (
     <div className="tif-container" style={{ marginBottom: `${type === 'deconvolution' ? '' : '-100px'}`, marginLeft: `${type === 'deconvolution' ? '120px' : '160px'}` }}>
       <div className="images-container">

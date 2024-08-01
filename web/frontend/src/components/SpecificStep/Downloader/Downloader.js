@@ -26,7 +26,7 @@ const Downloader = ({state, imageType, imagesShow, imagesSave, imageProjection, 
                 />
             </div>
             <div className="column-2" style={{zIndex: 1}}>
-                <div className="images__preview" style={{marginTop: '100px', marginRight: '50px'}}>
+                <div className="images__preview" style={{marginRight: '50px'}}>
                     <TifViewer
                         img={imagesShow[state.layer]}
                         scale={state.scale}
