@@ -20,6 +20,7 @@ class S3Client:
         ) as s3_c:
             try:
                 await s3_c.upload_file(file_path, self.__bucket_name, object_name)
+                print(f"Successfully uploaded the file {object_name} to {file_path}")
             except ClientError as e:
                 raise Exception(f"Error uploading file to S3: {e}")
 
@@ -31,6 +32,7 @@ class S3Client:
         ) as s3_c:
             try:
                 await s3_c.download_file(self.__bucket_name, object_name, file_path)
+                print(f"Successfully downloaded the file {object_name} to {file_path}")
             except ClientError as e:
                 raise Exception(f"Error downloading file from S3: {e}")
 
@@ -42,6 +44,7 @@ class S3Client:
         ) as s3_c:
             try:
                 await s3_c.delete_object(Bucket=self.__bucket_name, Key=object_name)
+                print(f"Successfully deleted the file: {object_name}")
             except ClientError as e:
                 raise Exception(f"Error deleting file from S3: {e}")
 

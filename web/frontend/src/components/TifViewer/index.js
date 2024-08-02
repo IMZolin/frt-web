@@ -1,35 +1,16 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { TIFFViewer } from "react-tiff";
 import "./tif_viewer.css";
 
-const TifViewer = ({ img, scale, brightness, imageProjection }) => {
-  const [imageDimensions, setImageDimensions] = useState({ width: 0, height: 0 });
-
-  if (img) {
-      const image = new Image();
-      image.onload = () => {
-        setImageDimensions({ width: image.width, height: image.height });
-        console.log("width: ", image.width);
-      };
-      image.src = URL.createObjectURL(new Blob([img.data], { type: 'image/tiff' }));
-    }
+const TifViewer = ({ img, scale, brightness, imageProjection, imageName=null }) => {
 
   const handleButtonClick = (e) => {
     e.preventDefault();
   };
 
-  const imageStyle = (width, height) => {
-    if (width > 200 || height > 200) {
-      return { overflow: 'auto', maxWidth: '200px', maxHeight: '200px' };
-    }
-    return {};
-  };
-  if (!img && !imageProjection) {
-    return null;
-  }
-
   return (
     <div className="tif-viewer-container">
+        {imageName}
       <div className="tif-viewer">
         {img ? (
           <TIFFViewer
@@ -39,7 +20,6 @@ const TifViewer = ({ img, scale, brightness, imageProjection }) => {
             buttonColor="#337fd6"
             onClick={handleButtonClick}
             style={{
-              ...imageStyle(imageDimensions.width, imageDimensions.height),
               transform: `scale(${scale})`,
               filter: `brightness(${brightness})`,
               objectFit: 'contain',

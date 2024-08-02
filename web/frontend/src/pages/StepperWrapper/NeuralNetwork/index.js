@@ -11,6 +11,7 @@ import Downloader from "../../../components/SpecificStep/Downloader/Downloader";
 import SliderContainer from "../../../components/SliderContainer/SliderContainer";
 import CustomButton from "../../../components/CustomButton/CustomButton";
 import TifCompare2 from "../../../components/TifCompare2";
+import SurveyBanner from "../../../components/SurveyBanner";
 
 const NeuralNetwork = () => {
     const state = useStateValues();
@@ -74,6 +75,8 @@ const NeuralNetwork = () => {
                             />
                         </div>
                         <div className="column-2" style={{ zIndex: 1 }}>
+                            {state.banner.status && <SurveyBanner status={state.banner.status} message={state.banner.message}
+                                                      onClose={state.closeBanner}/>}
                             <div className="images__preview">
                                 <TifCompare2
                                         img_1={state.preprocImage}

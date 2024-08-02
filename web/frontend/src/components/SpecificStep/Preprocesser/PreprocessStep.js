@@ -1,4 +1,4 @@
-import React, {useRef} from 'react';
+import React from 'react';
 import ChooseList from "../../ChooseList";
 import TifCompare from "../../TifCompare";
 import CustomButton from "../../CustomButton/CustomButton";
@@ -6,12 +6,9 @@ import SliderContainer from "../../SliderContainer/SliderContainer";
 import {base64ToTiff} from "../../../shared/hooks/showImages";
 import useAxiosStore from "../../../app/store/axiosStore";
 import SurveyBanner from "../../SurveyBanner";
-import TiffExtractor from "../../TiffExtractor";
-import TifViewer from "../../TifViewer";
 
 const PreprocessStep = ({state}) => {
     const axiosStore = useAxiosStore();
-    const canvasRef = useRef();
     const handlePreprocessing = async () => {
         console.log("Im trying make preprocessing");
         try {

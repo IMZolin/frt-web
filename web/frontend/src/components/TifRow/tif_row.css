@@ -1,0 +1,9 @@
+.tif-row {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+}
+
+.tif-item {
+    margin: 10px;
+}

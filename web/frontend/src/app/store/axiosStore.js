@@ -61,21 +61,24 @@ const useAxiosStore = create((set, get) => {
         },
 
 
-        getAutosegmentBeads: async (max_area) => {
+        postAutosegmentBeads: async (params) => {
             try {
+                const { max_area } = params;
                 let formData = new FormData();
                 formData.append('max_area', max_area);
-                const response = await axiosInstance.get('/api/autosegment_beads/', formData);
+                const response = await axiosInstance.post('/api/autosegment_beads/', formData);
                 return response.data;
             } catch (error) {
                 throw error;
             }
         },
 
-        calcAverageBead: async (denoise_type) => {
+        calcAverageBead: async (params) => {
             try {
+                const { denoise_type, new_coords } = params;
                 let formData = new FormData();
                 formData.append('denoise_type', denoise_type);
+                formData.append('new_coords', new_coords);
                 const response = await axiosInstance.post('/api/average_beads/', formData);
                 return response.data;
             } catch (error) {

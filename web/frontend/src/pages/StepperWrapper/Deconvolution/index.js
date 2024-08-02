@@ -17,6 +17,9 @@ import CustomTextfield from "../../../components/CustomTextfield/CustomTextfield
 import Downloader from "../../../components/SpecificStep/Downloader/Downloader";
 import Slider from "../../../components/SliderContainer/Slider";
 import TiffExtractor from "../../../components/TiffExtractor";
+import SurveyBanner from "../../../components/SurveyBanner";
+import TifViewer from "../../../components/TifViewer";
+import TifRow from "../../../components/TifRow";
 
 
 const Deconvolution = () => {
@@ -49,6 +52,7 @@ const Deconvolution = () => {
 
     const handleDeconvolve = async () => {
         console.log("Im trying make deconvolve");
+        state.setBanner({status: 'info', message: 'RL deconvolution was started'});
         try {
             const requestData = {
                 iterations: state.iter,
@@ -136,7 +140,9 @@ const Deconvolution = () => {
                                 />
                             </div>
                             <div className="column-2">
-                                {/*{state.banner.status && <SurveyBanner status={state.banner.status} message={state.banner.message} onClose={state.closeBanner} />}*/}
+                                {state.banner.status &&
+                                    <SurveyBanner status={state.banner.status} message={state.banner.message}
+                                                  onClose={state.closeBanner}/>}
                                 <div className="images__preview">
                                     <TifCompare
                                         img_1={state.sourceImage}
@@ -201,17 +207,25 @@ const Deconvolution = () => {
                                 />
                             </div>
                             <div className="column-2" style={{zIndex: 1}}>
+                                {state.banner.status &&
+                                    <SurveyBanner status={state.banner.status} message={state.banner.message}
+                                                  onClose={state.closeBanner}/>}
                                 <div className="images__preview">
-                                    <TifCompare
-                                        img_1={state.preprocImage}
-                                        img_2={state.resultImage}
-                                        img_1_projection={null}
-                                        img_2_projection={null}
-                                        scale={state.scale}
-                                        state={state}
-                                        isSameLength={true}
-                                        type='deconvolution'
-                                        layerColor={state.customTextColor}
+                                    <TifRow
+                                        tifJSXList={[
+                                            <TifViewer
+                                                img={state.preprocImage}
+                                                scale={1}
+                                                brightness={state.levelBrightness}
+                                                imageProjection={null}
+                                            />,
+                                            <TifViewer
+                                                img={state.resultImage}
+                                                scale={1}
+                                                brightness={state.levelBrightness}
+                                                imageProjection={null}
+                                            />
+                                        ]}
                                     />
                                 </div>
                             </div>

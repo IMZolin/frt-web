@@ -150,8 +150,6 @@ async def rl_decon_image(
         await valid_method_name(method=decon_method, method_list=["RL", "RLTMR", "RLTVR"], method_type="decon")
         source_img = await get_source_img()
         psf_raw = await handle_image(image_type='psf')
-        print(psf_raw.GetIntensities(), psf_raw.GetVoxel())
-        print(source_img.GetIntensities(), source_img.GetVoxel())
         rl_deconvolver = DeconImageModel()
         rl_deconvolver.SetDeconPsf(array=psf_raw.GetIntensities(), voxel=psf_raw.GetVoxel())
         rl_deconvolver.SetDeconImage(array=source_img.GetIntensities(), voxel=source_img.GetVoxel())

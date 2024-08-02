@@ -12,6 +12,11 @@ import ImageLoader from "../../../components/SpecificStep/ImageLoader/ImageLoade
 import Downloader from "../../../components/SpecificStep/Downloader/Downloader";
 import CustomButton from "../../../components/CustomButton/CustomButton";
 import SliderContainer from "../../../components/SliderContainer/SliderContainer";
+import SurveyBanner from "../../../components/SurveyBanner";
+import CustomTextfield from "../../../components/CustomTextfield/CustomTextfield";
+import {TIFFViewer} from "react-tiff";
+import TifViewer from "../../../components/TifViewer";
+import TifRow from "../../../components/TifRow";
 
 const BeadExtractor = () => {
     const state = useStateValues();
@@ -71,20 +76,21 @@ const BeadExtractor = () => {
     };
 
     const handleBeadAverage = async () => {
+        state.setBanner({status: 'info', message: 'Bead averaging was started'});
         try {
             const requestData = {
                 denoise_type: state.denoiseType,
+                new_coords: null
             };
 
             const response = await axiosStore.calcAverageBead(requestData);
             console.log('Response:', response);
             if (response.image_show) {
-                // const file = base64ToTiff(response.image_save, 'image/tiff', `avg_bead.tiff`);
+                state.setBanner({status: 'success', message: 'Bead averaging was successful'});
                 const newAverageBead = response.image_show.map((base64Data, index) => {
                     return base64ToTiff(base64Data, 'image/tiff', `avg_bead_${index}.tiff`);
                 });
                 state.setAverageBead(newAverageBead);
-                // state.setAverageBeadSave([file]);
                 if (response.projections) {
                     const newProjection = response.projections.map((base64Data, index) => {
                         return base64ToTiff(base64Data, 'image/tiff', `avg_bead_xyz_${index}.tiff`);
@@ -106,14 +112,16 @@ const BeadExtractor = () => {
     };
 
     const handleBeadAutosegment = async () => {
+        state.setBanner({status: 'info', message: 'Bead auto-segmentation was started'});
         try {
             const requestData = {
                 max_area: state.maxArea,
             };
-            const response = await axiosStore.getAutosegmentBeads(requestData);
+            const response = await axiosStore.postAutosegmentBeads(requestData);
             console.log('Response:', response);
-            if (response.bead_coords) {
 
+            if (response.bead_coords) {
+                state.setBanner({status: 'success', message: 'Bead auto-segmentation was successful'});
             } else {
                 console.log('No bead coordinates found in the response.');
                 window.alert('No bead coordinates found in the response.');
@@ -164,11 +172,17 @@ const BeadExtractor = () => {
                                         handleProcess={state.handleClearMarks}
                                     />
                                 </div>
+                                <CustomTextfield
+                                    label={"Max area"}
+                                    value={state.maxArea}
+                                    setValue={state.setMaxArea}
+                                    placeholder={"Enter a max area"}
+                                />
                                 <CustomButton
-                                        nameBtn={"Auto-segment beads"}
-                                        colorBtn={'var(--button-color2)'}
-                                        handleProcess={handleBeadAutosegment}
-                                    />
+                                    nameBtn={"Auto-segment beads"}
+                                    colorBtn={'var(--button-color2)'}
+                                    handleProcess={handleBeadAutosegment}
+                                />
                                 <ChooseList
                                     className="choose-list"
                                     name="Blur type"
@@ -187,13 +201,25 @@ const BeadExtractor = () => {
                                 </div>
                             </div>
                             <div className="column-2" style={{zIndex: 1, marginLeft: '20px'}}>
+                                {state.banner.status &&
+                                    <SurveyBanner status={state.banner.status} message={state.banner.message}
+                                                  onClose={state.closeBanner}/>}
                                 <div className="images__preview">
-                                    <TiffExtractor
-                                        img={state.beads[state.layer]}
-                                        scale={1}
-                                        state={state}
-                                        canvasRef={canvasRef}
-                                        customBorder={'var(--button-color)'}
+                                    <TifRow
+                                        tifJSXList={[<TiffExtractor
+                                            img={state.beads[state.layer]}
+                                            scale={1}
+                                            state={state}
+                                            canvasRef={canvasRef}
+                                            customBorder={'var(--button-color)'}
+                                        />,
+                                            <TifViewer
+                                                img={state.averageBead[state.layer]}
+                                                scale={5}
+                                                brightness={state.levelBrightness}
+                                                imageProjection={state.averageBeadProjection}
+                                                imageName={'Averaged bead'}
+                                            />]}
                                     />
                                 </div>
                             </div>
