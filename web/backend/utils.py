@@ -1,111 +1,25 @@
-import base64
-import io
 import json
 import os
-from typing import Union, List, Tuple, Any, Optional
+from typing import Tuple, Union
 
-import aioboto3
-from botocore.exceptions import ClientError
 import numpy as np
-import redis
-from fastapi import UploadFile
 
-from config import settings
-from web.backend.engine.src.common.AuxTkPlot_class import AuxCanvasPlot
 from web.backend.engine.src.common.ImageRaw_class import ImageRaw
-from web.backend.engine.src.deconvolutor.decon_image_model import DeconImageModel
-from web.backend.engine.src.deconvolutor.decon_psf_model import DeconPsfModel
-from web.backend.engine.src.extractor.extractor_model import ExtractorModel
-
-redis_client = redis.Redis(host='redis', port=6379, decode_responses=True)
-TIMEOUT = 600
-CHUNK_SIZE = 1024 * 1024
-COMPRESS_QUALITY = 50
-MAX_CACHE_SIZE = 500000
+from web.backend.engine_supporter import generate_projections
+from web.backend.file_manager.file_handler import MAX_CACHE_SIZE, tiff2list, tiff2bytes
+from web.backend.file_manager.redis_manager import pass2cache, get_cache_data
+from web.backend.file_manager.s3_client import s3_client
 
 
-async def save_files(files: List[UploadFile], temp_dir: str):
-    try:
-        file_paths = []
-        for file in files:
-            temp_file = os.path.join(temp_dir, file.filename)
-            with open(temp_file, "wb") as f:
-                while content := await file.read(CHUNK_SIZE):
-                    f.write(content)
-            file_paths.append(temp_file)
-        return file_paths
-    except Exception as e:
-        raise Exception(f"Error in save_files: {e}")
-
-
-async def tiff2list(image):  # list of compressed image layers
-    try:
-        base64_list = []
-        for layer in image:
-            byte_stream = io.BytesIO()
-            layer.save(byte_stream, format='TIFF', quality=COMPRESS_QUALITY)
-            byte_stream.seek(0)
-            base64_string = base64.b64encode(byte_stream.getvalue()).decode('utf-8')
-            base64_list.append(base64_string)
-        return base64_list
-    except Exception as e:
-        raise Exception(f"Error in tiff2byte_list: {e}")
-
-
-async def tiff2bytes(image):  # original multi-layer image
-    try:
-        byte_stream2 = io.BytesIO()
-        image[0].save(byte_stream2, format='TIFF', save_all=True, append_images=image[1:])
-        byte_stream2.seek(0)
-        base64_string2 = base64.b64encode(byte_stream2.getvalue()).decode('utf-8')
-        return base64_string2
-    except Exception as e:
-        raise Exception(f"Error in tiff2bytes: {e}")
-
-
-async def tiff2base64(image, is_compress=True):
-    try:
-        if is_compress:
-            return await tiff2list(image)
-        else:
-            return await tiff2bytes(image)
-    except Exception as e:
-        raise Exception(f"Error in tiff2base64: {e}")
-
-
-def generate_projections(image_raw):
-    try:
-        img_buf = io.BytesIO()
-        projections = AuxCanvasPlot.FigurePILImagekFrom3DArray(image_raw.GetIntensities())
-        if projections is None:
-            return None
-        projections.save(img_buf, format='TIFF')
-        img_buf.seek(0)
-        base64_string = base64.b64encode(img_buf.getvalue()).decode('utf-8')
-        return [base64_string]
-    except Exception as e:
-        raise Exception(f"Error in generate_projections: {e}")
-
-
-def pass2cache(cache_key: str, data: Any, is_dict_data: bool = True):
-    try:
-        if is_dict_data:
-            cache_dict = {key: str(value) for key, value in data.items()}
-            redis_client.hset(cache_key, mapping=cache_dict)
-        else:
-            redis_client.set(cache_key, data)
-        redis_client.expire(cache_key, TIMEOUT)
-        print(f"Successfully saved data in cache by cache key: {cache_key}")
-    except Exception as e:
-        raise Exception(f"Error in pass2cache: {e}")
-
-
-async def set_response(image: ImageRaw, get_projections: bool, is_compress: bool = True) -> dict:
+async def set_response(image: ImageRaw, get_projections: bool, get_compressed: bool = True) -> dict:
     try:
         if image is None:
             raise Exception("Image is None")
         image_tiff = image.SaveAsTiff()
-        images_show = await tiff2base64(image=image_tiff, is_compress=is_compress)
+        if get_compressed:
+            images_show = await tiff2list(image=image_tiff)
+        else:
+            images_show = await tiff2bytes(image=image_tiff)
         response_content = {'image_show': images_show}
         if get_projections:
             response_content['projections'] = generate_projections(image)
@@ -134,44 +48,12 @@ async def save_result(image: ImageRaw, image_type: str):
 
 async def save_cloud(save_path: str, img_array: np.ndarray, voxel: list):
     try:
+        await s3_client.head_bucket()
         np.save('/tmp/img_array.npy', img_array)
         np.save('/tmp/voxel.npy', np.array(voxel))
+        await s3_client.upload_file('/tmp/img_array.npy', f'{save_path}/img_array.npy')
+        await s3_client.upload_file('/tmp/voxel.npy', f'{save_path}/voxel.npy')
 
-        async with aioboto3.Session().client(
-                "s3", endpoint_url=settings.yandex_endpoint,
-                aws_access_key_id=settings.yandex_access_key,
-                aws_secret_access_key=settings.yandex_secret_key
-        ) as s3_client:
-            try:
-                await s3_client.head_bucket(Bucket=settings.yandex_bucket_name)
-                print(f"Successfully connected to bucket: {settings.yandex_bucket_name}")
-            except ClientError as e:
-                if e.response['Error']['Code'] == '403':
-                    raise Exception("Access Denied. Please check your AWS credentials and permissions.")
-                elif e.response['Error']['Code'] == '404':
-                    raise Exception("Bucket does not exist. Please check the bucket name and try again.")
-                else:
-                    raise Exception(f"Unexpected error while checking connection: {e}")
-
-            await s3_client.upload_file('/tmp/img_array.npy', settings.yandex_bucket_name, f'{save_path}/img_array.npy')
-            await s3_client.upload_file('/tmp/voxel.npy', settings.yandex_bucket_name, f'{save_path}/voxel.npy')
-
-    except s3_client.exceptions.NoSuchBucket:
-        raise Exception("No such bucket. Please check the bucket name and try again.")
-    except s3_client.exceptions.NoSuchKey:
-        raise Exception("No such key. Please check the object key and try again.")
-    except s3_client.exceptions.BucketAlreadyExists:
-        raise Exception("Bucket already exists. Please use a different bucket name.")
-    except s3_client.exceptions.BucketAlreadyOwnedByYou:
-        raise Exception("Bucket already owned by you. You can use this bucket.")
-    except s3_client.exceptions.InvalidObjectState:
-        raise Exception("Invalid object state. Please check the object state and try again.")
-    except s3_client.exceptions.NoSuchUpload:
-        raise Exception("No such upload. Please check the upload and try again.")
-    except s3_client.exceptions.ObjectAlreadyInActiveTierError:
-        raise Exception("Object already in active tier.")
-    except s3_client.exceptions.ObjectNotInActiveTierError:
-        raise Exception("Object not in active tier.")
     except Exception as e:
         raise Exception(f"Error in save_cloud: {e}")
     finally:
@@ -183,23 +65,14 @@ async def save_cloud(save_path: str, img_array: np.ndarray, voxel: list):
 
 async def read_cloud(save_path: str) -> Tuple[np.ndarray, list]:
     try:
-        async with aioboto3.Session().client(
-                "s3", endpoint_url=settings.yandex_endpoint,
-                aws_access_key_id=settings.yandex_access_key,
-                aws_secret_access_key=settings.yandex_secret_key
-        ) as s3_client:
-            img_array_path = f'{save_path}/img_array.npy'
-            voxel_path = f'{save_path}/voxel.npy'
-            await s3_client.head_bucket(Bucket=settings.yandex_bucket_name)
-            print(f"Successfully connected to bucket: {settings.yandex_bucket_name}")
-            await s3_client.download_file(settings.yandex_bucket_name, img_array_path, '/tmp/img_array.npy')
-            await s3_client.download_file(settings.yandex_bucket_name, voxel_path, '/tmp/voxel.npy')
-            img_array = np.load('/tmp/img_array.npy')
-            voxel = np.load('/tmp/voxel.npy').tolist()
-            await s3_client.delete_object(Bucket=settings.yandex_bucket_name, Key=img_array_path)
-            await s3_client.delete_object(Bucket=settings.yandex_bucket_name, Key=voxel_path)
-
-            return img_array, voxel
+        await s3_client.head_bucket()
+        img_array_path = f'{save_path}/img_array.npy'
+        voxel_path = f'{save_path}/voxel.npy'
+        await s3_client.download_file(img_array_path, '/tmp/img_array.npy')
+        await s3_client.download_file(voxel_path, '/tmp/voxel.npy')
+        img_array = np.load('/tmp/img_array.npy')
+        voxel = np.load('/tmp/voxel.npy').tolist()
+        return img_array, voxel
     except Exception as e:
         raise Exception(f"Error in read_cloud: {e}")
     finally:
@@ -209,18 +82,15 @@ async def read_cloud(save_path: str) -> Tuple[np.ndarray, list]:
             os.remove('/tmp/voxel.npy')
 
 
-async def get_cache_data(data_type: str, is_dict_data: bool = True) -> Optional[Any]:
+async def clear_cloud(image_type: str):
     try:
-        if is_dict_data:
-            cache_data = redis_client.hgetall(f"{data_type}")
-        else:
-            cache_data = redis_client.get(f"{data_type}")
-        if cache_data:
-            return cache_data
-        else:
-            return None
+        await s3_client.head_bucket()
+        img_array_path = f'{image_type}/img_array.npy'
+        voxel_path = f'{image_type}/voxel.npy'
+        await s3_client.delete_file(img_array_path)
+        await s3_client.delete_file(voxel_path)
     except Exception as e:
-        raise Exception(f"Cache not found: {e}")
+        raise Exception(f"Error in clear_cloud: {e}")
 
 
 async def handle_image(image_type: str) -> Union[ImageRaw, str]:
@@ -240,43 +110,6 @@ async def handle_image(image_type: str) -> Union[ImageRaw, str]:
             return 'Error in read cloud/cache'
     except Exception as e:
         raise Exception(f"Error in handle image: {e}")
-
-
-async def get_bead_coords():
-    try:
-        bead_coords = await get_cache_data('bead_coords', is_dict_data=False)
-        if bead_coords is not None and len(bead_coords) > 0:
-            return json.loads(bead_coords)
-        else:
-            return []
-    except Exception as e:
-        raise Exception(f"Error in rl_deconvolution: {e}")
-
-
-async def init_bead_extractor(coords: List[Tuple[int, int]] = None) -> ExtractorModel:
-    beads_img = await handle_image(image_type='beads_img')
-    bead_extractor = ExtractorModel()
-    bead_extractor.mainImage = beads_img
-    bead_coords = await get_bead_coords()
-    print(bead_coords)
-    bead_extractor.beadCoords = bead_coords if coords is None else coords
-    return bead_extractor
-
-
-async def rl_deconvolution(model: Union[DeconPsfModel, DeconImageModel], iterations: int,
-                           regularization: float, decon_method: str) -> ImageRaw:
-    try:
-        model.iterationNumber = int(iterations)
-        model.regularizationParameter = float(regularization)
-        if isinstance(model, DeconPsfModel):
-            model.CalculatePSF(deconMethodIn=decon_method)
-            res = model.resultImage
-        else:
-            model.DeconvolveImage(deconMethodIn=decon_method)
-            res = model.deconResult.mainImageRaw
-        return res
-    except Exception as e:
-        raise Exception(f"Error in rl_deconvolution: {e}")
 
 
 async def get_source_img():

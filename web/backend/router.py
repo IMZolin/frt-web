@@ -2,7 +2,7 @@ from typing import Optional
 from fastapi import APIRouter
 
 from config import settings
-from web.backend.s3.s3 import S3Client
+from web.backend.file_manager.s3_client import S3Client
 
 
 class Router(APIRouter):

@@ -12,9 +12,11 @@ from web.backend.engine.src.common.DenoiseImage_class import ImageDenoiser
 from web.backend.engine.src.common.ImageRaw_class import ImageRaw
 from web.backend.engine.src.deconvolutor.decon_image_model import DeconImageModel
 from web.backend.engine.src.deconvolutor.decon_psf_model import DeconPsfModel
+from web.backend.engine_supporter import init_bead_extractor, rl_deconvolution
+from web.backend.file_manager.file_handler import save_files
 from web.backend.middlewares import valid_method_name, valid_positive_nums
-from web.backend.utils import get_cache_data, rl_deconvolution, get_source_img, set_response, save_files, \
-    save_result, handle_image, pass2cache, init_bead_extractor
+from web.backend.utils import get_cache_data, get_source_img, set_response, save_result, handle_image, pass2cache, \
+    clear_cloud
 
 router = APIRouter()
 
@@ -49,11 +51,11 @@ async def load_image(
 
 
 @router.get("/api/get_image/")
-async def get_image(image_type: str = Query(...), get_projections: bool = Query(...), is_compress: bool = Query(...)):
+async def get_image(image_type: str = Query(...), get_projections: bool = Query(...), get_compressed: Optional[bool] = Query(True)):
     try:
         image_raw = await handle_image(image_type=image_type)
         if not isinstance(image_raw, str):
-            response_content = await set_response(image_raw, get_projections, is_compress)
+            response_content = await set_response(image=image_raw, get_projections=get_projections, get_compressed=get_compressed)
             if response_content:
                 return JSONResponse(content=response_content)
         else:
@@ -77,14 +79,13 @@ async def get_voxel():
 @router.post("/api/autosegment_beads/")
 async def autosegment_bead(max_area: int = Form(...)):
     try:
-        bead_extractor = await init_bead_extractor()
+        beads_img = await handle_image(image_type='beads_img')
+        bead_extractor = await init_bead_extractor(beads_img)
         bead_extractor.maxArea = max_area
         bead_extractor.AutoSegmentBeads()
         bead_coords = [coord.tolist() if isinstance(coord, np.ndarray) else coord for coord in
                        bead_extractor.beadCoords]
-        print(bead_coords, type(bead_coords))
         bead_coords_str = json.dumps(bead_coords)
-        print(bead_coords_str, type(bead_coords_str))
         pass2cache('bead_coords', bead_coords_str, is_dict_data=False)
         return JSONResponse(content={'bead_coords': bead_coords_str})
     except Exception as e:
@@ -92,16 +93,21 @@ async def autosegment_bead(max_area: int = Form(...)):
 
 
 @router.post("/api/average_beads/")
-async def average_beads(denoise_type: str = Form(...), new_coords: str = Form(...)):
+async def average_beads(denoise_type: str = Form(...), new_coords: Optional[str] = Form(None)):
     try:
         await valid_method_name(method=denoise_type, method_list=["Gaussian", "Median", "Wiener", "Totaial Vartion",
                                                                   "Non-Local Means", "Bilateral",
                                                                   "Wavelet", "none"], method_type="denoise")
-        bead_extractor = await init_bead_extractor(eval(new_coords))
+        beads_img = await handle_image(image_type='beads_img')
+        bead_extractor = await init_bead_extractor(beads_img=beads_img, coords=json.loads(new_coords))
+        for center in bead_extractor.beadCoords:
+            bead_extractor.MarkedBeadExtract(center)
         bead_extractor.BeadsArithmeticMean()
         bead_extractor.BlurAveragedBead(denoise_type)
         avg_bead = bead_extractor.averageBead
-        response_content = await save_result(image=avg_bead, image_type='avg_bead')
+        await save_result(image=avg_bead, image_type='avg_bead')
+        await clear_cloud(image_type='beads_img')
+        response_content = await set_response(image=avg_bead, get_projections=True)
         return JSONResponse(content=response_content)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
