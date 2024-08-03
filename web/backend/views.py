@@ -55,7 +55,8 @@ async def get_image(image_type: str = Query(...), get_projections: bool = Query(
     try:
         image_raw = await handle_image(image_type=image_type)
         if not isinstance(image_raw, str):
-            response_content = await set_response(image=image_raw, get_projections=get_projections, get_compressed=get_compressed)
+            response_content = await set_response(image=image_raw, get_projections=get_projections,
+                                                  get_compressed=get_compressed)
             if response_content:
                 return JSONResponse(content=response_content)
         else:

@@ -45,12 +45,12 @@ const useAxiosStore = create((set, get) => {
 
         getData: async (params) => {
             try {
-                const { image_type, get_projections, is_compress } = params;
+                const { image_type, get_projections, get_compressed } = params;
                 const response = await axiosInstance.get('/api/get_image/', {
                     params: {
                         image_type,
                         get_projections,
-                        is_compress
+                        get_compressed
                     }
                 });
                 return response.data;

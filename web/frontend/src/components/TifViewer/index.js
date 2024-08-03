@@ -2,15 +2,14 @@ import React from "react";
 import { TIFFViewer } from "react-tiff";
 import "./tif_viewer.css";
 
-const TifViewer = ({ img, scale, brightness, imageProjection, imageName=null }) => {
-
+const TifViewer = ({ img, scale, brightness, imageProjection, imageName = null }) => {
   const handleButtonClick = (e) => {
     e.preventDefault();
   };
 
   return (
     <div className="tif-viewer-container">
-        {imageName}
+      {imageName && <h4 className="image-title">{imageName}</h4>}
       <div className="tif-viewer">
         {img ? (
           <TIFFViewer
@@ -24,8 +23,8 @@ const TifViewer = ({ img, scale, brightness, imageProjection, imageName=null }) 
               filter: `brightness(${brightness})`,
               objectFit: 'contain',
               overflow: 'auto',
-              maxWidth: '150px',
-              maxHeight: '150px'
+              width: '100%',
+              height: '100%'
             }}
           />
         ) : null}
@@ -36,7 +35,7 @@ const TifViewer = ({ img, scale, brightness, imageProjection, imageName=null }) 
             paginate="bottom"
             buttonColor="#337fd6"
             onClick={handleButtonClick}
-            style={{ marginLeft: '40px', transform: `scale(0.45)` }}
+            style={{ marginLeft: '40px', transform: `scale(0.45)`, width: '100%', height: '100%' }}
           />
         ) : null}
       </div>

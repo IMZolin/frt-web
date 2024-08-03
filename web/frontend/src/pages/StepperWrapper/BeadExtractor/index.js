@@ -14,9 +14,9 @@ import CustomButton from "../../../components/CustomButton/CustomButton";
 import SliderContainer from "../../../components/SliderContainer/SliderContainer";
 import SurveyBanner from "../../../components/SurveyBanner";
 import CustomTextfield from "../../../components/CustomTextfield/CustomTextfield";
-import {TIFFViewer} from "react-tiff";
 import TifViewer from "../../../components/TifViewer";
 import TifRow from "../../../components/TifRow";
+import BeadCoordinates from "../../../components/BeadCoordinates";
 
 const BeadExtractor = () => {
     const state = useStateValues();
@@ -121,7 +121,29 @@ const BeadExtractor = () => {
             console.log('Response:', response);
 
             if (response.bead_coords) {
-                state.setBanner({status: 'success', message: 'Bead auto-segmentation was successful'});
+                try {
+                const beadCoordsArray = JSON.parse(response.bead_coords);
+
+                if (Array.isArray(beadCoordsArray)) {
+                    const centerExtractBeads = beadCoordsArray.map(coord => {
+                        if (Array.isArray(coord) && coord.length === 2) {
+                            return { x: coord[0], y: coord[1] };
+                        } else {
+                            console.error('Invalid bead coordinate format:', coord);
+                            return null;
+                        }
+                    }).filter(coord => coord !== null);
+
+                    state.setCenterExtractBeads(centerExtractBeads);
+                    state.setBanner({ status: 'success', message: 'Bead auto-segmentation was successful' });
+                } else {
+                    console.error('Parsed bead coordinates are not an array:', beadCoordsArray);
+                    window.alert('Parsed bead coordinates are not an array.');
+                }
+            } catch (error) {
+                console.error('Error parsing bead coordinates:', error);
+                window.alert('Error parsing bead coordinates.');
+            }
             } else {
                 console.log('No bead coordinates found in the response.');
                 window.alert('No bead coordinates found in the response.');
@@ -206,20 +228,25 @@ const BeadExtractor = () => {
                                                   onClose={state.closeBanner}/>}
                                 <div className="images__preview">
                                     <TifRow
-                                        tifJSXList={[<TiffExtractor
-                                            img={state.beads[state.layer]}
-                                            scale={1}
-                                            state={state}
-                                            canvasRef={canvasRef}
-                                            customBorder={'var(--button-color)'}
-                                        />,
+                                        tifJSXList={[
+                                            <TiffExtractor
+                                                img={state.beads[state.layer]}
+                                                scale={1}
+                                                state={state}
+                                                canvasRef={canvasRef}
+                                                customBorder={'var(--button-color)'}
+                                            />,
+                                            <BeadCoordinates
+                                                coordinates={state.centerExtractBeads}
+                                            />,
                                             <TifViewer
                                                 img={state.averageBead[state.layer]}
-                                                scale={5}
+                                                scale={3}
                                                 brightness={state.levelBrightness}
-                                                imageProjection={state.averageBeadProjection}
+                                                imageProjection={state.averageBeadProjection[0]}
                                                 imageName={'Averaged bead'}
-                                            />]}
+                                            />
+                                        ]}
                                     />
                                 </div>
                             </div>
@@ -232,9 +259,10 @@ const BeadExtractor = () => {
                         <Downloader
                             state={state}
                             imagesShow={state.averageBead}
-                            imagesSave={state.averageBeadSave}
+                            imageType={'avg_bead'}
                             imageProjection={state.averageBeadProjection[0]}
                             isScale={true}
+                            nameImage={'Averaged bead'}
                         />
                     </>
                 );

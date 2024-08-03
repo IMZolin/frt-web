@@ -144,16 +144,23 @@ const Deconvolution = () => {
                                     <SurveyBanner status={state.banner.status} message={state.banner.message}
                                                   onClose={state.closeBanner}/>}
                                 <div className="images__preview">
-                                    <TifCompare
-                                        img_1={state.sourceImage}
-                                        img_2={state.extractedPSF}
-                                        img_1_projection={null}
-                                        img_2_projection={state.extractedPSFProjection[0]}
-                                        scale={state.scale}
-                                        state={state}
-                                        isSameLength={state.sourceImage.length === state.extractedPSF.length}
-                                        type='deconvolution'
-                                        layerColor={'var(--textfield-color)'}
+                                    <TifRow
+                                        tifJSXList={[
+                                            <TifViewer
+                                                img={state.sourceImage[state.layer]}
+                                                scale={1}
+                                                brightness={state.levelBrightness}
+                                                imageProjection={null}
+                                                imageName={'Source image'}
+                                            />,
+                                            <TifViewer
+                                                img={state.extractedPSF}
+                                                scale={1}
+                                                brightness={state.levelBrightness}
+                                                imageProjection={state.extractedPSFProjection[0]}
+                                                imageName={'PSF'}
+                                            />
+                                        ]}
                                     />
                                 </div>
                             </div>
@@ -214,16 +221,25 @@ const Deconvolution = () => {
                                     <TifRow
                                         tifJSXList={[
                                             <TifViewer
-                                                img={state.preprocImage}
+                                                img={state.preprocImage[state.layer]}
                                                 scale={1}
                                                 brightness={state.levelBrightness}
                                                 imageProjection={null}
+                                                imageName={'Source image'}
                                             />,
                                             <TifViewer
-                                                img={state.resultImage}
+                                                img={null}
+                                                scale={1}
+                                                brightness={state.levelBrightness}
+                                                imageProjection={state.extractedPSFProjection[0]}
+                                                imageName={'PSF'}
+                                            />,
+                                            <TifViewer
+                                                img={state.resultImage[state.layer]}
                                                 scale={1}
                                                 brightness={state.levelBrightness}
                                                 imageProjection={null}
+                                                imageName={'Deconvolved image'}
                                             />
                                         ]}
                                     />

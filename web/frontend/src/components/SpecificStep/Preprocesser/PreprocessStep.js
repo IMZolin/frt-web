@@ -1,11 +1,12 @@
 import React from 'react';
 import ChooseList from "../../ChooseList";
-import TifCompare from "../../TifCompare";
 import CustomButton from "../../CustomButton/CustomButton";
 import SliderContainer from "../../SliderContainer/SliderContainer";
 import {base64ToTiff} from "../../../shared/hooks/showImages";
 import useAxiosStore from "../../../app/store/axiosStore";
 import SurveyBanner from "../../SurveyBanner";
+import TifViewer from "../../TifViewer";
+import TifRow from "../../TifRow";
 
 const PreprocessStep = ({state}) => {
     const axiosStore = useAxiosStore();
@@ -59,17 +60,23 @@ const PreprocessStep = ({state}) => {
                 {state.banner.status && <SurveyBanner status={state.banner.status} message={state.banner.message}
                                                       onClose={state.closeBanner}/>}
                 <div className="images__preview" style={{marginTop: '60px'}}>
-                    <TifCompare
-                        img_1={state.sourceImage}
-                        img_2={state.preprocImage}
-                        img_1_projection={null}
-                        img_2_projection={null}
-                        scale={state.scale}
-                        state={state}
-                        isSameLength={true}
-                        type='deconvolution'
-                        layerColor={state.customTextColor}
-
+                    <TifRow
+                        tifJSXList={[
+                            <TifViewer
+                                img={state.sourceImage[state.layer]}
+                                scale={1}
+                                brightness={state.levelBrightness}
+                                imageProjection={null}
+                                imageName={'Source image'}
+                            />,
+                            <TifViewer
+                                img={state.preprocImage[state.layer]}
+                                scale={1}
+                                brightness={state.levelBrightness}
+                                imageProjection={null}
+                                imageName={'Denoised image'}
+                            />
+                        ]}
                     />
                 </div>
             </div>

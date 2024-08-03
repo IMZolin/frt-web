@@ -5,9 +5,9 @@
     align-items: center;
     padding: 10px;
     border-radius: 4px;
-    color: #dafffb;
     margin: 10px 0;
     position: relative;
+    font-weight: bold;
 }
 
 .banner.info {
@@ -20,6 +20,7 @@
 
 .banner.success {
     background-color: #9ad294;
+    color: #232d3f;
 }
 
 .banner-close-button {

@@ -58,6 +58,7 @@ const Dropzone = ({
   }, [makePreload]);
 
   const handleAddFiles = async (newFiles) => {
+    state.setBanner({ status: 'info', message: `${nameImage} uploading started` });
     files = [];
     const updatedFiles = newFiles.map((file) => {
       file.id = Math.floor(Math.random() * 10000);
