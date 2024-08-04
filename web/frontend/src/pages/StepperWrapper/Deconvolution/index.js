@@ -1,8 +1,6 @@
 import React, {useEffect} from 'react';
 import StepperWrapper from '..';
 import Dropzone from '../../../components/Dropzone';
-import TifCompare from '../../../components/TifCompare';
-import TifCompare2 from '../../../components/TifCompare2';
 import {useStateValues} from "../state";
 import {base64ToTiff} from '../../../shared/hooks/showImages';
 import useAxiosStore from '../../../app/store/axiosStore';
@@ -16,7 +14,6 @@ import SliderContainer from "../../../components/SliderContainer/SliderContainer
 import CustomTextfield from "../../../components/CustomTextfield/CustomTextfield";
 import Downloader from "../../../components/SpecificStep/Downloader/Downloader";
 import Slider from "../../../components/SliderContainer/Slider";
-import TiffExtractor from "../../../components/TiffExtractor";
 import SurveyBanner from "../../../components/SurveyBanner";
 import TifViewer from "../../../components/TifViewer";
 import TifRow from "../../../components/TifRow";
@@ -221,11 +218,11 @@ const Deconvolution = () => {
                                     <TifRow
                                         tifJSXList={[
                                             <TifViewer
-                                                img={state.preprocImage[state.layer]}
+                                                img={state.preprocImage ? state.preprocImage[state.layer] : state.sourceImage[state.layer]}
                                                 scale={1}
                                                 brightness={state.levelBrightness}
                                                 imageProjection={null}
-                                                imageName={'Source image'}
+                                                imageName={state.preprocImage ? 'Denoised image' : 'Source image'}
                                             />,
                                             <TifViewer
                                                 img={null}
@@ -254,9 +251,10 @@ const Deconvolution = () => {
                         <Downloader
                             state={state}
                             imagesShow={state.resultImage}
-                            imagesSave={state.resultImageSave}
+                            imageType={'rl_decon_img'}
                             imageProjection={null}
                             isScale={false}
+                            nameImage={'RL Deconvolved image'}
                         />
                     </>
                 );

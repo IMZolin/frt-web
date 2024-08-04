@@ -20,7 +20,6 @@ async def set_response(image: ImageRaw, get_projections: bool, get_compressed: b
             images_show = await tiff2list(image=image_tiff)
         else:
             images_show = await tiff2bytes(image=image_tiff)
-            print(images_show)
         response_content = {'image_show': images_show}
         if get_projections:
             response_content['projections'] = generate_projections(image)

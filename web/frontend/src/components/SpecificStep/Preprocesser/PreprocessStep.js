@@ -11,7 +11,7 @@ import TifRow from "../../TifRow";
 const PreprocessStep = ({state}) => {
     const axiosStore = useAxiosStore();
     const handlePreprocessing = async () => {
-        console.log("Im trying make preprocessing");
+        state.setBanner({status: 'info', message: 'Image preprocessing started'});
         try {
 
             const response = await axiosStore.preprocessImage(state.denoiseType);

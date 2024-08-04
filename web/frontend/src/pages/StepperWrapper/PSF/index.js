@@ -1,6 +1,5 @@
 import React from 'react';
 import StepperWrapper from '../../StepperWrapper';
-import TifCompare from '../../../components/TifCompare';
 import ChooseList from '../../../components/ChooseList';
 import {useStateValues} from "../state";
 import {base64ToTiff} from '../../../shared/hooks/showImages';
@@ -13,6 +12,8 @@ import CustomButton from "../../../components/CustomButton/CustomButton";
 import SliderContainer from "../../../components/SliderContainer/SliderContainer";
 import CustomTextfield from "../../../components/CustomTextfield/CustomTextfield";
 import SurveyBanner from "../../../components/SurveyBanner";
+import TifViewer from "../../../components/TifViewer";
+import TifRow from "../../../components/TifRow";
 
 
 const StepperPSF = () => {
@@ -129,16 +130,23 @@ const StepperPSF = () => {
                                 {state.banner.status &&
         <SurveyBanner status={state.banner.status} message={state.banner.message} onClose={state.closeBanner} />}
                                 <div className="images__preview" style={{marginTop: '-150px'}}>
-                                    <TifCompare
-                                        img_1={state.averageBead}
-                                        img_2={state.extractedPSF}
-                                        img_1_projection={state.averageBeadProjection[0]}
-                                        img_2_projection={state.extractedPSFProjection[0]}
-                                        scale={5}
-                                        state={state}
-                                        isSameLength={true}
-                                        type='psf'
-                                        layerColor={state.customTextColor}
+                                    <TifRow
+                                        tifJSXList={[
+                                            <TifViewer
+                                                img={state.averageBead[state.layer]}
+                                                scale={3}
+                                                brightness={state.levelBrightness}
+                                                imageProjection={null}
+                                                imageName={'Averaged bead'}
+                                            />,
+                                            <TifViewer
+                                                img={state.extractedPSF[state.layer]}
+                                                scale={3}
+                                                brightness={state.levelBrightness}
+                                                imageProjection={state.extractedPSFProjection[0]}
+                                                imageName={'PSF'}
+                                            />
+                                        ]}
                                     />
                                 </div>
                             </div>
@@ -151,9 +159,10 @@ const StepperPSF = () => {
                         <Downloader
                             state={state}
                             imagesShow={state.extractedPSF}
-                            imagesSave={state.extractedPSFSave}
+                            imageType={'psf'}
                             imageProjection={state.extractedPSFProjection[0]}
                             isScale={true}
+                            nameImage={'PSF'}
                         />
                     </>
                 );

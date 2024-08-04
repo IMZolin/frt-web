@@ -190,7 +190,7 @@ async def cnn_decon_image():
         cnn_deconvolver = CNNDeconvModel()
         cnn_deconvolver.deconImage = source_img
         cnn_deconvolver.DeconvolveImage()
-        decon_img = cnn_deconvolver.deconResult.mainImageRaw
+        decon_img = cnn_deconvolver.deconResult
         response_content = await set_response(image=decon_img, get_projections=False)
         await save_result(image=decon_img, image_type='cnn_decon_img')
         return JSONResponse(content=response_content)
