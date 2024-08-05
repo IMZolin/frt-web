@@ -4,7 +4,7 @@ import "../../../pages/StepperWrapper/stepper.css"
 import VoxelBox from "../../VoxelBox/VoxelBox";
 
 
-const ImageLoader = ({state, imageType, nameImage, makePreload, setFiles, getProjections, addProjections, isVoxel = true}) => {
+const ImageLoader = ({state, imageType, nameImage, makePreload, setFiles, getProjections, addProjections, addDimensions, isVoxel = true}) => {
 
 
     return (
@@ -28,6 +28,7 @@ const ImageLoader = ({state, imageType, nameImage, makePreload, setFiles, getPro
                     nameImage={nameImage}
                     makePreload={makePreload}
                     state={state}
+                    addDimensions={addDimensions}
                 />
             </div>
         </div>

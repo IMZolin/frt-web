@@ -20,12 +20,15 @@ async def set_response(image: ImageRaw, get_projections: bool, get_compressed: b
             images_show = await tiff2list(image=image_tiff)
         else:
             images_show = await tiff2bytes(image=image_tiff)
-        response_content = {'image_show': images_show}
+        response_content = {
+            'image_show': images_show,
+            'dimensions': image.GetImageShape()
+        }
         if get_projections:
             response_content['projections'] = generate_projections(image)
         return response_content
     except Exception as e:
-        raise Exception(f"Error in save_result: {e}")
+        raise Exception(f"Error in set_response: {e}")
 
 
 async def save_result(image: ImageRaw, image_type: str):
@@ -122,5 +125,7 @@ async def get_source_img():
             return denoised_img
         elif noisy_img is not None:
             return noisy_img
+        else:
+            raise Exception("Source image is None")
     except Exception as e:
         raise Exception(f"Error in get_source_img: {e}")

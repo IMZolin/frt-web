@@ -68,6 +68,7 @@ const PreprocessStep = ({state}) => {
                                 brightness={state.levelBrightness}
                                 imageProjection={null}
                                 imageName={'Source image'}
+                                imageDimensions={state.imageDimensions}
                             />,
                             <TifViewer
                                 img={state.preprocImage[state.layer]}
@@ -75,6 +76,7 @@ const PreprocessStep = ({state}) => {
                                 brightness={state.levelBrightness}
                                 imageProjection={null}
                                 imageName={'Denoised image'}
+                                imageDimensions={state.imageDimensions}
                             />
                         ]}
                     />

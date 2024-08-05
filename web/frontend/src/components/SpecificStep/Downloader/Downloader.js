@@ -7,7 +7,7 @@ import CustomButton from "../../CustomButton/CustomButton";
 import {handleDownloadFile} from "./hook";
 import useAxiosStore from "../../../app/store/axiosStore";
 
-const Downloader = ({state, imageType, imagesShow, imageProjection, nameImage, isScale}) =>{
+const Downloader = ({state, imageType, imagesShow, imageProjection, imageDimensions, nameImage, isScale}) =>{
     const axiosStore = useAxiosStore();
 
     const handleDownload = async () => {
@@ -59,6 +59,7 @@ const Downloader = ({state, imageType, imagesShow, imageProjection, nameImage, i
                         scale={state.scale}
                         brightness={state.levelBrightness}
                         imageProjection={imageProjection}
+                        imageDimensions={imageDimensions}
                     />
                 </div>
             </div>

@@ -4,8 +4,6 @@
   justify-content: flex-start;
   align-items: center;
   position: relative;
-  border: 1px solid var(--button-color);
-  padding: 10px;
   flex: 1;
   height: 100%;
 }

@@ -41,7 +41,7 @@ const Authors = () => {
                 <CustomButton
                     nameBtn={"Send an email to the Support Service"}
                     colorBtn={'var(--button-color2)'}
-                    handleProcess={() => window.location.href = 'mailto:support@example.com'}
+                    handleProcess={() => window.location.href = 'mailto:labid.services@yandex.ru'}
                 />
             </div>
             Copyright © 2024 <a

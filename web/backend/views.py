@@ -27,8 +27,7 @@ async def load_image(
         image_type: str = Form(...),
         voxel_xy: Optional[float] = Form(None),
         voxel_z: Optional[float] = Form(None),
-        get_projections: bool = Form(False),
-
+        get_projections: bool = Form(False)
 ):
     temp_dir = tempfile.TemporaryDirectory()
     try:
@@ -188,9 +187,13 @@ async def cnn_decon_image():
     try:
         source_img = await get_source_img()
         cnn_deconvolver = CNNDeconvModel()
-        cnn_deconvolver.deconImage = source_img
+        cnn_deconvolver.SetDeconImage(array=source_img.GetIntensities(), voxel=source_img.GetVoxel())
         cnn_deconvolver.DeconvolveImage()
         decon_img = cnn_deconvolver.deconResult
+        print(decon_img)
+        # print(cnn_deconvolver._deconResult)
+        if decon_img is None:
+            raise Exception("Deconvolved image is None")
         response_content = await set_response(image=decon_img, get_projections=False)
         await save_result(image=decon_img, image_type='cnn_decon_img')
         return JSONResponse(content=response_content)

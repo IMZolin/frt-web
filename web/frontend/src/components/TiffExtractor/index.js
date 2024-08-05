@@ -1,16 +1,12 @@
 import React, { useEffect } from 'react';
-import TifViewer from '../TifViewer';
 import useBeadMark from './hook';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import './tiff_extractor.css';
+import {TIFFViewer} from "react-tiff";
 
-const TiffExtractor = ({ img, scale, state, canvasRef, customBorder }) => {
+const TiffExtractor = ({ img, scale, state, canvasRef}) => {
   const markBead = useBeadMark(state);
-
-  useEffect(() => {
-    console.log(img);
-  }, [img]);
 
   if (!img) {
     return null;
@@ -20,10 +16,15 @@ const TiffExtractor = ({ img, scale, state, canvasRef, customBorder }) => {
     e.preventDefault();
     const canvas = canvasRef.current;
     if (!canvas) return;
+
     const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    const centerCoords = await markBead(x, y, state.selectSize);
+    const scrollLeft = canvas.scrollLeft;
+    const scrollTop = canvas.scrollTop;
+    console.log(state.beadsDimensions);
+    const x = (e.clientX - rect.left + scrollLeft) * (state.beadsDimensions[2] / canvas.width);
+    const y = (e.clientY - rect.top + scrollTop) * (state.beadsDimensions[1] / canvas.height);
+
+    const centerCoords = await markBead(img, x, y, state.selectSize);
     if (centerCoords) {
       state.setCenterExtractBeads((prevCenterExtractBeads) => [
         ...prevCenterExtractBeads,
@@ -33,26 +34,36 @@ const TiffExtractor = ({ img, scale, state, canvasRef, customBorder }) => {
       state.drawSquare(centerCoords.x, centerCoords.y, state.selectSize, canvasRef);
     }
   };
-
   return (
-      <div className="tiff-canvas">
-          <canvas
-              ref={canvasRef}
-              width={state.resolution[2]}
-              height={state.resolution[2]}
-              style={{
-                  position: 'absolute',
-                  border: '1px solid black',
-                  zIndex: 3,
-                  top: 0,
-                  left: 0,
-                  cursor: 'crosshair',
-                  background: 'transparent',
-              }}
-              onClick={handleDrawClick}
-          />
-          <TifViewer img={img} scale={scale} brightness={state.levelBrightness} imageProjection={null}/>
+      <div className="tiff-wrapper">
+          <h4 className="image-title">Beads image</h4>
+          <div className="tiff-canvas">
+              <canvas
+                  ref={canvasRef}
+                  width={state.beadsDimensions[2]}
+                  height={state.beadsDimensions[1]}
+                  style={{
+                      position: 'absolute',
+                      border: '1px solid black',
+                      zIndex: 3,
+                      cursor: 'crosshair',
+                      background: 'transparent',
+                      overflow: 'auto',
+                      top: 0,
+                      left: 0,
+                  }}
+                  onClick={(e) => handleDrawClick(e, canvasRef)}
+              />
+              <TIFFViewer
+                  key={img.id}
+                  tiff={img.data}
+                  paginate="bottom"
+                  buttonColor="#337fd6"
+                  onClick={null}
+              />
+          </div>
       </div>
+
   );
 };
 

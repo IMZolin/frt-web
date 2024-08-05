@@ -90,6 +90,7 @@ const Deconvolution = () => {
                             isVoxel={false}
                             nameImage={'PSF'}
                             makePreload={true}
+                            addDimensions={state.setPsfDimensions}
                         />
                     </>
                 );
@@ -134,6 +135,7 @@ const Deconvolution = () => {
                                     nameImage={'Source image'}
                                     makePreload={false}
                                     state={state}
+                                    addDimensions={state.setImageDimensions}
                                 />
                             </div>
                             <div className="column-2">
@@ -149,6 +151,7 @@ const Deconvolution = () => {
                                                 brightness={state.levelBrightness}
                                                 imageProjection={null}
                                                 imageName={'Source image'}
+                                                imageDimensions={state.imageDimensions}
                                             />,
                                             <TifViewer
                                                 img={state.extractedPSF}
@@ -156,6 +159,7 @@ const Deconvolution = () => {
                                                 brightness={state.levelBrightness}
                                                 imageProjection={state.extractedPSFProjection[0]}
                                                 imageName={'PSF'}
+                                                imageDimensions={state.psfDimensions}
                                             />
                                         ]}
                                     />
@@ -223,6 +227,7 @@ const Deconvolution = () => {
                                                 brightness={state.levelBrightness}
                                                 imageProjection={null}
                                                 imageName={state.preprocImage ? 'Denoised image' : 'Source image'}
+                                                imageDimensions={state.imageDimensions}
                                             />,
                                             <TifViewer
                                                 img={null}
@@ -230,6 +235,7 @@ const Deconvolution = () => {
                                                 brightness={state.levelBrightness}
                                                 imageProjection={state.extractedPSFProjection[0]}
                                                 imageName={'PSF'}
+                                                imageDimensions={state.psfDimensions}
                                             />,
                                             <TifViewer
                                                 img={state.resultImage[state.layer]}
@@ -237,6 +243,7 @@ const Deconvolution = () => {
                                                 brightness={state.levelBrightness}
                                                 imageProjection={null}
                                                 imageName={'Deconvolved image'}
+                                                imageDimensions={state.imageDimensions}
                                             />
                                         ]}
                                     />
@@ -255,6 +262,7 @@ const Deconvolution = () => {
                             imageProjection={null}
                             isScale={false}
                             nameImage={'RL Deconvolved image'}
+                            imageDimensions={state.imageDimensions}
                         />
                     </>
                 );

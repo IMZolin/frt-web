@@ -69,6 +69,7 @@ const StepperPSF = () => {
                             isVoxel={false}
                             nameImage={'Averaged bead'}
                             makePreload={true}
+                            addDimensions={state.setPsfDimensions}
                         />
                     </>
                 );
@@ -129,15 +130,16 @@ const StepperPSF = () => {
                             <div className="column-2">
                                 {state.banner.status &&
         <SurveyBanner status={state.banner.status} message={state.banner.message} onClose={state.closeBanner} />}
-                                <div className="images__preview" style={{marginTop: '-150px'}}>
+                                <div className="images__preview">
                                     <TifRow
                                         tifJSXList={[
                                             <TifViewer
                                                 img={state.averageBead[state.layer]}
                                                 scale={3}
                                                 brightness={state.levelBrightness}
-                                                imageProjection={null}
+                                                imageProjection={state.averageBeadProjection[0]}
                                                 imageName={'Averaged bead'}
+                                                imageDimensions={state.psfDimensions}
                                             />,
                                             <TifViewer
                                                 img={state.extractedPSF[state.layer]}
@@ -145,6 +147,7 @@ const StepperPSF = () => {
                                                 brightness={state.levelBrightness}
                                                 imageProjection={state.extractedPSFProjection[0]}
                                                 imageName={'PSF'}
+                                                imageDimensions={state.psfDimensions}
                                             />
                                         ]}
                                     />
@@ -163,6 +166,7 @@ const StepperPSF = () => {
                             imageProjection={state.extractedPSFProjection[0]}
                             isScale={true}
                             nameImage={'PSF'}
+                            imageDimensions={state.psfDimensions}
                         />
                     </>
                 );

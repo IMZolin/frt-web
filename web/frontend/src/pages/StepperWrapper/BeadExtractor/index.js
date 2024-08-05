@@ -24,54 +24,50 @@ const BeadExtractor = () => {
     const axiosStore = useAxiosStore();
     const canvasRef = useRef();
     const markBead = useBeadMark();
-
-
-    const handleBeadMark = async () => {
+    const handleBeadAutosegment = async () => {
+        state.setBanner({status: 'info', message: 'Bead auto-segmentation was started'});
         try {
-            if (state.centerExtractBeads.length > 0) {
-                for (const beadCoords of state.centerExtractBeads) {
-                    await state.handleAllDrawClick(canvasRef, beadCoords.x, beadCoords.y, markBead);
+            const requestData = {
+                max_area: state.maxArea,
+            };
+            const response = await axiosStore.postAutosegmentBeads(requestData);
+            console.log('Response:', response);
+
+            if (response.bead_coords) {
+                try {
+                    const beadCoordsArray = JSON.parse(response.bead_coords);
+                    if (Array.isArray(beadCoordsArray)) {
+                        const centerExtractBeads = beadCoordsArray.map(coord => {
+                            if (Array.isArray(coord) && coord.length === 2) {
+                                return {x: coord[0], y: coord[1]};
+                            } else {
+                                console.error('Invalid bead coordinate format:', coord);
+                                return null;
+                            }
+                        }).filter(coord => coord !== null);
+
+                        state.setCenterExtractBeads(centerExtractBeads);
+                        const drawPromises = centerExtractBeads.map(beadCoords =>
+                            state.handleAllDrawClick(canvasRef, beadCoords.x, beadCoords.y, markBead)
+                        );
+                        await Promise.all(drawPromises);
+
+                        state.setBanner({status: 'success', message: 'Bead auto-segmentation was successful'});
+                    } else {
+                        console.error('Parsed bead coordinates are not an array:', beadCoordsArray);
+                        window.alert('Parsed bead coordinates are not an array.');
+                    }
+                } catch (error) {
+                    console.error('Error parsing bead coordinates:', error);
+                    window.alert('Error parsing bead coordinates.');
                 }
             } else {
-                console.log('No beads to mark.');
+                console.log('No bead coordinates found in the response.');
+                window.alert('No bead coordinates found in the response.');
             }
         } catch (error) {
-            console.error('Error in Bead Mark:', error);
-            window.alert('Error in Bead Mark: ', error.response);
-        }
-    };
-    useEffect(() => {
-        if (state.activeStep === 1) {
-            handleBeadMark();
-        }
-    }, [state.activeStep]);
-
-    const handleBeadExtract = async () => {
-        try {
-            const beadCoordsStr = state.centerExtractBeads.map(({x, y}) => `[${x}, ${y}]`).join(', ');
-
-            const requestData = {
-                select_size: state.selectSize,
-                bead_coords: `[${beadCoordsStr}]`,
-            };
-
-            const response = await axiosStore.postBeadExtract(requestData);
-            console.log('Response:', response);
-            if (response.extracted_beads) {
-                const newExtractBeads = response.extracted_beads.map((base64Data, index) => {
-                    return base64ToTiff(base64Data, 'image/tiff', `extracted_bead_${index}.tiff`);
-                });
-
-                state.setExtractBeads(newExtractBeads);
-                console.log(state.extractBeads);
-                window.alert(`Beads extracting successfully: ${response.extracted_beads.length} beads`);
-            } else {
-                console.log('No extracted beads found in the response.');
-                window.alert('No extracted beads found in the response.');
-            }
-        } catch (error) {
-            console.error('Error in Bead extraction: ', error);
-            window.alert('Error in Bead extraction: ' + error.response);
+            console.error('Error in Bead Autosegmentation:', error);
+            window.alert('Error in Bead Autosegmentation: ' + error.response);
         }
     };
 
@@ -111,49 +107,6 @@ const BeadExtractor = () => {
         }
     };
 
-    const handleBeadAutosegment = async () => {
-        state.setBanner({status: 'info', message: 'Bead auto-segmentation was started'});
-        try {
-            const requestData = {
-                max_area: state.maxArea,
-            };
-            const response = await axiosStore.postAutosegmentBeads(requestData);
-            console.log('Response:', response);
-
-            if (response.bead_coords) {
-                try {
-                const beadCoordsArray = JSON.parse(response.bead_coords);
-
-                if (Array.isArray(beadCoordsArray)) {
-                    const centerExtractBeads = beadCoordsArray.map(coord => {
-                        if (Array.isArray(coord) && coord.length === 2) {
-                            return { x: coord[0], y: coord[1] };
-                        } else {
-                            console.error('Invalid bead coordinate format:', coord);
-                            return null;
-                        }
-                    }).filter(coord => coord !== null);
-
-                    state.setCenterExtractBeads(centerExtractBeads);
-                    state.setBanner({ status: 'success', message: 'Bead auto-segmentation was successful' });
-                } else {
-                    console.error('Parsed bead coordinates are not an array:', beadCoordsArray);
-                    window.alert('Parsed bead coordinates are not an array.');
-                }
-            } catch (error) {
-                console.error('Error parsing bead coordinates:', error);
-                window.alert('Error parsing bead coordinates.');
-            }
-            } else {
-                console.log('No bead coordinates found in the response.');
-                window.alert('No bead coordinates found in the response.');
-            }
-        } catch (error) {
-            console.error('Error in Bead Autosegmentation:', error);
-            window.alert('Error in Bead Autosegmentation: ' + error.response);
-        }
-    };
-
     function getStepContent(step) {
         switch (step) {
             case steps.indexOf('Load beads'):
@@ -168,6 +121,7 @@ const BeadExtractor = () => {
                             isVoxel={true}
                             nameImage={'Beads image'}
                             makePreload={false}
+                            addDimensions={state.setBeadsDimensions}
                         />
                     </>
                 );
@@ -186,14 +140,20 @@ const BeadExtractor = () => {
                                     <CustomButton
                                         nameBtn={"Undo mark"}
                                         colorBtn={'var(--button-color)'}
-                                        handleProcess={state.handleUndoMark}
+                                        handleProcess={(e) => state.handleUndoMark(e, canvasRef)}
                                     />
                                     <CustomButton
                                         nameBtn={"Clear all marks"}
                                         colorBtn={'var(--button-color)'}
-                                        handleProcess={state.handleClearMarks}
+                                        handleProcess={(e) => state.handleClearMarks(e, canvasRef)}
                                     />
                                 </div>
+                                <CustomTextfield
+                                    label={"Box size"}
+                                    value={state.selectSize}
+                                    setValue={state.setSelectSize}
+                                    placeholder={"Enter a select size"}
+                                />
                                 <CustomTextfield
                                     label={"Max area"}
                                     value={state.maxArea}
@@ -234,7 +194,6 @@ const BeadExtractor = () => {
                                                 scale={1}
                                                 state={state}
                                                 canvasRef={canvasRef}
-                                                customBorder={'var(--button-color)'}
                                             />,
                                             <BeadCoordinates
                                                 coordinates={state.centerExtractBeads}
@@ -245,6 +204,7 @@ const BeadExtractor = () => {
                                                 brightness={state.levelBrightness}
                                                 imageProjection={state.averageBeadProjection[0]}
                                                 imageName={'Averaged bead'}
+                                                imageDimensions={state.psfDimensions}
                                             />
                                         ]}
                                     />
@@ -263,6 +223,7 @@ const BeadExtractor = () => {
                             imageProjection={state.averageBeadProjection[0]}
                             isScale={true}
                             nameImage={'Averaged bead'}
+                            imageDimensions={state.psfDimensions}
                         />
                     </>
                 );

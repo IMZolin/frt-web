@@ -59,6 +59,7 @@ const NeuralNetwork = () => {
                         isVoxel={true}
                         nameImage={'Source image'}
                         makePreload={false}
+                        addDimensions={state.setImageDimensions}
                     />
                 );
             case steps.indexOf('Preprocessing'):
@@ -93,6 +94,7 @@ const NeuralNetwork = () => {
                                             brightness={state.levelBrightness}
                                             imageProjection={null}
                                             imageName={state.preprocImage ? 'Denoised image' : 'Source image'}
+                                            imageDimensions={state.imageDimensions}
                                         />,
                                         <TifViewer
                                             img={state.resultImage[state.layer]}
@@ -100,6 +102,7 @@ const NeuralNetwork = () => {
                                             brightness={state.levelBrightness}
                                             imageProjection={null}
                                             imageName={'Deconvolved image'}
+                                            imageDimensions={state.imageDimensions}
                                         />
                                     ]}
                                 />
@@ -116,6 +119,7 @@ const NeuralNetwork = () => {
                         imageProjection={null}
                         isScale={false}
                         nameImage={'CNN Deconvolved image'}
+                        imageDimensions={state.imageDimensions}
                     />
                 );
             default:

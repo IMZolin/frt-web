@@ -23,7 +23,6 @@ const useAxiosStore = create((set, get) => {
             const {files, image_type, voxel_xy, voxel_z, get_projections} = params;
 
             let formData = new FormData();
-            console.log(params);
             files.forEach((fileItem) => {
                 formData.append('files', fileItem);
             });

@@ -1,14 +1,19 @@
-.tiff-wrapper {
-
-    margin: auto;
-    margin-left: -10px;
-    padding: 10px;
-    border-radius: 1%;
-}
-
 .tiff-canvas{
     position: relative;
     overflow: auto;
-    height: 300px;
     width: 300px;
+    height: 300px;
+    border: 1px solid  var(--button-color);
+    border-radius: 1%;
+
+}
+.image-title{
+    justify-content: center;
+    margin-bottom: 10px;
+    margin-top: auto;
+}
+
+.tiff-wrapper{
+    margin: auto;
+    border-radius: 1%;
 }

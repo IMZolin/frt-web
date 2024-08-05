@@ -21,3 +21,7 @@
 .bead-coordinate-item:last-child {
   border-bottom: none;
 }
+
+h4{
+  text-align: center;
+}

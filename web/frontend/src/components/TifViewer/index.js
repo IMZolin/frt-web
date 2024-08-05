@@ -2,9 +2,29 @@ import React from "react";
 import { TIFFViewer } from "react-tiff";
 import "./tif_viewer.css";
 
-const TifViewer = ({ img, scale, brightness, imageProjection, imageName = null }) => {
+const TifViewer = ({ img, scale, brightness, imageProjection, imageName = null, imageDimensions }) => {
   const handleButtonClick = (e) => {
     e.preventDefault();
+  };
+
+  const isLargeImage = imageDimensions.length >= 3 && (imageDimensions[1] > 200 || imageDimensions[2] > 200);
+  console.log(isLargeImage);
+  const viewerStyle = {
+    transform: `scale(${scale})`,
+    filter: `brightness(${brightness})`,
+    objectFit: 'contain',
+    overflow: isLargeImage ? 'auto' : 'hidden',
+    width: isLargeImage ? '300px' : '100%',
+    height: isLargeImage ? '300px' : '100%'
+  };
+
+  const projectionStyle = {
+    marginLeft: '40px',
+    transform: `scale(0.45)`,
+    width: '100%',
+    height: '100%',
+    objectFit: 'contain',
+    overflow: 'auto'
   };
 
   return (
@@ -18,14 +38,7 @@ const TifViewer = ({ img, scale, brightness, imageProjection, imageName = null }
             paginate="bottom"
             buttonColor="#337fd6"
             onClick={handleButtonClick}
-            style={{
-              transform: `scale(${scale})`,
-              filter: `brightness(${brightness})`,
-              objectFit: 'contain',
-              overflow: 'auto',
-              width: '100%',
-              height: '100%'
-            }}
+            style={viewerStyle}
           />
         ) : null}
         {imageProjection ? (
@@ -35,7 +48,7 @@ const TifViewer = ({ img, scale, brightness, imageProjection, imageName = null }
             paginate="bottom"
             buttonColor="#337fd6"
             onClick={handleButtonClick}
-            style={{ marginLeft: '40px', transform: `scale(0.45)`, width: '100%', height: '100%' }}
+            style={projectionStyle}
           />
         ) : null}
       </div>

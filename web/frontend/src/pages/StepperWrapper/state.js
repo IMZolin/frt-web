@@ -60,6 +60,9 @@ export const defaultValues = {
     sourceImageSave: [],
     model: [],
     scaleCompare: 5,
+    imageDimensions: [],
+    beadsDimensions: [],
+    psfDimensions: [],
 
     customTextColor: getComputedStyle(document.documentElement).getPropertyValue('--text-color-light'),
     customBorder: getComputedStyle(document.documentElement).getPropertyValue('--button-text-color-light'),
@@ -82,8 +85,13 @@ export const useStateValues = () => {
     const [resolution, setResolution] = useState(defaultValues.resolution);
     const [resolution2, setResolution2] = useState(defaultValues.resolution2);
     const [marginTop, setMarginTop] = useState(defaultValues.marginTop);
+    const [imageDimensions, setImageDimensions] = useState(defaultValues.imageDimensions);
+
     //Bead extraction
     const [beads, setBeads] = useState(defaultValues.beads);
+    const [beadsDimensions, setBeadsDimensions] = useState(defaultValues.beadsDimensions);
+    const [psfDimensions, setPsfDimensions] = useState(defaultValues.psfDimensions);
+
     const [beadsSave, setBeadsSave] = useState(defaultValues.beadsSave);
     const [voxelXY, setVoxelXY] = useState(defaultValues.voxelXY);
     const [voxelX, setVoxelX] = useState(defaultValues.voxelX);
@@ -236,10 +244,6 @@ export const useStateValues = () => {
         const centerCoords = await markBead(x, y, selectSize);
         drawSquare(centerCoords.x, centerCoords.y, selectSize, canvasRef);
     };
-
-    // useEffect(() => {
-    //     console.log(centerExtractBeads, resolution);
-    // }, [centerExtractBeads, resolution]);
 
     const handleDarkModeToggle = () => {
         setDarkMode(!darkMode);
@@ -435,6 +439,12 @@ export const useStateValues = () => {
         setCustomBorder2,
         darkMode,
         setDarkMode,
-        handleDarkModeToggle
+        handleDarkModeToggle,
+        imageDimensions,
+        setImageDimensions,
+        beadsDimensions,
+        setBeadsDimensions,
+        psfDimensions,
+        setPsfDimensions
     };
 };

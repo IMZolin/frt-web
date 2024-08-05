@@ -48,26 +48,3 @@ export function base64ToTiff(base64Data, contentType, name) {
   const id = Math.floor(Math.random() * 10000);
   return { data: `data:image/tiff;base64,${base64Data}`, file: file, id: id };
 }
-
-export const getImageResolutionFromSize = (fileSizeInBytes, colorDepth, numChannels) => {
-  const bitsPerPixel = colorDepth * numChannels;
-  const totalPixels = fileSizeInBytes * 8 / bitsPerPixel;
-  const resolution = Math.sqrt(totalPixels);
-  const width = Math.round(resolution);
-  const height = Math.round(resolution);
-
-  return { width, height };
-};
-
-
-export const hexToRgb = (hex) => {
-  if (typeof hex !== 'string') {
-    console.error('Invalid hex value:', hex);
-    return '0, 0, 0'; // default to black if hex is invalid
-  }
-  hex = hex.replace(/^#/, '');
-  const r = parseInt(hex.substring(0, 2), 16);
-  const g = parseInt(hex.substring(2, 4), 16);
-  const b = parseInt(hex.substring(4, 6), 16);
-  return `${r}, ${g}, ${b}`;
-};
