@@ -60,6 +60,18 @@ class S3Client:
             except ClientError as e:
                 raise Exception(f"Error connecting to bucket: {e}")
 
+    async def does_folder_exist(self, folder_path):
+        try:
+            async with self.__session.client(
+                    "s3", endpoint_url=self.__endpoint,
+                    aws_access_key_id=self.__access_key,
+                    aws_secret_access_key=self.__secret_key
+            ) as s3_c:
+                result = s3_c.list_objects_v2(Bucket=self.__bucket_name, Prefix=folder_path, Delimiter='/')
+            return 'Contents' in result or 'CommonPrefixes' in result
+        except Exception as e:
+            raise Exception(f"Error checking folder existence: {e}")
+
 
 s3_client = S3Client(
     endpoint=settings.yandex_endpoint,

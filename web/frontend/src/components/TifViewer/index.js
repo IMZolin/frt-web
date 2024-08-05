@@ -15,16 +15,14 @@ const TifViewer = ({ img, scale, brightness, imageProjection, imageName = null, 
     objectFit: 'contain',
     overflow: isLargeImage ? 'auto' : 'hidden',
     width: isLargeImage ? '300px' : '100%',
-    height: isLargeImage ? '300px' : '100%'
+    height: isLargeImage ? '300px' : '100%',
   };
 
   const projectionStyle = {
-    marginLeft: '40px',
     transform: `scale(0.45)`,
-    width: '100%',
-    height: '100%',
     objectFit: 'contain',
-    overflow: 'auto'
+    overflow: 'auto',
+    paddingLeft: '-50px'
   };
 
   return (

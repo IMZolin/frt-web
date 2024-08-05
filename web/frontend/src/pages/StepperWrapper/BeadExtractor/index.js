@@ -23,7 +23,7 @@ const BeadExtractor = () => {
     const steps = ['Load beads', 'Segment & average beads', 'Save results'];
     const axiosStore = useAxiosStore();
     const canvasRef = useRef();
-    const markBead = useBeadMark();
+    const markBead = useBeadMark(state);
     const handleBeadAutosegment = async () => {
         state.setBanner({status: 'info', message: 'Bead auto-segmentation was started'});
         try {
@@ -48,7 +48,7 @@ const BeadExtractor = () => {
 
                         state.setCenterExtractBeads(centerExtractBeads);
                         const drawPromises = centerExtractBeads.map(beadCoords =>
-                            state.handleAllDrawClick(canvasRef, beadCoords.x, beadCoords.y, markBead)
+                            state.handleAllDrawClick(beadCoords.x, beadCoords.y, markBead, canvasRef)
                         );
                         await Promise.all(drawPromises);
 
@@ -74,9 +74,11 @@ const BeadExtractor = () => {
     const handleBeadAverage = async () => {
         state.setBanner({status: 'info', message: 'Bead averaging was started'});
         try {
+            const newCoordsString = JSON.stringify(state.centerExtractBeads.map(coord => [coord.x, coord.y]));
+
             const requestData = {
                 denoise_type: state.denoiseType,
-                new_coords: null
+                new_coords: newCoordsString
             };
 
             const response = await axiosStore.calcAverageBead(requestData);
@@ -130,13 +132,14 @@ const BeadExtractor = () => {
                     <>
                         <div className="row">
                             <div className="column-1"
-                                 style={{marginTop: '10px', border: `1px solid var(--button-color)`, height: '420px'}}>
+                                 style={{marginTop: '10px', border: `1px solid var(--button-color)`, height: '430px'}}>
                                 <SliderContainer
                                     state={state}
                                     imageShow={state.beads}
                                     isScale={false}
                                 />
-                                <div className="btn-stack-buttons" style={{marginBottom: "5px"}}>
+                                <div className="btn-stack-buttons"
+                                     style={{marginBottom: "5px", display: 'flex', justifyContent: 'space-between'}}>
                                     <CustomButton
                                         nameBtn={"Undo mark"}
                                         colorBtn={'var(--button-color)'}
@@ -148,18 +151,22 @@ const BeadExtractor = () => {
                                         handleProcess={(e) => state.handleClearMarks(e, canvasRef)}
                                     />
                                 </div>
-                                <CustomTextfield
-                                    label={"Box size"}
-                                    value={state.selectSize}
-                                    setValue={state.setSelectSize}
-                                    placeholder={"Enter a select size"}
-                                />
-                                <CustomTextfield
-                                    label={"Max area"}
-                                    value={state.maxArea}
-                                    setValue={state.setMaxArea}
-                                    placeholder={"Enter a max area"}
-                                />
+                                <div className="btn-stack-buttons"
+                                     style={{marginBottom: "5px", display: 'flex', justifyContent: 'space-between'}}>
+                                    <CustomTextfield
+                                        label={"Box size"}
+                                        value={state.selectSize}
+                                        setValue={state.setSelectSize}
+                                        placeholder={"Enter a select size"}
+                                    />
+                                    <CustomTextfield
+                                        label={"Max area"}
+                                        value={state.maxArea}
+                                        setValue={state.setMaxArea}
+                                        placeholder={"Enter a max area"}
+                                    />
+                                </div>
+
                                 <CustomButton
                                     nameBtn={"Auto-segment beads"}
                                     colorBtn={'var(--button-color2)'}

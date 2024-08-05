@@ -238,11 +238,11 @@ export const useStateValues = () => {
         ctx.strokeRect(x - size / 2, y - size / 2, size, size);
     };
 
-    const handleAllDrawClick = async (canvasRef, x, y, markBead) => {
-        const canvas = canvasRef.current;
-        if (!canvas) return;
-        const centerCoords = await markBead(x, y, selectSize);
-        drawSquare(centerCoords.x, centerCoords.y, selectSize, canvasRef);
+    const handleAllDrawClick = async (x, y, markBead, canvasRef) => {
+        const centerCoords = await markBead(beads[layer], x, y, selectSize);
+        if (centerCoords) {
+            drawSquare(centerCoords.x, centerCoords.y, selectSize, canvasRef);
+        }
     };
 
     const handleDarkModeToggle = () => {

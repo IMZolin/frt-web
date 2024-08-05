@@ -106,7 +106,6 @@ async def average_beads(denoise_type: str = Form(...), new_coords: Optional[str]
         bead_extractor.BlurAveragedBead(denoise_type)
         avg_bead = bead_extractor.averageBead
         await save_result(image=avg_bead, image_type='avg_bead')
-        await clear_cloud(image_type='beads_img')
         response_content = await set_response(image=avg_bead, get_projections=True)
         return JSONResponse(content=response_content)
     except Exception as e:
@@ -132,6 +131,7 @@ async def calculate_psf(
             psf_calculator.zoomFactor = zoom_factor
         psf = await rl_deconvolution(model=psf_calculator, iterations=iterations, regularization=regularization,
                                      decon_method=decon_method)
+        await clear_cloud(image_type='beads_img')
         response_content = await set_response(image=psf, get_projections=True)
         await save_result(image=psf, image_type='psf')
         return JSONResponse(content=response_content)

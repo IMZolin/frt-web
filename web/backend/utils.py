@@ -90,8 +90,12 @@ async def clear_cloud(image_type: str):
         await s3_client.head_bucket()
         img_array_path = f'{image_type}/img_array.npy'
         voxel_path = f'{image_type}/voxel.npy'
-        await s3_client.delete_file(img_array_path)
-        await s3_client.delete_file(voxel_path)
+
+        if await s3_client.does_folder_exist(image_type):
+            await s3_client.delete_file(img_array_path)
+            await s3_client.delete_file(voxel_path)
+        else:
+            print(f"Folder {image_type} does not exist.")
     except Exception as e:
         raise Exception(f"Error in clear_cloud: {e}")
 
