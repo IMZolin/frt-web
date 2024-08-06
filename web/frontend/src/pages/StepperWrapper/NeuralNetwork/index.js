@@ -98,7 +98,7 @@ const NeuralNetwork = () => {
                                         />,
                                         <TifViewer
                                             img={state.resultImage[state.layer]}
-                                            scale={5}
+                                            scale={1}
                                             brightness={state.levelBrightness}
                                             imageProjection={null}
                                             imageName={'Deconvolved image'}

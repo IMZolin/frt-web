@@ -67,7 +67,7 @@ class S3Client:
                     aws_access_key_id=self.__access_key,
                     aws_secret_access_key=self.__secret_key
             ) as s3_c:
-                result = s3_c.list_objects_v2(Bucket=self.__bucket_name, Prefix=folder_path, Delimiter='/')
+                result = await s3_c.list_objects_v2(Bucket=self.__bucket_name, Prefix=folder_path, Delimiter='/')
             return 'Contents' in result or 'CommonPrefixes' in result
         except Exception as e:
             raise Exception(f"Error checking folder existence: {e}")

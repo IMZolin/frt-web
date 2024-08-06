@@ -191,7 +191,6 @@ async def cnn_decon_image():
         cnn_deconvolver.DeconvolveImage()
         decon_img = cnn_deconvolver.deconResult
         print(decon_img)
-        # print(cnn_deconvolver._deconResult)
         if decon_img is None:
             raise Exception("Deconvolved image is None")
         response_content = await set_response(image=decon_img, get_projections=False)
