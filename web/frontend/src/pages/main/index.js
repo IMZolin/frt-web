@@ -27,7 +27,7 @@ const MainPage = () => {
                     className="menu-options"
                     component={Link}
                     to="/bead_extractor"
-                    onMouseEnter={(e) => handleMouseEnter(e, 'Extract beads from image')}
+                    onMouseEnter={(e) => handleMouseEnter(e, 'Extract and average beads from image')}
                     onMouseLeave={handleMouseLeave}
                 >
                     Bead extraction

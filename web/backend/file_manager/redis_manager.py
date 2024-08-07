@@ -4,7 +4,7 @@ from typing import Any, Optional
 import redis
 
 redis_client = redis.Redis(host='redis', port=6379, decode_responses=True)
-TIMEOUT = 600
+TIMEOUT = 3600
 
 
 def pass2cache(cache_key: str, data: Any, is_dict_data: bool = True):
