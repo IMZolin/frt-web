@@ -1,0 +1,158 @@
+.stepper {
+  max-width: 100%;
+  margin: 0 auto;
+  padding-left: 20px;
+  border-radius: 5px;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 5px;
+  /*margin-left: 10px;*/
+}
+.small-font {
+  font-size: 10px;
+}
+
+.header-container{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.btn-stack{
+  flex: 0 0 16.7%; 
+  margin-left: 19px;
+  display: block;
+  align-items: center;
+  padding: 20px;
+  border: 1px solid #64ccc5;
+  border-radius: 3%;
+}
+
+.btn-stack-buttons{
+  flex: 1;
+  margin-top: 10px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.btn-back {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.btn-back-2 {
+  flex: 1;
+  max-width: 100%;
+}
+
+.stepper-head{
+  display: block;
+  flex: 0 0 80%;
+  align-items: flex-start;
+}
+
+.stepper-box{
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 0;
+  width: 100%;
+}
+
+.column-1,
+.column-2 {
+  flex: 1;
+  margin: auto;
+}
+
+
+.column-1 {
+  flex: 0 0 17%; 
+  align-items: flex-start;
+  border: 1px solid #277e99;
+  border-radius: 2%;
+  margin-bottom: auto;
+  padding: 10px;
+}
+
+.column-1 label, .column-1 input, .column-1 .subtitle{
+  text-align: left; 
+  flex: 3;
+}
+
+.column-1 .subtitle{
+  max-width: 150px;
+}
+
+.column-2 {
+  flex: 0 0 80%;
+  margin-top: 20px; 
+}
+
+@media only screen and (max-width: 768px) {
+  .column-1,
+  .column-2 {
+    flex: 0 0 100%;
+    /*margin-left: 0;*/
+  }
+}
+
+.stepper-container {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.slider-container{
+  width: 100%;
+  display: block;
+  z-index: 1;
+  align-self: stretch;
+  font-size: 12px;
+}
+
+.slider-container div{
+  width: 100%; 
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.column-1 .slider-container div {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+label {
+  flex: 1;
+}
+
+input[type="range"] {
+  flex: 2; 
+}
+
+.btn-run {
+  display: flex;
+  margin-top: 20px;
+  margin-bottom: auto;
+  width: 100%;
+  height: auto;
+  z-index: 1;
+}
+
+.box-parameters {
+  padding-top: 10px;
+}
+
+.label-slider{
+  font-size: 16px;
+}

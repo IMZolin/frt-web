@@ -1,0 +1,62 @@
+.authors {
+  text-align: center;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  position: relative;
+}
+
+.authors h1 {
+  margin-bottom: 20px;
+}
+
+.authors ul {
+  list-style: none;
+  padding: 0;
+  margin-bottom: 20px;
+}
+
+.authors li {
+  display: inline-block;
+  margin: 0 15px;
+  font-size: 1.2em;
+}
+
+.footnote {
+  font-size: 0.9em;
+  margin-top: 20px;
+  text-align: left;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.superscript {
+  vertical-align: super;
+  font-size: smaller;
+}
+
+.footer {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  padding: 10px 0;
+  text-align: center;
+  font-size: 0.9em;
+  color: #666;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+.button-container {
+  display: flex;
+  justify-content: center;
+  margin: 20px auto;
+  max-width: 800px;
+  width: 100%;
+}

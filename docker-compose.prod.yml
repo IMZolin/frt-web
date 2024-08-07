@@ -1,47 +1,35 @@
-version: "3.8"
+version: "3"
 
 services:
   backend:
+    container_name: frt_backend
     restart: always
-    build:
-      context: ./backend
-      dockerfile: Dockerfile.prod
-    container_name: backend
-    volumes:
-      - ./backend/:/usr/src/blog/
-      - ./logs:/app/logs  
+    image: zolin17/frt-web:lmn
+    command: sh -c "uvicorn main:app --host 0.0.0.0 --port 8000 --timeout-keep-alive 120"
     ports:
-      - 8000:8000
+      - "8000:8000"
     env_file:
-      - ./backend/.env
-    depends_on:
-      - redis
-
+      - .env
+    deploy:
+      resources:
+        limits:
+          memory: 4G
   frontend:
+    container_name: frt_frontend
     restart: always
-    build:
-      context: ./frontend/
-      dockerfile: Dockerfile
-    container_name: frontend
+    image: zolin17/frt-web:lmn
+    working_dir: /app/web/frontend
+    command: sh -c "npm start"
     ports:
-      - 3000:3000
+      - "3000:3000"
     env_file:
-      - ./frontend/.env
-    volumes:
-      - ./frontend/:/usr/src/frontend/
-
-  nginx:
-    restart: always
-    build: ./nginx
-    container_name: nginx
-    depends_on:
-      - backend
-      - frontend
-    ports:
-      - '1337:80'
-
+      - .env
   redis:
-    image: redis:latest
-    container_name: redis
+    image: "redis:alpine"
+    container_name: frt_redis
     ports:
-      - '6379:6379'
+      - "6379:6379"
+    deploy:
+      resources:
+        limits:
+          memory: 1G

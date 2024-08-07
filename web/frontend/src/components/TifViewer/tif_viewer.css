@@ -1,0 +1,28 @@
+.tif-viewer-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  position: relative;
+  flex: 1;
+  height: 100%;
+}
+
+.viewer-label {
+  font-size: 20px;
+  font-weight: bold;
+  color: #333;
+}
+
+.tif-viewer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+    margin-top: -250px;
+}
+
+.image-title {
+  text-align: center;
+}
