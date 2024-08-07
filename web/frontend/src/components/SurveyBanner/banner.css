@@ -1,0 +1,32 @@
+/* banner.css */
+.banner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border-radius: 4px;
+    margin: 10px 0;
+    position: relative;
+    font-weight: bold;
+}
+
+.banner.info {
+    background-color: #362FD9;
+}
+
+.banner.error {
+    background-color: red;
+}
+
+.banner.success {
+    background-color: #9ad294;
+    color: #232d3f;
+}
+
+.banner-close-button {
+    background: none;
+    border: none;
+    color: #dafffb;
+    font-size: 16px;
+    cursor: pointer;
+}

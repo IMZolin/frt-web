@@ -1,0 +1,34 @@
+stages:
+  - build-env
+  - deploy
+
+inject-envs:
+  stage: build-env
+  only:
+    - main
+    - dev
+  script:
+    - |
+      echo "db_url=$db_url" >> .env
+      echo "sentry_dsn=$sentry_dsn" >> .env
+      echo "yandex_access_key=$yandex_access_key" >> .env
+      echo "yandex_bucket_name=$yandex_bucket_name" >> .env
+      echo "yandex_endpoint=$yandex_endpoint" >> .env
+      echo "yandex_secret_key=$yandex_secret_key" >> .env
+  artifacts:
+    paths:
+      - .env
+    reports:
+      dotenv: .env
+
+
+push to docker:
+  stage: deploy
+  image: docker:latest
+  only:
+      - main
+  services:
+    - docker:dind
+  script:
+    - docker-compose down
+    - docker-compose up -d --build

@@ -1,0 +1,28 @@
+.menu-container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 15px;
+  background-color: transparent !important;
+  border-radius: 5px;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 5px;
+  text-align: center;
+}
+
+.menu-header {
+  font-size: 36px;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.menu-options {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.menu-options + .menu-options {
+  margin-top: 10px;
+}

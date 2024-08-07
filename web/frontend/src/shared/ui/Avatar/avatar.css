@@ -1,0 +1,18 @@
+.avatar {
+  margin: 2px;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+.img {
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.svg {
+  object-fit: cover;
+  border-radius: 50%;
+  border: solid 1px;
+}

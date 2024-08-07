@@ -1,0 +1,11 @@
+.custom-dropzone {
+  background-color: transparent !important; /* Ensure transparency */
+  border-radius: 8px;
+  border: 2px solid #232d3f;
+  width: 100%;
+  color: #232d3f;
+}
+
+.custom-dropzone {
+  background-color: transparent !important; /* Ensure transparency */
+}
