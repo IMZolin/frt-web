@@ -21,7 +21,6 @@ const TifViewer = ({ img, scale, brightness, imageProjection, imageName = null, 
   const projectionStyle = {
     transform: `scale(0.45)`,
     objectFit: 'contain',
-    overflow: 'auto',
     paddingLeft: '-50px'
   };
 

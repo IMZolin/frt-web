@@ -20,6 +20,7 @@
   align-items: center;
   position: relative;
   z-index: 1;
+    margin-top: -250px;
 }
 
 .image-title {
