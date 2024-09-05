@@ -38,7 +38,7 @@ async def main():
     try:
         loop = asyncio.get_event_loop()
         await asyncio.gather(start_backend(loop))
-    except Exception as e:this
+    except Exception as e:
         logging.error(e)
 
 
