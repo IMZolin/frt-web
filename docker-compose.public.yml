@@ -4,7 +4,7 @@ services:
   backend:
     container_name: frt_backend
     restart: always
-    image: zolin17/frt:lmn
+    image: zolin17/frt:prod
     command: sh -c "uvicorn main:app --host 0.0.0.0 --port 8000 --timeout-keep-alive 120"
     ports:
       - "8010:8000"
@@ -17,7 +17,7 @@ services:
   frontend:
     container_name: frt_frontend
     restart: always
-    image: zolin17/frt:lmn
+    image: zolin17/frt:prod
     working_dir: /app/web/frontend
     command: sh -c "npm start"
     ports:
