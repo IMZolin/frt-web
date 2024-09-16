@@ -7,3 +7,4 @@
 /.venv
 *.exe
 /.idea
+/__pycache__
