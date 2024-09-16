@@ -4,10 +4,10 @@ services:
   backend:
     container_name: frt_backend
     restart: always
-    image: zolin17/frt-web:lmn
+    image: zolin17/frt:public
     command: sh -c "uvicorn main:app --host 0.0.0.0 --port 8000 --timeout-keep-alive 120"
     ports:
-      - "8000:8000"
+      - "8010:8000"
     env_file:
       - .env
     deploy:
@@ -17,19 +17,20 @@ services:
   frontend:
     container_name: frt_frontend
     restart: always
-    image: zolin17/frt-web:lmn
+    image: zolin17/frt:public
     working_dir: /app/web/frontend
     command: sh -c "npm start"
     ports:
-      - "3000:3000"
+      - "3010:3000"
     env_file:
       - .env
   redis:
     image: "redis:alpine"
     container_name: frt_redis
+    restart: always
     ports:
       - "6379:6379"
     deploy:
       resources:
         limits:
-          memory: 1G
+          memory: 5G

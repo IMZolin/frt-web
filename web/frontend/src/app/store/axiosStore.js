@@ -5,7 +5,7 @@ axios.defaults.withCredentials = true;
 
 const useAxiosStore = create((set, get) => {
     const isLocalhost = window.location.hostname === 'localhost';
-    const BASE_URL = isLocalhost ? 'http://localhost:8000' : 'http://192.168.1.43:8000';
+    const BASE_URL = isLocalhost ? 'http://localhost:8010' : 'http://192.168.1.43:8010';
 
 
     const axiosInstance = axios.create({
