@@ -56,17 +56,6 @@ const MainPage = () => {
                 </Button>
                 <Button
                     variant="contained"
-                    style={{ backgroundColor: 'var(--button-color2)', padding: "8px 8px", fontSize: "14px" }}
-                    className="menu-options"
-                    component={Link}
-                    to="/network"
-                    onMouseEnter={(e) => handleMouseEnter(e, 'Perform CNN deconvolution')}
-                    onMouseLeave={handleMouseLeave}
-                >
-                    CNN deconvolution
-                </Button>
-                <Button
-                    variant="contained"
                     style={{ backgroundColor: 'var(--button-color)', padding: "8px 8px", fontSize: "14px" }}
                     className="menu-options"
                     component={Link}
