@@ -10,9 +10,9 @@ const Authors = () => {
             <li>Ivan Zolin<span className="superscript">1, 2</span></li>
             <li>Alexander Sachuk<span className="superscript">1, 2</span></li>
             <li>Alexander Gerasimenko<span className="superscript">1, 3</span></li>
-            <li>Ekaterina Pchitskaya<span className="superscript">1, 4, *</span></li>
             <li>Vyacheslav Chuckanov<span className="superscript">1, 2</span></li>
             <li>Ilya Bezprovanny<span className="superscript">1, 4, 5</span></li>
+            <li>Ekaterina Pchitskaya<span className="superscript">1, 4, *</span></li>
         </ul>
         <div className="footnote">
             <p><span className="superscript">1</span> Scientific Research Laboratory "Laboratory for the Analysis of

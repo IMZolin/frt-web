@@ -1,138 +1,41 @@
-<<<<<<< README.md
-# PSF interface service
+# FRT (Fluorescence Restoration Techniques) in web interface
 
-- [PSF interface service](#psf-interface-service)
-  - [Description](#description)
-  - [Manual for deploying and configuring the application](#manual-for-deploying-and-configuring-the-application)
-    - [Installation](#installation)
-    - [Depolyment guide](#depolyment-guide)
-      - [Development deployment](#development-deployment)
-      - [Production deployment (now it' not available)](#production-deployment-now-it-not-available)
-    - [Engine(API) update manual](#engineapi-update-manual)
-  - [Project structure](#project-structure)
-  - [Useful materials](#useful-materials)
 
 ## Description
 
-`About`: User-friendly interface for interacting with the backend of PSF applications (for processing medical images).
+`About`: Fluorescence microscopy is widely used in fields like materials science and neurobiology for capturing 2D and 3D images of small objects due to its high sensitivity. However, noise and distortions often complicate analysis. To address this, we developed advanced methods for image enhancement, including automatic segmentation, denoising, and deconvolution, specifically for biological objects. Our work also led to the creation of a desktop application and online service, giving scientists tools to obtain clearer images of cellular structures, leading to more accurate conclusions.
 
-`Idea`: To make a website containing steppers as a way to interact with the client side with the server side. Also make it possible to authorize users.
 
-`Technologies`: ReactJS, Django, Docker, Redis, Nginx, Celery, Flower
+`Technologies`: PyTorch, OpenCV, ReactJS, FastAPI, Docker, Redis
 
-## Manual for deploying and configuring the application
+## Deployment
 
-### Installation
+1. Cofigure the `.env` file 
 
-```bash
-git clone https://github.com/IMZolin/frt23-3d-interface.git <your project name>
-cd <your project name>
-./bin/install.sh
-sudo chmod +777 ./logs/redis.log # or manually add log file(redis.log) for redis
-#for Windows
-.venv/Scripts/Activate.ps1
-#for Linux and Macos
-source .venv/bin/activate 
+```
+yandex_access_key=...
+yandex_secret_key=...
+yandex_bucket_name=...
+yandex_endpoint=https://storage.yandexcloud.net
 ```
 
-Instead of `<your project name>`, insert the name of the directory where the project will be stored.
-
-`Important`: If you have Windows, you need to change the console to Git Bash to run the command: `./bin/install.sh`
-
-### Depolyment guide
-
-For more detailed instructions on using Docker, refer to the [Docker Manual].
-
-#### Development deployment
+2. Run the docker-compose file
 
 ```bash
-#build and run containers
+docker-compose -f docker-compose.public.yml up -d --build
+```
+
+
+## Manual setup and configuration
+1. Clone the repository of restoration methods
+
+```bash
+git clone -b web git@github.com:gerasimenkoab/simple_psf_extractor.git /web/engine
+```
+
+2. Build and run the Dockerfile
+
+```bash
+docker build -t frt:publi . # You can specify a different tag and change it in the docker-compose file.
 docker-compose up -d --build
-#stop containers
-docker-compose stop
 ```
-
-```bash
-#build and run containers with separate commands
-docker-compose build
-docker-compose up -d
-#stop containers
-docker-compose stop
-```
-
-#### Production deployment (now it' not available)
-
-```bash
-cd backend
-./install_prod.sh 
-#or 
-./install.sh 
-cd ..
-docker-compose.prod build
-docker-compose.prod up -d
-docker-compose.prod stop
-```
-
-### Engine(API) update manual
-
-url of engine: <https://github.com/gerasimenkoab/simple_psf_extractor>
-
-```bash
-cd backend
-cd engine
-cd engine_lib
-# make some changes
-git add .
-git commit -m"Some updates to engine..."
-git push origin develop
-cd ..
-cd ..
-cd ..
-```
-
-## Project structure
-
-```bash
-├───backend
-│   ├───api
-│   │   ├───migrations # db migrations
-│   │   ├───admin.py # admin settins
-│   │   ├───apps.py # apps config
-│   │   ├───models.py # db models
-│   │   ├───tasks.py # celery async tasks
-│   │   ├───tests.py # tests for requests
-│   │   ├───utils.py # support functions
-│   │   └───views.py # request bodies
-│   ├───backend
-│   │   ├───asgi.py # prod executable file
-│   │   ├───celery.py # main celery config
-│   │   ├───middleware.py # apps config
-│   │   ├───settings.py # server settings
-│   │   ├───urls.py # endpoints
-│   │   └───wsgi.py # local executable file
-│   ├───engine
-│   │   ├───engine_lib # PSF's API (other git repository)
-│   │   └───README.md # doc
-├───frontend 
-│   ├───node_modules # libs
-│   ├───public # assets and configs
-│   └───src # code
-│       ├───app # App.js with Routs and store(axios) - connect with the server
-│       ├───components  # separate indep. parts of pages
-│       ├───dev # to view and work on the components
-│       ├───hooks  # support functions 
-│       ├───pages # parts of app(e.x.: main page)
-│       └───index.js # get results
-├───gunicorn # gunicorn config
-├───logs # logging
-├───nginx # nginx config
-└───systemd # gunicorn config
-```
-
-## Useful materials
-
-1. Notion report(ru): <https://www.notion.so/1d4cb5d37f1743babc89a2bea9fbc829?pvs=4>
-2. Board in Miro(ru): <https://miro.com/app/board/uXjVMFFZCSg=/?share_link_id=999021127197>
-3. Postman: <https://red-meteor-969100.postman.co/workspace/e7cf7956-c97a-4a54-b834-a2929af5ccdd>
-
-[Docker Manual]: <./Docker_manual.md>
